@@ -16,6 +16,10 @@ You can:
 - follow deep dives on concepts such as licensing and openness
 - explore an **overview map** that connects perspectives, topics, statements and concepts
 
+## Editing the content
+
+All texts are Markdown files in [`content/`](content/). After changing them, run `node tools/build-content.mjs` (needs Node.js 18 or newer) to check them and update the mock-up. See [docs/content-authoring.md](docs/content-authoring.md).
+
 ## Design
 
 The app follows the design of [NFDI4Earth OneStop4All](https://onestop4all.nfdi4earth.de/) and will eventually be integrated there as a page, similar to [the NFDI4Earth Label page](https://onestop4all.nfdi4earth.de/label).

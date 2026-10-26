@@ -49,6 +49,7 @@
     D.preamble.forEach((p, i) => {
         for (const m of p.matchAll(/\[\[([\w-]+)\|/g)) ANNO_HOME[m[1]] = "pre-" + (i + 1);
     });
+    for (const m of D.intro.matchAll(/\[\[([\w-]+)\|/g)) ANNO_HOME[m[1]] = "intro";
     D.boxes.forEach((b) => {
         for (const m of b.title.matchAll(/\[\[([\w-]+)\|/g)) ANNO_HOME[m[1]] = b.id;
     });
@@ -67,38 +68,39 @@
      * "- " and "1. " lists, [links](url). Everything is HTML-escaped first, so authors
      * cannot inject HTML; only http(s), mailto and internal #/ links are turned into links.
      * The React app will use react-markdown (already an OS4A dependency) with the same subset. */
+    function mdInline(t) {
+        const links = [];
+        let s = esc(t).replace(/\[([^\]]+)\]\(((?:https?:|mailto:|#\/)[^)\s]*)\)/g, (_, label, href) => {
+            links.push(`<a href="${href}"${href.startsWith("#") ? "" : ' target="_blank" rel="noreferrer"'}>${label}</a>`);
+            return `\u0000${links.length - 1}\u0000`;
+        });
+        s = s
+            .replace(/\*\*(?=\S)(.+?)\*\*/g, "<strong>$1</strong>")
+            .replace(/\*(?=\S)(.+?)\*/g, "<em>$1</em>")
+            .replace(/(^|[\s(])_(?=\S)(.+?)_(?=$|[\s.,;:!?)])/g, "$1<em>$2</em>");
+        return s.replace(/\u0000(\d+)\u0000/g, (_, i) => links[i]);
+    }
     function md(src) {
-        const inline = (t) => {
-            const links = [];
-            let s = esc(t).replace(/\[([^\]]+)\]\(((?:https?:|mailto:|#\/)[^)\s]*)\)/g, (_, label, href) => {
-                links.push(`<a href="${href}"${href.startsWith("#") ? "" : ' target="_blank" rel="noreferrer"'}>${label}</a>`);
-                return `\u0000${links.length - 1}\u0000`;
-            });
-            s = s
-                .replace(/\*\*(?=\S)(.+?)\*\*/g, "<strong>$1</strong>")
-                .replace(/\*(?=\S)(.+?)\*/g, "<em>$1</em>")
-                .replace(/(^|[\s(])_(?=\S)(.+?)_(?=$|[\s.,;:!?)])/g, "$1<em>$2</em>");
-            return s.replace(/\u0000(\d+)\u0000/g, (_, i) => links[i]);
-        };
         return String(src || "")
             .trim()
             .split(/\n\s*\n/)
             .map((block) => {
                 const lines = block.split("\n").filter((l) => l.trim());
                 if (lines.every((l) => /^\s*[-*] /.test(l)))
-                    return `<ul>${lines.map((l) => `<li>${inline(l.replace(/^\s*[-*] /, ""))}</li>`).join("")}</ul>`;
+                    return `<ul>${lines.map((l) => `<li>${mdInline(l.replace(/^\s*[-*] /, ""))}</li>`).join("")}</ul>`;
                 if (lines.every((l) => /^\s*\d+\. /.test(l)))
-                    return `<ol>${lines.map((l) => `<li>${inline(l.replace(/^\s*\d+\. /, ""))}</li>`).join("")}</ol>`;
-                return `<p>${inline(lines.join(" "))}</p>`;
+                    return `<ol>${lines.map((l) => `<li>${mdInline(l.replace(/^\s*\d+\. /, ""))}</li>`).join("")}</ol>`;
+                return `<p>${mdInline(lines.join(" "))}</p>`;
             })
             .join("");
     }
 
+    // commitment text: inline Markdown, then [[id|quote]] markers (inserted by tools/build-content.mjs) become annotation buttons
     function markup(text) {
-        return text.replace(/\[\[([\w-]+)\|(.+?)\]\]/g, (_, id, label) => {
+        return mdInline(text).replace(/\[\[([\w-]+)\|(.+?)\]\]/g, (_, id, label) => {
             const a = D.annotations[id];
             if (!a) return label;
-            return `<button type="button" class="anno d-${a.depth}" data-anchor="${id}" aria-haspopup="dialog" aria-label="${esc(label)} – ${a.depth}: ${esc(a.title)}">${label}</button>`;
+            return `<button type="button" class="anno d-${a.depth}" data-anchor="${id}" aria-haspopup="dialog" aria-label="${label.replace(/<[^>]+>/g, "")} – ${a.depth}: ${esc(a.title)}">${label}</button>`;
         });
     }
 
@@ -286,7 +288,7 @@
                             <p>Sign the Commitment at <a href="https://nfdi4earth.de/commit" target="_blank" rel="noreferrer">nfdi4earth.de/commit</a>.</p>
                         </details>
                         <h2 class="page-title" style="font-size:20px">The NFDI4Earth FAIRness and Openness Commitment</h2>
-                        <p class="intro" id="intro">${esc(D.intro)}</p>
+                        <p class="intro" id="intro">${markup(D.intro)}</p>
                         <p class="intro"><b>As signatories:</b></p>
                         ${D.boxes.map(box).join("")}
                     </article>
@@ -463,16 +465,16 @@
         const home = ANNO_HOME[id];
         const s = home && /^c\d/.test(home) ? STMT[home.slice(1)] : null;
         const bx = D.boxes.find((b) => b.id === home);
-        const dd = a.concept && D.deepdives[a.concept];
+        const dd = a.deepdive && D.deepdives[a.deepdive];
         openPanel(`<div class="kicker">Deep dive${s ? " · Statement " + s.n : bx ? " · Commitment heading" : ""}</div>
             <h3>${esc(a.title)}</h3>
-            ${s ? `<div class="quote">${plain(s.text)}</div>` : bx ? `<div class="quote"><b>${plain(bx.title)}</b></div>` : ""}
+            ${s ? `<div class="quote">${mdInline(plain(s.text))}</div>` : bx ? `<div class="quote"><b>${mdInline(plain(bx.title))}</b></div>` : ""}
             <div class="facet-tags">${facetTags(a)}</div>
             ${a.figure ? figure(a.figure) : ""}
             ${md(a.body)}${linkList(a.links)}
             ${a.statements || dd || s ? `<div class="facet-tags"><span class="lens-label">Related statements</span>${(a.statements || (dd ? dd.statements : [s.n])).map((n) => `<a class="tag" data-kind="stmt" href="#/?focus=c${n}">${n} · ${esc(STMT[n].short)}</a>`).join("")}</div>` : ""}
             <div class="pop-actions"><button type="button" class="btn-outline" data-copy="${id}">${icon("link").replace("<svg", '<svg width="14" height="14"')} Copy link</button>
-            ${dd ? `<a class="btn-solid" href="#/deep-dive/${a.concept}">Open full deep dive →</a>` : ""}</div>`, a.title);
+            ${dd ? `<a class="btn-solid" href="#/deep-dive/${a.deepdive}">Open full deep dive →</a>` : ""}</div>`, a.title);
     }
 
     function openStatementPanel(n) {
@@ -485,7 +487,7 @@
         ).join("") + (without.length ? `<p class="persp-rest">Less directly relevant for ${without.map((r) => esc(r.plural.toLowerCase())).join(" and ")}.</p>` : "");
         openPanel(`<div class="kicker">Statement ${n} · ${n <= 9 ? "We commit to advance FAIRness and Openness" : "We value data infrastructures and data experts"}</div>
             <h3>${esc(s.short)}</h3>
-            <div class="quote">${s.text.replace(/\[\[[\w-]+\|(.+?)\]\]/g, "$1")}</div>
+            <div class="quote">${mdInline(plain(s.text))}</div>
             <div class="facet-tags">${facetTags(s)}</div>
             <p><b>What this means for…</b> <span class="mock-badge">example content</span></p>
             ${persp}
@@ -638,7 +640,7 @@
             text: `[Example content] In ${t.label.toLowerCase()}, statement ${s.n} could mean: a concrete, familiar task that links “${s.short.toLowerCase()}” to what you already do.`
         }));
         const rel = new Set(D.statements.filter((s) => s.topics.includes(id)).map((s) => s.n));
-        const cond = D.statements.map((s) => `<div class="cond ${rel.has(s.n) ? "rel" : "irrel"}" data-n="${s.n}"><span class="cn">${s.n}</span><span>${s.text.replace(/\[\[[\w-]+\|(.+?)\]\]/g, "$1")}</span></div>`).join("");
+        const cond = D.statements.map((s) => `<div class="cond ${rel.has(s.n) ? "rel" : "irrel"}" data-n="${s.n}"><span class="cn">${s.n}</span><span>${mdInline(plain(s.text))}</span></div>`).join("");
         const stepHtml = steps.map((st, i) => `<section class="step" data-n="${st.n}" data-i="${i}"><div class="step-n">Step ${i + 1} of ${steps.length} · Statement ${st.n}</div><h3>${esc(st.title)}</h3>${md(st.text)}
             <a href="#/?topic=${id}&focus=c${st.n}">Read in context →</a>
             ${i < steps.length - 1 ? `<div class="step-next" aria-hidden="true">↓ Next: ${esc(steps[i + 1].title)}</div>` : ""}</section>`).join("");

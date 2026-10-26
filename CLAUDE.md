@@ -18,10 +18,11 @@ It helps different stakeholders understand and implement the commitment:
 
 **Status:** the detail content is **fake example content** for mock-ups of the interaction mechanisms. Never present it as real guidance.
 
-<!-- source: own rule, added 2026-10-26 -->
+<!-- source: own rule, added 2026-10-26, updated 2026-10-26 -->
 ## Status and layout
 
-- `mockup/`: a clickable HTML/CSS/JS mock-up with no build step; open `mockup/index.html` in a browser. It is the reference for the interaction design until the React app exists.
+- `content/`: all texts as Markdown files, see "Content model". `tools/build-content.mjs` turns them into `mockup/data.js`.
+- `mockup/`: a clickable HTML/CSS/JS mock-up that runs without a build step (only the content needs one); open `mockup/index.html` in a browser. It is the reference for the interaction design until the React app exists.
 - **Planned app:** a stripped copy of the OneStop4All (OS4A) implementation at upstream commit `b39aaff` (v1.11.2, https://git.rwth-aachen.de/nfdi4earth/onestop4all/onestop4all-implementation), which uses Open Pioneer Trails, React 19, Chakra UI v3, Vite and pnpm. The repo has two workspace packages:
   - `src/apps/commitment-standalone/`: the thin host. It holds the OS4A theme, layout, header, footer and menu. The search bar and user support link out to the live OS4A.
   - `src/packages/commitment/`: the **drop-in unit**. OS4A will later mount it as one lazy route under `/commitment`, like the `/label` page.
@@ -44,22 +45,27 @@ It helps different stakeholders understand and implement the commitment:
 - i18n uses OS4A-style ICU YAML (`i18n/en.yaml`) through `useIntl` from `open-pioneer:react-hooks`. The app is English only for now, but no strings may be hard-coded in components.
 - Code style is inherited from OS4A: Prettier with 4 spaces, double quotes, printWidth 100, no trailing commas; ESLint 9 flat config.
 
-<!-- source: own rule, added 2026-10-26 -->
+<!-- source: own rule, added 2026-10-26; storage by quoting decided by Daniel Nüst, updated 2026-10-26 -->
 ## Content model
 
-- `commitment.md` holds the commitment text with `remark-directive` anchors, which need stable IDs:
-  - `pre-1…5`, `intro`, `boxA`, `boxB`, `c1…c12`
-  - phrase IDs such as `licences` (the mock-up uses plain phrase IDs; an unknown `cN-…` ID falls back to statement N)
-- `annotations/*.yaml` hold the annotations: `id`, `target` (anchor ID), `depth`, `title`, `body` (Markdown), `links`, `figure`, `roles`, `topics`, `concepts`, `deepdive`.
-- `roles.yaml`, `topics.yaml` and `concepts.yaml` define the facets. Each has `id`, `label`, `icon` and `colour`.
-- **Text formatting:** all annotation texts (notes, explainers, deep dives, perspective notes, topic steps, deep-dive pages) are **Markdown**, restricted to:
+- **All content is in `content/`, one Markdown file per item with YAML front matter; the file name is the ID.** The full author guide is `docs/content-authoring.md`. Keep it in sync with any change to the format.
+  - `commitment.md`: the published text, unchanged and without markers. Sections `# … {#preamble}`, `{#intro}`, `{#boxA}`, `{#boxB}`; the boxes hold numbered lists of statements. Targets are `pre-1…5`, `intro`, `boxA`, `boxB` and `c1…c12`.
+  - `statements/NN.md`: front matter only (`short`, `roles`, `topics`, `concepts`).
+  - `annotations/<id>.md`: `target` + `quote` (+ optional `occurrence`), `depth`, `title`, `roles`, `topics`, `concepts`, `links` (label/url), `figure`, `deepdive`, `statements`; the body is the text. `target: legend` is for the reading-legend examples.
+  - `deepdives/<id>.md`: `title`, `concept`, `statements`, `anchors`, `links`, `figure`, `placeholder`; the body is a lead paragraph plus `##` sections. Deep dives are part of this app, not the Living Handbook.
+  - `roles/<id>.md` (body: description + `## Statement N` notes ending in one `- [ ] first step`), `topics/<id>.md` (body: steps `## Title {statement=N}`), `concepts/<id>.md` (front matter only).
+- **Annotations attach by quoting** (like a W3C TextQuoteSelector): exact, whole words, unique within the target or disambiguated by `occurrence`, no overlaps, not inside links. Never add markers or IDs to `commitment.md`.
+- `tools/build-content.mjs` (Node ≥ 18, no dependencies) validates everything and generates `mockup/data.js`, turning quotes into `[[id|text]]` markers. **Never edit `mockup/data.js` by hand**; commit it together with the content change.
+  - Its front-matter parser accepts a strict YAML subset, so the React app can read the same files with `js-yaml`. Don't extend the format beyond what both accept.
+- Daniel Nüst edits the content by hand. Error messages from the check are written for an editor, not a developer: keep them that way.
+- **Text formatting:** all content texts (the commitment, notes, explainers, deep dives, perspective notes, topic steps, deep-dive pages) are **Markdown**, restricted to:
   - paragraphs
   - `**bold**`, `*italic*` / `_italic_`
   - plain `-` and `1.` lists
   - `[links](https://…)`
-  - Raw HTML is not allowed. Only `http(s)`, `mailto` and internal `#/` links become links; external links open in a new tab.
-  - In the React app use `react-markdown` (already an OS4A dependency) with `skipHtml` and `allowedElements` limited to `p, strong, em, ul, ol, li, a`. The mock-up has a small equivalent, `md()` in `mockup/app.js`.
-- Tests must check content integrity: every annotation target exists, every referenced facet exists, and IDs are unique.
+  - Raw HTML is not allowed (the check rejects it). Only `http(s)`, `mailto` and internal `#/` links are allowed; external links open in a new tab.
+  - In the React app use `react-markdown` (already an OS4A dependency) with `skipHtml` and `allowedElements` limited to `p, strong, em, ul, ol, li, a`. The mock-up has a small equivalent, `md()`/`mdInline()` in `mockup/app.js`.
+- In the React app, the quote matching moves into the content loader, and its integrity checks become Vitest tests with the same rules.
 
 <!-- source: own rule, added 2026-10-26 -->
 ## Sources for real content later
@@ -88,10 +94,11 @@ These are the starting points for the real deep-dive content. Don't use them for
 - **Commitment text and content:** CC-BY 4.0. Cite it as "NFDI4Earth Consortium (2024), doi:10.5281/zenodo.10123880".
 - Never list an AI as an author in metadata.
 
-<!-- source: own rule, added 2026-10-26 -->
+<!-- source: own rule, added 2026-10-26, updated 2026-10-26 -->
 ## Checks
 
-- **Mock-up:** there are no automated checks. Verify it manually in a browser at desktop width and at mobile width (< 1000px).
+- **Content:** `node tools/build-content.mjs --check` validates `content/` and fails if `mockup/data.js` is out of date.
+- **Mock-up:** there are no automated UI tests. Verify it manually in a browser at desktop width and at mobile width (< 1000px).
 - **App (once scaffolded):** `pnpm lint`, `pnpm check-types`, `CI=1 pnpm test run` and `pnpm build`.
 
 <!-- source: Daniel Nüst, feedback on the mock-up, added 2026-10-26, updated 2026-10-26 -->
