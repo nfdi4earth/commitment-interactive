@@ -63,6 +63,37 @@
     const cv = (hex) => `--c:${hex};--ink:${ink(hex)}`;
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
+    /* Minimal Markdown for annotation texts: paragraphs, **bold**, *italic* / _italic_,
+     * "- " and "1. " lists, [links](url). Everything is HTML-escaped first, so authors
+     * cannot inject HTML; only http(s), mailto and internal #/ links are turned into links.
+     * The React app will use react-markdown (already an OS4A dependency) with the same subset. */
+    function md(src) {
+        const inline = (t) => {
+            const links = [];
+            let s = esc(t).replace(/\[([^\]]+)\]\(((?:https?:|mailto:|#\/)[^)\s]*)\)/g, (_, label, href) => {
+                links.push(`<a href="${href}"${href.startsWith("#") ? "" : ' target="_blank" rel="noreferrer"'}>${label}</a>`);
+                return `\u0000${links.length - 1}\u0000`;
+            });
+            s = s
+                .replace(/\*\*(?=\S)(.+?)\*\*/g, "<strong>$1</strong>")
+                .replace(/\*(?=\S)(.+?)\*/g, "<em>$1</em>")
+                .replace(/(^|[\s(])_(?=\S)(.+?)_(?=$|[\s.,;:!?)])/g, "$1<em>$2</em>");
+            return s.replace(/\u0000(\d+)\u0000/g, (_, i) => links[i]);
+        };
+        return String(src || "")
+            .trim()
+            .split(/\n\s*\n/)
+            .map((block) => {
+                const lines = block.split("\n").filter((l) => l.trim());
+                if (lines.every((l) => /^\s*[-*] /.test(l)))
+                    return `<ul>${lines.map((l) => `<li>${inline(l.replace(/^\s*[-*] /, ""))}</li>`).join("")}</ul>`;
+                if (lines.every((l) => /^\s*\d+\. /.test(l)))
+                    return `<ol>${lines.map((l) => `<li>${inline(l.replace(/^\s*\d+\. /, ""))}</li>`).join("")}</ol>`;
+                return `<p>${inline(lines.join(" "))}</p>`;
+            })
+            .join("");
+    }
+
     function markup(text) {
         return text.replace(/\[\[([\w-]+)\|(.+?)\]\]/g, (_, id, label) => {
             const a = D.annotations[id];
@@ -325,7 +356,7 @@
             if (a.depth === "note") {
                 el.addEventListener("mouseenter", () => showTooltip(el));
                 el.addEventListener("focus", () => showTooltip(el));
-                el.addEventListener("mouseleave", hideTooltip);
+                el.addEventListener("mouseleave", hideTooltipSoon);
                 el.addEventListener("blur", hideTooltip);
             }
             el.addEventListener("click", (ev) => {
@@ -336,8 +367,9 @@
     }
 
     function showTooltip(el) {
+        clearTimeout(tooltipTimer);
         const a = D.annotations[el.dataset.anchor];
-        tooltip.innerHTML = `<b>${esc(a.title)}</b>${esc(a.body)}`;
+        tooltip.innerHTML = `<b>${esc(a.title)}</b>${md(a.body)}`;
         const r = el.getBoundingClientRect();
         tooltip.classList.add("show");
         const w = tooltip.offsetWidth;
@@ -348,9 +380,18 @@
         const above = r.top - tooltip.offsetHeight - 8;
         tooltip.style.top = (above < covered ? r.bottom + 8 : above) + window.scrollY + "px";
     }
+    let tooltipTimer = null;
     function hideTooltip() {
+        clearTimeout(tooltipTimer);
         tooltip.classList.remove("show");
     }
+    // short delay, so the pointer can move from the word onto the note (e.g. to click a link)
+    const hideTooltipSoon = () => {
+        clearTimeout(tooltipTimer);
+        tooltipTimer = setTimeout(hideTooltip, 250);
+    };
+    tooltip.addEventListener("mouseenter", () => clearTimeout(tooltipTimer));
+    tooltip.addEventListener("mouseleave", hideTooltipSoon);
 
     function openAnnotation(el, fromLink) {
         const id = el.dataset.anchor;
@@ -378,7 +419,7 @@
         popover.setAttribute("role", "dialog");
         popover.setAttribute("aria-label", a.title);
         popover.innerHTML = `<button type="button" class="close-x" aria-label="Close">×</button>
-            <h4>${esc(a.title)}</h4>${a.body}${linkList(a.links)}
+            <h4>${esc(a.title)}</h4>${md(a.body)}${linkList(a.links)}
             <div class="facet-tags">${facetTags(a)}</div>
             <div class="pop-actions"><button type="button" class="btn-outline" data-copy="${id}">${icon("link").replace("<svg", '<svg width="14" height="14"')} Copy link</button>
             ${a.concepts && a.concepts.some((c) => D.deepdives[c]) ? `<a class="btn-outline" href="#/deep-dive/${a.concepts.find((c) => D.deepdives[c])}">Go deeper →</a>` : ""}</div>`;
@@ -428,7 +469,7 @@
             ${s ? `<div class="quote">${plain(s.text)}</div>` : bx ? `<div class="quote"><b>${plain(bx.title)}</b></div>` : ""}
             <div class="facet-tags">${facetTags(a)}</div>
             ${a.figure ? figure(a.figure) : ""}
-            ${a.body}${linkList(a.links)}
+            ${md(a.body)}${linkList(a.links)}
             ${a.statements || dd || s ? `<div class="facet-tags"><span class="lens-label">Related statements</span>${(a.statements || (dd ? dd.statements : [s.n])).map((n) => `<a class="tag" data-kind="stmt" href="#/?focus=c${n}">${n} · ${esc(STMT[n].short)}</a>`).join("")}</div>` : ""}
             <div class="pop-actions"><button type="button" class="btn-outline" data-copy="${id}">${icon("link").replace("<svg", '<svg width="14" height="14"')} Copy link</button>
             ${dd ? `<a class="btn-solid" href="#/deep-dive/${a.concept}">Open full deep dive →</a>` : ""}</div>`, a.title);
@@ -440,7 +481,7 @@
         const withNote = active.filter((r) => D.perspectiveNotes[r.id][n]);
         const without = active.filter((r) => !D.perspectiveNotes[r.id][n]);
         const persp = withNote.map((r) =>
-            `<div class="persp" style="${cv(r.colour)}"><h5>${icon(r.icon)}${esc(r.label)}</h5><p>${esc(D.perspectiveNotes[r.id][n][0])} <a href="#/for/${r.id}">More for ${esc(r.plural.toLowerCase())} →</a></p></div>`
+            `<div class="persp" style="${cv(r.colour)}"><h5>${icon(r.icon)}${esc(r.label)}</h5>${md(D.perspectiveNotes[r.id][n][0])}<p><a href="#/for/${r.id}">More for ${esc(r.plural.toLowerCase())} →</a></p></div>`
         ).join("") + (without.length ? `<p class="persp-rest">Less directly relevant for ${without.map((r) => esc(r.plural.toLowerCase())).join(" and ")}.</p>` : "");
         openPanel(`<div class="kicker">Statement ${n} · ${n <= 9 ? "We commit to advance FAIRness and Openness" : "We value data infrastructures and data experts"}</div>
             <h3>${esc(s.short)}</h3>
@@ -570,7 +611,7 @@
         const cards = Object.keys(notes).map((n) => {
             const s = STMT[n];
             const [text, action] = notes[n];
-            return `<div class="card" style="${cv(r.colour)}"><div class="card-n">Statement ${n}</div><h3>${esc(s.short)}</h3><p>${esc(text)}</p>
+            return `<div class="card" style="${cv(r.colour)}"><div class="card-n">Statement ${n}</div><h3>${esc(s.short)}</h3><div class="md">${md(text)}</div>
                 <label><input type="checkbox" class="todo"> ${esc(action)}</label>
                 <div class="card-foot"><a href="#/?role=${id}&focus=c${n}">Show in text →</a></div></div>`;
         }).join("");
@@ -598,7 +639,7 @@
         }));
         const rel = new Set(D.statements.filter((s) => s.topics.includes(id)).map((s) => s.n));
         const cond = D.statements.map((s) => `<div class="cond ${rel.has(s.n) ? "rel" : "irrel"}" data-n="${s.n}"><span class="cn">${s.n}</span><span>${s.text.replace(/\[\[[\w-]+\|(.+?)\]\]/g, "$1")}</span></div>`).join("");
-        const stepHtml = steps.map((st, i) => `<section class="step" data-n="${st.n}" data-i="${i}"><div class="step-n">Step ${i + 1} of ${steps.length} · Statement ${st.n}</div><h3>${esc(st.title)}</h3><p>${esc(st.text)}</p>
+        const stepHtml = steps.map((st, i) => `<section class="step" data-n="${st.n}" data-i="${i}"><div class="step-n">Step ${i + 1} of ${steps.length} · Statement ${st.n}</div><h3>${esc(st.title)}</h3>${md(st.text)}
             <a href="#/?topic=${id}&focus=c${st.n}">Read in context →</a>
             ${i < steps.length - 1 ? `<div class="step-next" aria-hidden="true">↓ Next: ${esc(steps[i + 1].title)}</div>` : ""}</section>`).join("");
         const dots = steps.map((st, i) => `<i data-i="${i}"></i>`).join("");
@@ -630,11 +671,11 @@
     function renderDeepDive(id) {
         const d = D.deepdives[id];
         if (!d) return renderIndex("concept");
-        const body = d.sections.map(([h, p]) => `<h2>${esc(h)}</h2><p>${esc(p)}</p>`).join("");
+        const body = d.sections.map(([h, p]) => `<h2>${esc(h)}</h2>${md(p)}`).join("");
         const refs = d.statements.map((n) => `<a class="dd-ref" href="#/?concept=${d.concept}&focus=c${n}"><b>${n}</b> · ${esc(STMT[n].short)}</a>`).join("");
         const anchors = d.anchors.map((a) => `<a class="dd-ref" href="#/?concept=${d.concept}&focus=${a}">“${esc(D.annotations[a].title)}”</a>`).join("");
         app.innerHTML = page(`${esc(d.title)} <span class="mock-badge">Deep dive · example content</span>`,
-            `<div class="dd-layout"><div class="dd-body"><p class="dd-lead">${esc(d.lead)}</p>${d.figure ? figure(d.figure) : ""}${body}
+            `<div class="dd-layout"><div class="dd-body"><div class="dd-lead">${md(d.lead)}</div>${d.figure ? figure(d.figure) : ""}${body}
                 <h2>Further reading</h2>${linkList(d.links)}</div>
              <aside class="dd-aside"><div class="text-box"><h4>Where this appears in the Commitment</h4>${refs}
                 <h4 style="margin-top:16px">Annotated phrases</h4>${anchors}

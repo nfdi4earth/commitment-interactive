@@ -215,7 +215,7 @@ main { padding-bottom: 80px; }
     padding: 8px 12px; border-radius: 4px; pointer-events: none; opacity: 0; transform: translateY(4px);
     transition: opacity 0.15s, transform 0.15s;
 }
-.tooltip.show { opacity: 1; transform: none; }
+.tooltip.show { opacity: 1; transform: none; pointer-events: auto; }
 .tooltip b { display: block; margin-bottom: 2px; }
 .popover {
     position: absolute; z-index: 45; width: 380px; max-width: calc(100vw - 32px); background: #fff;
@@ -461,3 +461,13 @@ figcaption { font-size: 13px; color: var(--fg-2); margin-top: 6px; }
    perspectives and concepts round, topics slightly rounded, statements square */
 .chip[data-kind="topic"], .tag[data-kind="topic"], .pre-count-item[data-kind="topic"] { border-radius: 4px; }
 .tag[data-kind="stmt"] { border-radius: 0; }
+
+/* Markdown content in notes, explainers, panels and deep dives */
+.tooltip p, .tooltip ul, .tooltip ol { margin: 0; }
+.tooltip a { color: #fff; text-decoration: underline; }
+.popover ul, .popover ol, .panel ul:not(.links), .panel ol, .dd-body ul:not(.links), .dd-body ol, .step ul, .step ol, .card ul, .card ol {
+    margin: 0 0 10px; padding-left: 22px;
+}
+.popover li, .panel li, .dd-body li, .step li { margin: 3px 0; }
+.card .md p { margin: 0; }
+.dd-lead p { margin: 0 0 12px; }

@@ -52,6 +52,13 @@ It helps different stakeholders understand and implement the commitment:
   - phrase IDs such as `licences` (the mock-up uses plain phrase IDs; an unknown `cN-…` ID falls back to statement N)
 - `annotations/*.yaml` hold the annotations: `id`, `target` (anchor ID), `depth`, `title`, `body` (Markdown), `links`, `figure`, `roles`, `topics`, `concepts`, `deepdive`.
 - `roles.yaml`, `topics.yaml` and `concepts.yaml` define the facets. Each has `id`, `label`, `icon` and `colour`.
+- **Text formatting:** all annotation texts (notes, explainers, deep dives, perspective notes, topic steps, deep-dive pages) are **Markdown**, restricted to:
+  - paragraphs
+  - `**bold**`, `*italic*` / `_italic_`
+  - plain `-` and `1.` lists
+  - `[links](https://…)`
+  - Raw HTML is not allowed. Only `http(s)`, `mailto` and internal `#/` links become links; external links open in a new tab.
+  - In the React app use `react-markdown` (already an OS4A dependency) with `skipHtml` and `allowedElements` limited to `p, strong, em, ul, ol, li, a`. The mock-up has a small equivalent, `md()` in `mockup/app.js`.
 - Tests must check content integrity: every annotation target exists, every referenced facet exists, and IDs are unique.
 
 <!-- source: own rule, added 2026-10-26 -->
