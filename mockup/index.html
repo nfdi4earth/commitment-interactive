@@ -1,0 +1,110 @@
+<!doctype html>
+<!-- Clickable mock-up of the interactive NFDI4Earth Commitment. Generated over multiple prompts with Claude Code,
+     based on the OneStop4All implementation (commit b39aaff, Apache-2.0). See README.md "How this was made". -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NFDI4Earth Commitment – interactive (mock-up)</title>
+    <link rel="icon" href="assets/nfdi_fav.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header: layout follows OneStop4All components/Header -->
+    <header class="site-header" id="site-header">
+        <div class="container">
+            <div class="bar">
+                <a class="logo" href="#/" aria-label="Commitment start page">
+                    <img id="svg1" src="assets/logo1.svg" width="246" height="67" alt="NFDI4Earth OneStop4All">
+                    <img id="svg2" src="assets/logo2.svg" width="70" height="47" alt="NFDI4Earth OneStop4All">
+                </a>
+                <div class="header-links">
+                    <a href="mailto:helpdesk@nfdi4earth.de" title="User Support (opens your e-mail client)">
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><g stroke="currentColor"><path d="M4.5 18H3.75C2.95 18 2.19 17.68 1.63 17.12 1.07 16.56.75 15.8.75 15V12c0-.8.32-1.56.88-2.12C2.19 9.32 2.95 9 3.75 9h.75c.2 0 .39.08.53.22.14.14.22.33.22.53v7.5c0 .2-.08.39-.22.53A.75.75 0 0 1 4.5 18Z"/><path d="M20.25 18h-.75a.75.75 0 0 1-.75-.75v-7.5c0-.2.08-.39.22-.53.14-.14.33-.22.53-.22h.75c.8 0 1.56.32 2.12.88.56.56.88 1.32.88 2.12v3c0 .8-.32 1.56-.88 2.12-.56.56-1.32.88-2.12.88Z"/><path d="M3.75 9a8.25 8.25 0 0 1 16.5 0"/><path d="M15 21.75h2.25a3 3 0 0 0 3-3V18"/><path d="M13.5 23.25H12a1.5 1.5 0 0 1 0-3h1.5a1.5 1.5 0 0 1 0 3Z"/><path d="M9 8.25a3 3 0 1 1 4 2.83c-.6.21-1 .78-1 1.41v.26"/><path d="M12 15.75a.375.375 0 1 0 0 .75.375.375 0 0 0 0-.75Z"/></g></svg>
+                        <span class="long">User Support</span><span class="short">Support</span>
+                    </a>
+                    <a href="#" id="menu-btn" aria-haspopup="dialog">
+                        <img src="assets/bg-icon-05668D.png" width="28" alt="">
+                        <span class="long">About NFDI4Earth</span><span class="short">NFDI4Earth</span>
+                    </a>
+                </div>
+            </div>
+            <div class="separator"></div>
+        </div>
+    </header>
+
+    <main>
+        <!-- small header image + search bar, as on /label -->
+        <div class="header-image" role="presentation"></div>
+        <div class="search-wrap">
+            <div class="container">
+                <div class="searchbar">
+                    <form id="search-form" role="search">
+                        <select aria-label="Resource type"><option>All resources</option></select>
+                        <span class="vsep"></span>
+                        <input id="search-input" type="search" placeholder="Search for data repositories, software tools, information or research data materials" aria-label="Search OneStop4All">
+                        <button class="btn-solid" type="submit" aria-label="Search in OneStop4All">
+                            <svg width="18" height="18" viewBox="0 0 12 12" fill="none" aria-hidden="true"><circle cx="5.25" cy="5.25" r="4.25" stroke="white"/><line x1="8.2" y1="8.3" x2="11.2" y2="11.3" stroke="white"/></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="spacer"></div>
+        <div id="app"></div>
+    </main>
+
+    <!-- Footer: layout follows OneStop4All components/Footer -->
+    <div class="container"><div class="footer-sep"></div></div>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-navigation">
+                <div class="section"><span class="section-header">Get connected:</span>
+                    <span><a href="https://www.nfdi4earth.de/about-us" target="_blank" rel="noreferrer">About</a> | <a href="https://www.nfdi4earth.de/about-us/consortium" target="_blank" rel="noreferrer">Partners</a> | <a href="https://www.nfdi4earth.de/2coordinate/coordination-office" target="_blank" rel="noreferrer">Contact</a></span></div>
+                <div class="section"><span class="section-header">Support:</span>
+                    <span><a href="https://onestop4all.nfdi4earth.de/faq" target="_blank" rel="noreferrer">FAQ</a> | <a href="mailto:helpdesk@nfdi4earth.de">User Support</a></span></div>
+                <div class="section"><span class="section-header">Legal information:</span>
+                    <span><a href="https://www.nfdi4earth.de/legal-notice" target="_blank" rel="noreferrer">Legal information</a> | <a href="https://www.nfdi4earth.de/privacy-policy" target="_blank" rel="noreferrer">Privacy</a></span></div>
+            </div>
+            <div class="social">
+                <a href="https://git.rwth-aachen.de/nfdi4earth" target="_blank" rel="noreferrer"><img src="assets/gitlab-logo.svg" alt="">GITLAB</a>
+                <a href="https://nfdi.social/@nfdi4earth" target="_blank" rel="noreferrer"><img src="assets/mastodon.svg" alt="">MASTODON</a>
+                <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer"><img src="assets/ccby.png" width="80" alt="">CC BY 4.0</a>
+                <span class="grow"></span>
+                <img src="assets/dfg-logo.svg" alt="DFG logo">
+            </div>
+            <p class="attribution">Commitment text: NFDI4Earth Consortium (2024), <a href="https://doi.org/10.5281/zenodo.10123880" target="_blank" rel="noreferrer">doi:10.5281/zenodo.10123880</a>, CC BY 4.0. All annotations, perspectives, topics and deep dives in this mock-up are made-up example content.</p>
+        </div>
+    </footer>
+
+    <!-- overlays -->
+    <div class="tooltip" id="tooltip" role="tooltip"></div>
+    <div class="panel-backdrop" id="panel-backdrop"></div>
+    <aside class="panel" id="panel" role="dialog" aria-modal="true"></aside>
+    <div class="panel-backdrop menu-backdrop" id="menu-backdrop"></div>
+    <nav class="menu-drawer" id="menu-drawer" aria-label="Menu">
+        <button type="button" class="close-x" id="menu-close" aria-label="Close menu" style="font-size:34px;top:20px;right:24px">×</button>
+        <div class="block"><div class="block-header">Commitment</div>
+            <a href="#/" data-nav="">Read the Commitment</a>
+            <a href="#/for" data-nav="for">Perspectives</a>
+            <a href="#/topics" data-nav="topics">Topics</a>
+            <a href="#/concepts" data-nav="concepts">Concepts</a>
+            <a href="#/map" data-nav="map">Concept map</a>
+        </div>
+        <div class="block"><div class="block-header">OneStop4All</div>
+            <a href="https://onestop4all.nfdi4earth.de/" target="_blank" rel="noreferrer">Start page</a>
+            <a href="https://onestop4all.nfdi4earth.de/label" target="_blank" rel="noreferrer">NFDI4Earth Label</a>
+            <a href="https://onestop4all.nfdi4earth.de/faq" target="_blank" rel="noreferrer">FAQ</a>
+        </div>
+        <div class="block"><div class="block-header">About NFDI4Earth</div>
+            <a href="https://www.nfdi4earth.de/about-us" target="_blank" rel="noreferrer">About</a>
+            <a href="https://nfdi4earth.de/commitment" target="_blank" rel="noreferrer">Commitment website</a>
+            <a href="https://nfdi4earth.de/commit" target="_blank" rel="noreferrer">Sign the Commitment</a>
+        </div>
+    </nav>
+    <div class="toast" id="toast" role="status"></div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
