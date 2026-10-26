@@ -75,7 +75,7 @@
         const f = FACET_KIND[kind][id];
         if (!f) return "";
         const ic = f.icon || (kind === "concept" ? "bulb" : "user");
-        return `<a class="tag" style="${cv(f.colour)}" href="#/?${kind}=${id}" title="Show in text">${icon(ic)}${esc(f.label)}</a>`;
+        return `<a class="tag" data-kind="${kind}" style="${cv(f.colour)}" href="#/?${kind}=${id}" title="Show in text">${icon(ic)}${esc(f.label)}</a>`;
     }
 
     /* ---------- routing ---------- */
@@ -129,10 +129,10 @@
 
     function lensBar() {
         const roleChips = D.roles
-            .map((r) => `<button type="button" class="chip" style="${cv(r.colour)}" data-facet="role" data-id="${r.id}" aria-pressed="false" title="${esc(r.label)}">${icon(r.icon)}<span class="chip-text">${esc(r.label)}</span></button>`)
+            .map((r) => `<button type="button" class="chip" data-kind="role" style="${cv(r.colour)}" data-facet="role" data-id="${r.id}" aria-pressed="false" title="${esc(r.label)}">${icon(r.icon)}<span class="chip-text">${esc(r.label)}</span></button>`)
             .join("");
         const chips = (kind, list) => list.map((x) =>
-            `<button type="button" class="chip" style="${cv(x.colour)}" data-facet="${kind}" data-id="${x.id}" aria-pressed="false">${icon(x.icon || "bulb")}<span class="chip-text">${esc(x.label)}</span></button>`
+            `<button type="button" class="chip" data-kind="${kind}" style="${cv(x.colour)}" data-facet="${kind}" data-id="${x.id}" aria-pressed="false">${icon(x.icon || "bulb")}<span class="chip-text">${esc(x.label)}</span></button>`
         ).join("");
         return `<div class="lensbar" id="lensbar"><div class="container">
             <div class="lens-status" aria-live="polite"><span id="lens-count"></span><button type="button" id="lens-clear" hidden>✕ Clear all</button></div>
@@ -185,7 +185,7 @@
             preCount.innerHTML = ["role", "topic", "concept"].filter((k) => lens[k]).map((k) => {
                 const f = FACET_KIND[k][lens[k]];
                 const n = annos.filter((a) => (a[plural[k]] || []).includes(lens[k])).length;
-                return `<span class="pre-count-item${n ? "" : " zero"}" style="${cv(f.colour)}" title="${esc(f.label)}">${icon(f.icon || "bulb")}${n} passage${n === 1 ? "" : "s"}</span>`;
+                return `<span class="pre-count-item${n ? "" : " zero"}" data-kind="${k}" style="${cv(f.colour)}" title="${esc(f.label)}">${icon(f.icon || "bulb")}${n} passage${n === 1 ? "" : "s"}</span>`;
             }).join("");
             preCount.hidden = !on;
         }
@@ -228,7 +228,7 @@
             ["#/for", "user", "Explore by", "Perspective"],
             ["#/topics", "pen", "Explore by", "Topics from your work"],
             ["#/concepts", "bulb", "Explore by", "Concepts"],
-            ["#/map", "map", "Explore the", "Concept map"]
+            ["#/map", "map", "Explore the", "Overview map"]
         ].map(([h, ic, t, title]) => `<a class="tile" href="${h}"><div class="tile-icon">${icon(ic)}</div><div class="tile-type">${t}</div><div class="tile-title">${title}</div></a>`).join("");
 
         app.innerHTML = `
@@ -429,7 +429,7 @@
             <div class="facet-tags">${facetTags(a)}</div>
             ${a.figure ? figure(a.figure) : ""}
             ${a.body}${linkList(a.links)}
-            ${a.statements || dd || s ? `<div class="facet-tags"><span class="lens-label">Related statements</span>${(a.statements || (dd ? dd.statements : [s.n])).map((n) => `<a class="tag" href="#/?focus=c${n}">${n} · ${esc(STMT[n].short)}</a>`).join("")}</div>` : ""}
+            ${a.statements || dd || s ? `<div class="facet-tags"><span class="lens-label">Related statements</span>${(a.statements || (dd ? dd.statements : [s.n])).map((n) => `<a class="tag" data-kind="stmt" href="#/?focus=c${n}">${n} · ${esc(STMT[n].short)}</a>`).join("")}</div>` : ""}
             <div class="pop-actions"><button type="button" class="btn-outline" data-copy="${id}">${icon("link").replace("<svg", '<svg width="14" height="14"')} Copy link</button>
             ${dd ? `<a class="btn-solid" href="#/deep-dive/${a.concept}">Open full deep dive →</a>` : ""}</div>`, a.title);
     }
@@ -562,7 +562,7 @@
         const r = ROLES[id];
         if (!r) return renderIndex("role");
         const others = D.roles.filter((o) => o.id !== id).map((o) =>
-            `<a class="chip" style="${cv(o.colour)}" href="#/for/${o.id}">${icon(o.icon)}<span class="chip-text">${esc(o.label)}</span></a>`
+            `<a class="chip" data-kind="role" style="${cv(o.colour)}" href="#/for/${o.id}">${icon(o.icon)}<span class="chip-text">${esc(o.label)}</span></a>`
         ).join("");
         const hero = `<div class="role-hero" style="${cv(r.colour)}"><div class="role-icon">${icon(r.icon)}</div>
             <div><h1>The Commitment for ${esc(r.plural)} <span class="mock-badge">example content</span></h1><p>${esc(r.blurb)}</p></div></div>`;
@@ -602,7 +602,7 @@
             <a href="#/?topic=${id}&focus=c${st.n}">Read in context →</a>
             ${i < steps.length - 1 ? `<div class="step-next" aria-hidden="true">↓ Next: ${esc(steps[i + 1].title)}</div>` : ""}</section>`).join("");
         const dots = steps.map((st, i) => `<i data-i="${i}"></i>`).join("");
-        const others = D.topics.filter((o) => o.id !== id).map((o) => `<a class="chip" style="${cv(o.colour)}" href="#/topics/${o.id}">${icon(o.icon)}<span class="chip-text">${esc(o.label)}</span></a>`).join("");
+        const others = D.topics.filter((o) => o.id !== id).map((o) => `<a class="chip" data-kind="topic" style="${cv(o.colour)}" href="#/topics/${o.id}">${icon(o.icon)}<span class="chip-text">${esc(o.label)}</span></a>`).join("");
         app.innerHTML = page("", `<div class="topic-hero" style="${cv(t.colour)}"><h1>${icon(t.icon)}${esc(t.label)} <span class="mock-badge">example content</span></h1>
             <p>You know this from: <i>${esc(t.knownFrom)}</i>. <b>${rel.size} of 12</b> statements are relevant – ${steps.length} steps below. <b>Scroll down ↓</b></p></div>
             <div class="scrolly" style="${cv(t.colour)}">
@@ -675,12 +675,12 @@
         return "";
     }
 
-    /* ---------- concept map ---------- */
+    /* ---------- overview map ---------- */
     function renderMap() {
-        app.innerHTML = page("Concept map <span class=\"mock-badge\">Mock-up</span>",
+        app.innerHTML = page("Overview map <span class=\"mock-badge\">Mock-up</span>",
             `<p class="map-help">Perspectives and topics (left) connect to statements (middle) and concepts (right). Hover or tap a node to trace its connections, click again to open it. Scroll to zoom, drag to pan.</p>
             <div class="map-wrap"><div class="map-tools"><button type="button" data-z="out" aria-label="Zoom out">−</button><button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="reset">Fit</button></div>
-            <svg id="map-svg" viewBox="0 0 1100 680" role="img" aria-label="Concept map"><g id="map-g"></g></svg></div>`);
+            <svg id="map-svg" viewBox="0 0 1100 680" role="img" aria-label="Overview map"><g id="map-g"></g></svg></div>`);
         const g = document.getElementById("map-g");
         const nodes = [];
         const L = { x: 30, w: 210 }, M = { x: 440, w: 230 }, R = { x: 870, w: 200 };
@@ -706,7 +706,8 @@
         svg += nodes.map((n) => {
             const fill = n.kind === "stmt" ? "#fff" : n.colour;
             const tc = n.kind === "stmt" ? "#05668D" : ink(n.colour);
-            const rx = n.kind === "concept" ? 16 : n.kind === "topic" ? 4 : n.kind === "role" ? 16 : 0;
+            // corner radius encodes the kind, same as the badges (see style.css: [data-kind])
+            const rx = n.kind === "topic" ? 4 : n.kind === "stmt" ? 0 : 16;
             return `<g class="mnode" data-id="${n.id}" tabindex="0" role="button" aria-label="${esc(n.label)}"><rect x="${n.x}" y="${n.y}" width="${n.w}" height="${H}" rx="${rx}" fill="${fill}" stroke="${n.colour}"/>
                 <text x="${n.x + 12}" y="${n.y + 21}" fill="${tc}" ${n.kind === "stmt" ? "" : 'font-weight="700"'}>${esc(n.label)}</text></g>`;
         }).join("");

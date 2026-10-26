@@ -87,11 +87,11 @@ These are the starting points for the real deep-dive content. Don't use them for
 - **Mock-up:** there are no automated checks. Verify it manually in a browser at desktop width and at mobile width (< 1000px).
 - **App (once scaffolded):** `pnpm lint`, `pnpm check-types`, `CI=1 pnpm test run` and `pnpm build`.
 
-<!-- source: Daniel Nüst, feedback on the mock-up, added 2026-10-26 -->
+<!-- source: Daniel Nüst, feedback on the mock-up, added 2026-10-26, updated 2026-10-26 -->
 ## Design decisions from mock-up feedback
 
 - **One interaction method for all filters:** perspectives, topics and concepts are all toggle badges (chips), one row each. No drop-down menus for lenses.
-- **The reading overview is a plain contents menu**, not a zoom/pan minimap. It keeps the synced current-section highlight and the lens hit/dim state. On mobile it is a bottom sheet behind a "Contents" button. Zoom and pan stay only in the concept map.
+- **The reading overview is a plain contents menu**, not a zoom/pan minimap. It keeps the synced current-section highlight and the lens hit/dim state. On mobile it is a bottom sheet behind a "Contents" button. Zoom and pan stay only in the overview map.
 - **Scrollytelling (topic pages):** keep little vertical space between steps (about 14vh), so the next step is always visible. Show "Step x of n", progress dots and a "Next: …" cue.
 
 <!-- source: Daniel Nüst, request to re-use NFDI4Earth colours; logos (2023) and Rollup service brick colours PDF (2026), added 2026-10-26 -->
@@ -103,3 +103,4 @@ These are the starting points for the real deep-dive content. Don't use them for
   - all concepts use the Commitment brick colour `#2A9D8F`
 - The base UI stays on the OS4A theme (`#05668D`).
 - Never put text directly in a facet colour on white, because several colours are too light. Use dark text with a coloured icon or border. On a coloured fill, choose dark or white text by contrast (`ink()` in `mockup/app.js`).
+- **Shapes encode kinds** everywhere (badges, tags, counts, map nodes): perspectives and concepts are round pills, topics have 4px corners, statements are square. The map is called "Overview map", because it shows more than concepts.

@@ -14,7 +14,7 @@ You can:
 - read the commitment with annotations at different depths (hover, click, side panel)
 - switch **perspectives** (student, researcher, institution, organisation/group) and **topics** (e.g. proposal writing, publishing, reviewing) to highlight the relevant parts
 - follow deep dives on concepts such as licensing and openness
-- explore a map that connects perspectives, topics and statements
+- explore an **overview map** that connects perspectives, topics, statements and concepts
 
 ## Design
 
