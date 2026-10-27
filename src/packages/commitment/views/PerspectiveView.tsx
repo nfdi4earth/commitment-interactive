@@ -1,7 +1,6 @@
 import { useIntl } from "open-pioneer:react-hooks";
-import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { useAppPath } from "../components/base";
+import { useAppPath, useQueryState } from "../components/base";
 import { OtherFacets } from "../components/FacetBadge";
 import { Icon } from "../components/Icon";
 import { Markdown } from "../components/Markdown";
@@ -15,19 +14,18 @@ export default function PerspectiveView() {
     const appPath = useAppPath();
     const { id } = useParams();
     const role = content.roles.find((r) => r.id === id);
-    // checked first steps ("role:n"); only kept while the app is open
-    const [done, setDone] = useState<Set<string>>(new Set());
+    // ticked first steps, in the URL (`?done=1,8`), so that they survive a reload or a shared link
+    const { query, set: setQuery } = useQueryState();
+    const done = new Set((query.get("done") ?? "").split(",").filter(Boolean).map(Number));
     if (!role) return <Navigate to={appPath("/for")} replace />;
 
     const numbers = Object.keys(role.notes).map(Number);
-    const isDone = (n: number) => done.has(`${role.id}:${n}`);
-    const toggle = (n: number) =>
-        setDone((d) => {
-            const next = new Set(d);
-            if (!next.delete(`${role.id}:${n}`)) next.add(`${role.id}:${n}`);
-            return next;
-        });
-    const count = numbers.filter(isDone).length;
+    const toggle = (n: number) => {
+        const next = new Set(done);
+        if (!next.delete(n)) next.add(n);
+        setQuery({ done: next.size ? [...next].sort((x, y) => x - y).join(",") : null });
+    };
+    const count = numbers.filter((n) => done.has(n)).length;
 
     return (
         <Page back={{ to: "/for", label: intl.formatMessage({ id: "back-to.perspectives" }) }}>
@@ -81,7 +79,7 @@ export default function PerspectiveView() {
                             <label>
                                 <input
                                     type="checkbox"
-                                    checked={isDone(n)}
+                                    checked={done.has(n)}
                                     onChange={() => toggle(n)}
                                 />{" "}
                                 {note.step}

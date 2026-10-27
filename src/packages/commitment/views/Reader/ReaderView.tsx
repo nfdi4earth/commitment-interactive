@@ -1,7 +1,14 @@
 import { useIntl } from "open-pioneer:react-hooks";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { ExternalLink, scrollBehavior, useAppPath, useEnterBand } from "../../components/base";
+import { Link } from "react-router-dom";
+import {
+    ExternalLink,
+    scrollIntoViewThen,
+    useAppPath,
+    useEnterBand,
+    useQueryState,
+    useReveal
+} from "../../components/base";
 import { Icon } from "../../components/Icon";
 import { BackLink, PageContainer } from "../../components/Page";
 import { content } from "../../model/content";
@@ -36,20 +43,34 @@ const ext = (href: string) =>
         );
     };
 
+/** Closes whatever is open. */
+const CLOSED = { focus: null, statement: null };
+
+/** A target in the preamble: the preamble, a paragraph of it or an annotation in it. */
+const inPreamble = (target: string) =>
+    target === "preamble" ||
+    target.startsWith("pre-") ||
+    !!content.annotations[target]?.target.startsWith("pre-");
+
 const PREAMBLE_ANNOTATIONS = content.preamble.flatMap((_, i) => annotationsOn(`pre-${i + 1}`));
 
 /** The annotated Commitment with lens bar, contents menu and side panel. */
 export default function ReaderView() {
     const intl = useIntl();
     const appPath = useAppPath();
-    const [query, setQuery] = useSearchParams();
-    const lens = useMemo(() => lensFromQuery(query), [query]);
-    const focus = query.get("focus");
+    const { query, set: setQuery, quiet } = useQueryState();
+    // the lens only changes with its own parameters, not with what is open
+    const [role, topic, concept] = [query.get("role"), query.get("topic"), query.get("concept")];
+    const lens = useMemo(
+        () => lensFromQuery({ get: (k) => ({ role, topic, concept })[k] }),
+        [role, topic, concept]
+    );
     const on = lensActive(lens);
+    // what is open comes from the URL (see components/base.tsx)
+    const focus = query.get("focus");
+    const statementN = Number(query.get("statement")) || null;
+    const target = focus ?? (statementN ? `c${statementN}` : null);
 
-    const [openId, setOpenId] = useState<string | null>(null);
-    const [panel, setPanel] = useState<Panel | null>(null);
-    const [preambleOpen, setPreambleOpen] = useState(false);
     const [tocOpen, setTocOpen] = useState(false);
     const [current, setCurrent] = useState<number | null>(null);
     const [notFound, setNotFound] = useState<string | null>(null);
@@ -70,83 +91,62 @@ export default function ReaderView() {
         return ref;
     }, []);
 
-    const openPanel = useCallback((p: Panel) => {
-        setOpenId(null);
-        setPanel(p);
-    }, []);
-    const reader: ReaderState = useMemo(
-        () => ({ lens, openId, setOpenId, openPanel, anchor }),
-        [lens, openId, openPanel, anchor]
-    );
-
-    function scrollTo(id: string, pulse: boolean) {
-        const el = anchors.current.get(id);
-        if (!el) return false;
-        el.scrollIntoView({ behavior: scrollBehavior(), block: "start" });
-        if (pulse) {
-            el.classList.remove("pulse");
-            void el.offsetWidth; // restart the animation
-            el.classList.add("pulse");
-        }
-        return true;
-    }
-    function jump(id: string, pulse: boolean) {
-        setTocOpen(false);
-        if (id === "preamble") setPreambleOpen(true);
-        // after the preamble has opened
-        setTimeout(() => scrollTo(id, pulse), 0);
-    }
-
-    // links in the panels and popovers change the query: close them
-    const search = query.toString();
-    useEffect(() => {
-        setPanel(null);
-        setOpenId(null);
-    }, [search]);
-
-    // ?focus=<anchor>: scroll there, pulse, and open the annotation
-    useEffect(() => {
-        setNotFound(null);
-        if (!focus) return;
-        const a = content.annotations[focus];
-        if (focus.startsWith("pre-") || focus === "preamble" || a?.target.startsWith("pre-"))
-            setPreambleOpen(true);
-        const timers: ReturnType<typeof setTimeout>[] = [];
-        timers.push(
-            setTimeout(() => {
+    // a link or a shared URL: scroll to its target and pulse it; what it opens appears when the
+    // scroll has ended (`ready`); a target in the preamble keeps the preamble open afterwards
+    const ready = useReveal(
+        target,
+        useCallback(
+            (target: string, done: () => void) => {
                 // an unknown phrase id like "c8-foo" falls back to its statement
                 const id =
-                    anchors.current.has(focus) || !/^c\d+-/.test(focus)
-                        ? focus
-                        : (focus.split("-")[0] ?? focus);
-                if (!scrollTo(id, true)) return setNotFound(focus);
-                if (a)
-                    timers.push(
-                        setTimeout(
-                            () =>
-                                a.depth === "deepdive"
-                                    ? openPanel({ kind: "annotation", id: focus })
-                                    : setOpenId(focus),
-                            600
-                        )
-                    );
-            }, 150)
-        );
-        return () => timers.forEach(clearTimeout);
-    }, [focus, openPanel]);
+                    anchors.current.has(target) || !/^c\d+-/.test(target)
+                        ? target
+                        : (target.split("-")[0] ?? target);
+                const el = anchors.current.get(id);
+                if (!el) {
+                    // the rest of the URL (e.g. a statement panel) still opens
+                    setNotFound(target);
+                    return done();
+                }
+                // the styles animate annotations and statements
+                el.classList.remove("pulse");
+                void el.offsetWidth; // restart the animation
+                el.classList.add("pulse");
+                return scrollIntoViewThen(el, () => {
+                    if (inPreamble(target)) setQuery({ preamble: "open" });
+                    done();
+                });
+            },
+            [setQuery]
+        )
+    );
+
+    const shown = ready && focus ? content.annotations[focus] : undefined;
+    const openId = shown && shown.depth !== "deepdive" ? shown.id : null;
+    const panel: Panel | null =
+        shown?.depth === "deepdive"
+            ? { kind: "annotation", id: shown.id }
+            : ready && statementN
+              ? { kind: "statement", n: statementN }
+              : null;
+    const open = useCallback((id: string) => setQuery({ focus: id, statement: null }), [setQuery]);
+    const close = useCallback(() => setQuery(CLOSED), [setQuery]);
+    const openStatement = (n: number) => setQuery({ statement: String(n), focus: null });
+    const reader: ReaderState = useMemo(
+        () => ({ lens, openId, open, close, anchor }),
+        [lens, openId, open, close, anchor]
+    );
+
+    // the preamble is open when the URL says so, or while a link points into it (the reveal adds
+    // `preamble=open` to the URL, which React Router applies a render later)
+    const preambleOpen =
+        query.get("preamble") === "open" || (!quiet && target !== null && inPreamble(target));
 
     function toggle(kind: FacetKind, id: string) {
-        const next = new URLSearchParams(query);
-        if (lens[kind] === id) next.delete(kind);
-        else next.set(kind, id);
-        next.delete("focus");
-        setQuery(next, { replace: true });
+        setQuery({ [kind]: lens[kind] === id ? null : id, ...CLOSED });
     }
     function clear() {
-        const next = new URLSearchParams(query);
-        FACET_KINDS.forEach((k) => next.delete(k));
-        next.delete("focus");
-        setQuery(next, { replace: true });
+        setQuery({ role: null, topic: null, concept: null, ...CLOSED });
     }
 
     // current statement for the contents menu
@@ -204,7 +204,7 @@ export default function ReaderView() {
                     className="num"
                     aria-haspopup="dialog"
                     aria-label={intl.formatMessage({ id: "statement.aria" }, { n: s.n })}
-                    onClick={() => openPanel({ kind: "statement", n: s.n })}
+                    onClick={() => openStatement(s.n)}
                 >
                     {s.n}
                 </button>
@@ -252,14 +252,18 @@ export default function ReaderView() {
 
             <PageContainer>
                 <div className={`reader-root${on ? " lens-on" : ""}`} style={rootStyle}>
-                    {notFound && (
+                    {notFound && notFound === target && (
                         <p className="focus-missing" role="status">
                             {intl.formatMessage({ id: "focus.not-found" }, { id: notFound })}
                         </p>
                     )}
                     <div className="reader">
                         <aside className={`toc-col${tocOpen ? " open" : ""}`}>
-                            <Contents lens={lens} current={current} onJump={jump} />
+                            <Contents
+                                lens={lens}
+                                current={current}
+                                onNavigate={() => setTocOpen(false)}
+                            />
                         </aside>
                         <article className="reader-text">
                             <div className="legend">
@@ -288,7 +292,7 @@ export default function ReaderView() {
                                         aria-label={intl.formatMessage({
                                             id: "legend.statement-aria"
                                         })}
-                                        onClick={() => openPanel({ kind: "statement", n: 1 })}
+                                        onClick={() => openStatement(1)}
                                     >
                                         1
                                     </button>{" "}
@@ -300,7 +304,13 @@ export default function ReaderView() {
                                 className="preamble"
                                 ref={anchor("preamble")}
                                 open={preambleOpen}
-                                onToggle={(e) => setPreambleOpen(e.currentTarget.open)}
+                                // the reader (or find-in-page) toggled it: keep the URL in step;
+                                // the browser also reports React's own changes, which match
+                                onToggle={(e) => {
+                                    const opened = e.currentTarget.open;
+                                    if (opened !== preambleOpen)
+                                        setQuery({ preamble: opened ? "open" : null });
+                                }}
                             >
                                 <summary>
                                     {intl.formatMessage({ id: "reader.preamble" })}
@@ -375,7 +385,7 @@ export default function ReaderView() {
             >
                 <Icon name="text" size={18} /> {intl.formatMessage({ id: "contents.toggle" })}
             </button>
-            <SidePanel panel={panel} onClose={() => setPanel(null)} />
+            <SidePanel panel={panel} onClose={close} />
         </ReaderContext.Provider>
     );
 }

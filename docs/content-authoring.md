@@ -116,7 +116,7 @@ How quotes are matched:
 - It matches **whole words** only. `NFDI` matches "NFDI" but not the start of "NFDI4Earth".
 - If the words occur more than once in the target, quote a few more words or add `occurrence`.
 - Quotes of different annotations in the same target must not overlap, and a quote must not cross a link.
-- Text in `**bold**` in the Commitment can be quoted, as long as the quote stays within the bold part.
+- A quote must not cross the edge of `**bold**` or `*italic*` text. Quote either plain text only, or only text inside one bold or italic part, without the `**` or `*`. For example, in "At its core, **Earth System Sciences** aims to …", `Earth System Sciences` and `aims to` work, but `core, **Earth System` and `**Earth System Sciences** aims` don't. If the passage you want to annotate mixes styles, shorten the quote.
 
 If the Commitment text ever changes (e.g. a version 1.1), the check reports every annotation whose quote no longer matches. Fix those quotes, and nothing else needs to change.
 
@@ -187,7 +187,7 @@ Use colours from the NFDI4Earth palette in `README.md#colour-palette`. Icons are
 
 - every file has a valid header, with no unknown fields and all required fields
 - every referenced perspective, topic, concept, statement, annotation and deep dive exists
-- every quote is found exactly once (or at the given `occurrence`), with no overlaps and not inside a link
+- every quote is found exactly once (or at the given `occurrence`), with no overlaps, not inside a link and not across the edge of bold or italic text
 - no raw HTML and only allowed link types
 - statement numbers in `commitment.md` run from 1 without gaps, and every statement has a file in `content/statements/`
 - `order` values are unique within roles, topics and concepts

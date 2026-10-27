@@ -5,10 +5,12 @@ export type Panel = { kind: "annotation"; id: string } | { kind: "statement"; n:
 
 export interface ReaderState {
     lens: Lens;
-    /** Annotation whose note or explainer is open. */
+    /** Annotation whose note or explainer is open (from `?focus=`). */
     openId: string | null;
-    setOpenId(id: string | null): void;
-    openPanel(panel: Panel): void;
+    /** Opens an annotation: note or explainer in place, deep dive in the side panel. */
+    open(id: string): void;
+    /** Closes whatever is open. */
+    close(): void;
     /** Ref callback that makes an element a scroll target for `?focus=<id>` and the contents menu. */
     anchor(id: string): (el: HTMLElement | null) => void;
 }

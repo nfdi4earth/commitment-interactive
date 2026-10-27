@@ -127,6 +127,44 @@ describe("parseContent", () => {
         ]);
     });
 
+    it("rejects quotes across the edge of bold or italic text", () => {
+        const cross = (quote: string, intro = "Open data is good. Open data is useful.") =>
+            parseWith({
+                "content/commitment.md": (BASE["content/commitment.md"] ?? "").replace(
+                    "Open data is good. Open data is useful.",
+                    intro
+                ),
+                "content/annotations/x.md": annotation(
+                    `target: ${quote.includes("NFDI") ? "pre-1" : "intro"}\nquote: "${quote}"`
+                )
+            }).errors;
+        const error = (q: string) =>
+            `content/annotations/x.md: quote "${q}" crosses the edge of **bold** or *italic* text; quote only plain text, or only text inside one bold or italic part`;
+        // part of the bold text plus plain text, and all of it plus plain text
+        expect(cross("NFDI** and")).toEqual([error("NFDI** and")]);
+        expect(cross("The **NFDI**")).toEqual([error("The **NFDI**")]);
+        // italic, both spellings
+        expect(cross("is *good*", "Open data is *good*. More is useful.")).toEqual([
+            error("is *good*")
+        ]);
+        expect(cross("is _good_", "Open data is _good_. More is useful.")).toEqual([
+            error("is _good_")
+        ]);
+        // `__bold__` too, and italic inside bold
+        expect(cross("is __good__", "Open data is __good__. More is useful.")).toEqual([
+            error("is __good__")
+        ]);
+        expect(cross("very *good", "Open data is **very *good* now**. More.")).toEqual([
+            error("very *good")
+        ]);
+        // inside one bold or italic part is fine, also inside nested emphasis
+        expect(cross("NFDI")).toEqual([]);
+        expect(cross("good", "Open data is *good*. More is useful.")).toEqual([]);
+        expect(cross("very", "Open data is **very *good* now**. More.")).toEqual([]);
+        // single asterisks with spaces around are not emphasis
+        expect(cross("is 5 * 3", "Open data is 5 * 3 * 2. More is useful.")).toEqual([]);
+    });
+
     it("reports quotes that are not in the text", () => {
         const { errors } = parseWith({
             "content/annotations/x.md": annotation("target: c2\nquote: cite data")

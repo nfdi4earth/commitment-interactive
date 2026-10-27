@@ -1,7 +1,14 @@
 import { useIntl } from "open-pioneer:react-hooks";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { scrollBehavior, useAppPath, useEnterBand } from "../components/base";
+import {
+    scrollBehavior,
+    scrollIntoViewThen,
+    useAppPath,
+    useEnterBand,
+    useQueryState,
+    useReveal
+} from "../components/base";
 import { OtherFacets } from "../components/FacetBadge";
 import { Icon } from "../components/Icon";
 import { Markdown } from "../components/Markdown";
@@ -16,7 +23,8 @@ export default function TopicView() {
     const appPath = useAppPath();
     const { id } = useParams();
     const topic = content.topics.find((t) => t.id === id);
-    const [active, setActive] = useState(0);
+    // the active step is in the URL (`?step=3`), so that a shared link opens at the same step
+    const { query, set: setQuery } = useQueryState();
 
     const tagged = useMemo(() => (topic ? statementsWith("topic", topic.id) : []), [topic]);
     const relevant = useMemo(() => new Set(tagged.map((s) => s.n)), [tagged]);
@@ -46,11 +54,32 @@ export default function TopicView() {
     const stepEls = useRef<(HTMLElement | null)[]>([]);
     const condEls = useRef(new Map<number, HTMLElement>());
     const sticky = useRef<HTMLDivElement>(null);
-    useEffect(() => setActive(0), [id]);
+    // `?step=` is 1-based; without it, the first step is active
+    const step = Number(query.get("step")) || 1;
+    const active = Math.max(0, Math.min(step, steps.length) - 1);
+    // a link with `?step=`: scroll that step to the middle of the view first
+    const ready = useReveal(
+        active > 0 ? String(active) : null,
+        useCallback((i: string, done: () => void) => {
+            const el = stepEls.current[Number(i)];
+            return el ? scrollIntoViewThen(el, done, "center") : done();
+        }, [])
+    );
+    // while it scrolls, the steps it passes don't count
+    const readyRef = useRef(ready);
+    useLayoutEffect(() => {
+        readyRef.current = ready;
+    }, [ready]);
     useEnterBand(
         useCallback(() => stepEls.current.slice(0, steps.length), [steps]),
         "-45% 0px -45% 0px",
-        useCallback((el: HTMLElement) => setActive(Number(el.dataset.i)), [])
+        useCallback(
+            (el: HTMLElement) => {
+                const i = Number(el.dataset.i);
+                if (readyRef.current) setQuery({ step: i > 0 ? String(i + 1) : null });
+            },
+            [setQuery]
+        )
     );
 
     // small screens: the condensed Commitment is a short scroll box; keep the active statement in view

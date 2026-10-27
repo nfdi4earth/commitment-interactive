@@ -36,6 +36,18 @@ const oneLine = (s: string) => s.replace(/\s+/g, " ").trim();
 const stripComments = (s: string) => s.replace(/<!--[\s\S]*?-->/g, "");
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+/**
+ * Bold and italic parts of a text, with the length of their delimiter. As in CommonMark, a
+ * delimiter opens before and closes after a non-space; `_` only outside words. Bold and italic are
+ * matched separately, so emphasis inside bold gives a second range.
+ */
+const EMPHASIS: [RegExp, number][] = [
+    [/\*\*(?![\s*])[^\n]*?[^\s*]\*\*/gu, 2],
+    [/(?<!\*)\*(?![\s*])[^*\n]*?[^\s*]\*(?!\*)/gu, 1],
+    [/(?<![\p{L}\p{N}_])__(?![\s_])[^\n]*?[^\s_]__(?![\p{L}\p{N}_])/gu, 2],
+    [/(?<![\p{L}\p{N}_])_(?![\s_])[^_\n]*?[^\s_]_(?![\p{L}\p{N}_])/gu, 1]
+];
+
 /** Removes annotation links from annotated Markdown, keeping the quoted text. */
 export function plainText(md: string): string {
     return md.replace(/\[([^\]]*)\]\(annotation:[\w-]+\)/g, "$1");
@@ -473,6 +485,15 @@ export function parseContent(files: ContentFiles): ParseResult {
         const linkRanges = [...src.matchAll(/\[[^\]]*\]\([^)]*\)/g)].map(
             (m) => [m.index, m.index + m[0].length] as const
         );
+        // a quote is plain text or inside one bold or italic part, never across its edge
+        const styleRanges = EMPHASIS.flatMap(([re, mark]) =>
+            [...src.matchAll(re)].map((m) => [m.index, m.index + m[0].length, mark] as const)
+        );
+        const overlaps = (at: number, end: number, s: number, e: number) => at < e && end > s;
+        const crossesStyle = (at: number, end: number) =>
+            styleRanges.some(
+                ([s, e, mark]) => overlaps(at, end, s, e) && !(at >= s + mark && end <= e - mark)
+            );
         const spans: { at: number; end: number; item: Item }[] = [];
         for (const { item, quote } of quotes) {
             // whole words only: "NFDI" does not match inside "NFDI4Earth"
@@ -485,7 +506,7 @@ export function parseContent(files: ContentFiles): ParseResult {
                 if (!hits.length)
                     fail(
                         item.file,
-                        `quote "${q}" not found in ${target}. It must match whole words of the text in content/commitment.md exactly, including punctuation and **`
+                        `quote "${q}" not found in ${target}. It must match whole words of the text in content/commitment.md exactly, including punctuation`
                     );
                 else
                     fail(
@@ -497,8 +518,16 @@ export function parseContent(files: ContentFiles): ParseResult {
                     item.file,
                     `quote "${q}" occurs ${hits.length} times in ${target}; quote a few more words or add "occurrence: <n>"`
                 );
-            else if (/[[\]]/.test(q) || linkRanges.some(([s, e]) => at < e && at + q.length > s))
+            else if (
+                /[[\]]/.test(q) ||
+                linkRanges.some(([s, e]) => overlaps(at, at + q.length, s, e))
+            )
                 fail(item.file, `quote "${q}" overlaps a link; annotate text outside links`);
+            else if (crossesStyle(at, at + q.length))
+                fail(
+                    item.file,
+                    `quote "${q}" crosses the edge of **bold** or *italic* text; quote only plain text, or only text inside one bold or italic part`
+                );
             else spans.push({ at, end: at + q.length, item });
         }
         spans.sort((x, y) => x.at - y.at);

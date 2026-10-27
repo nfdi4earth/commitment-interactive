@@ -338,6 +338,17 @@ for (const [target, list] of Object.entries(marks)) {
     const [get, set] = getText(target);
     const src = get();
     const linkRanges = [...src.matchAll(/\[[^\]]*\]\([^)]*\)/g)].map((m) => [m.index, m.index + m[0].length]);
+    // a quote is plain text or inside one bold or italic part, never across its edge
+    // bold and italic parts with their delimiter length; as in CommonMark, a delimiter opens before
+    // and closes after a non-space, `_` only outside words; emphasis inside bold is a second range
+    const styleRanges = [
+        [/\*\*(?![\s*])[^\n]*?[^\s*]\*\*/gu, 2],
+        [/(?<!\*)\*(?![\s*])[^*\n]*?[^\s*]\*(?!\*)/gu, 1],
+        [/(?<![\p{L}\p{N}_])__(?![\s_])[^\n]*?[^\s_]__(?![\p{L}\p{N}_])/gu, 2],
+        [/(?<![\p{L}\p{N}_])_(?![\s_])[^_\n]*?[^\s_]_(?![\p{L}\p{N}_])/gu, 1]
+    ].flatMap(([re, mark]) => [...src.matchAll(re)].map((m) => [m.index, m.index + m[0].length, mark]));
+    const overlaps = (at, end, s, e) => at < e && end > s;
+    const crossesStyle = (at, end) => styleRanges.some(([s, e, mark]) => overlaps(at, end, s, e) && !(at >= s + mark && end <= e - mark));
     const spans = [];
     for (const a of list) {
         // whole words only: "NFDI" does not match inside "NFDI4Earth"
@@ -346,10 +357,11 @@ for (const [target, list] of Object.entries(marks)) {
         const hits = [...src.matchAll(re)].map((m) => m.index);
         const occ = a.meta.occurrence;
         const at = occ ? hits[occ - 1] : hits[0];
-        if (!hits.length) fail(a.file, `quote "${q}" not found in ${target}. It must match whole words of the text in content/commitment.md exactly, including punctuation and **`);
+        if (!hits.length) fail(a.file, `quote "${q}" not found in ${target}. It must match whole words of the text in content/commitment.md exactly, including punctuation`);
         else if (occ && at === undefined) fail(a.file, `occurrence ${occ}: quote "${q}" occurs only ${hits.length} time(s) in ${target}`);
         else if (!occ && hits.length > 1) fail(a.file, `quote "${q}" occurs ${hits.length} times in ${target}; quote a few more words or add "occurrence: <n>"`);
-        else if (/[[\]]/.test(q) || linkRanges.some(([s, e]) => at < e && at + q.length > s)) fail(a.file, `quote "${q}" overlaps a link; annotate text outside links`);
+        else if (/[[\]]/.test(q) || linkRanges.some(([s, e]) => overlaps(at, at + q.length, s, e))) fail(a.file, `quote "${q}" overlaps a link; annotate text outside links`);
+        else if (crossesStyle(at, at + q.length)) fail(a.file, `quote "${q}" crosses the edge of **bold** or *italic* text; quote only plain text, or only text inside one bold or italic part`);
         else spans.push({ at, end: at + q.length, a });
     }
     spans.sort((x, y) => x.at - y.at);

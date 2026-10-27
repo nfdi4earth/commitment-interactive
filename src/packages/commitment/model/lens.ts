@@ -54,7 +54,7 @@ for (const a of Object.values(content.annotations))
 export const annotationsOn = (target: string): Annotation[] => BY_TARGET.get(target) ?? [];
 
 /** Reads the lens from `?role=…&topic=…&concept=…`, ignoring unknown ids. */
-export function lensFromQuery(q: URLSearchParams): Lens {
+export function lensFromQuery(q: { get(kind: FacetKind): string | null }): Lens {
     const lens: Lens = {};
     for (const k of FACET_KINDS) {
         const id = q.get(k) ?? undefined;
