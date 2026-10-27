@@ -1,0 +1,55 @@
+# Prepared for the move to RWTH GitLab, not run yet; the steps are in ci/*.sh (see ci/README.md).
+image: node:22
+
+workflow:
+  rules:
+    # merge request pipelines, and branch pipelines for branches without an open merge request
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
+variables:
+  HUSKY: "0"
+  PAGES_URL: $CI_PAGES_URL
+
+default:
+  cache:
+    key:
+      files: [pnpm-lock.yaml]
+    paths: [.pnpm-store]
+  before_script:
+    # the corepack in older node images rejects newer pnpm signatures
+    - npm install --global corepack@latest
+    - corepack enable
+    - pnpm config set store-dir .pnpm-store
+    - pnpm install --frozen-lockfile
+
+check:
+  stage: test
+  script:
+    - ci/check.sh
+
+build-e2e:
+  stage: test
+  script:
+    - ci/build-site.sh
+    - ci/e2e.sh
+  artifacts:
+    when: always
+    paths: [dist/www, playwright-report]
+    expire_in: 2 weeks
+
+pages:
+  stage: deploy
+  needs: [check, build-e2e]
+  cache: []
+  before_script: []
+  script:
+    - echo "Publishing dist/www"
+  pages:
+    publish: dist/www
+  artifacts:
+    paths: [dist/www]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

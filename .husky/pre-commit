@@ -9,14 +9,5 @@ if ! command -v pnpm >/dev/null 2>&1; then
     exit 0
 fi
 
-echo '--- run linting --- '
-pnpm lint
-
-echo '--- run prettier ---'
-pnpm prettier-check
-
-echo '--- run typescript check ---'
-pnpm check-types
-
-echo '--- run tests ---'
-CI=1 pnpm test run # CI=1 disallows `.only` in tests
+# the same checks as CI
+ci/check.sh

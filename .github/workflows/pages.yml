@@ -1,0 +1,84 @@
+# Interim deployment to GitHub Pages; the steps are in ci/*.sh (see ci/README.md).
+name: Check, test and deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  # never cancel a deployment that is running
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  HUSKY: 0
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: ci/check.sh
+
+  build-e2e:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    env:
+      # the Pages URL; pull requests (no Pages access needed) build for the same path
+      PAGES_URL: ${{ github.event_name == 'pull_request' && format('/{0}/', github.event.repository.name) || '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - if: github.event_name != 'pull_request'
+        id: pages
+        uses: actions/configure-pages@v5
+      - if: github.event_name != 'pull_request'
+        run: echo "PAGES_URL=${{ steps.pages.outputs.base_url }}" >> "$GITHUB_ENV"
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - run: ci/build-site.sh
+      - run: ci/e2e.sh
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+      - if: github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/www
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: [check, build-e2e]
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

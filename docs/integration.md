@@ -2,7 +2,7 @@
 
 The package `src/packages/commitment/` is a self-contained part of the app, including its texts (`content/`), styles, English and German UI strings, and tests. This repository runs it in a thin copy of the OneStop4All (OS4A) shell. This page describes how to add it to OS4A as a page under `/commitment`, like `/label`.
 
-**Tested** on 2026-10-27 in a fresh copy of OS4A at commit `b39aaff` (v1.11.2), following the steps below: `pnpm install` (no unexpected duplicates), `pnpm check-types`, `pnpm build` and the package's tests passed; `pnpm lint` showed one warning in OS4A's own code. This repository's browser tests (`E2E_BASE_URL=http://localhost:4180/ pnpm test:e2e` against OS4A's `vite preview`) passed 47 of 48: on mobile, OS4A's "Ask our Bot" button covers the reader's "Contents" button (see "Things to decide"). An earlier test (same day) also checked the German UI strings.
+**Tested** on 2026-10-27 in a fresh copy of OS4A at commit `b39aaff` (v1.11.2), following the steps below: `pnpm install` (no unexpected duplicates), `pnpm check-types`, `pnpm build` and the package's tests passed; `pnpm lint` showed one warning in OS4A's own code. This repository's browser tests (`E2E_BASE_URL=http://localhost:4180/ pnpm exec playwright test` against OS4A's `vite preview`) passed 47 of 48: on mobile, OS4A's "Ask our Bot" button covers the reader's "Contents" button (see "Things to decide"). An earlier test (same day) also checked the German UI strings.
 
 ## Steps
 
@@ -81,7 +81,7 @@ pnpm lint
 pnpm vitest run src/packages/commitment
 pnpm build && pnpm preview --port 4180
 # in this repository, against that server:
-E2E_BASE_URL=http://localhost:4180/ pnpm test:e2e
+E2E_BASE_URL=http://localhost:4180/ pnpm exec playwright test
 ```
 
 Then open `/commitment`, `/commitment/for/researcher`, `/commitment/topics/proposal-writing`, `/commitment/deep-dive/licensing` and `/commitment/map` at desktop and mobile widths.

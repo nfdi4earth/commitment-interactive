@@ -32,7 +32,7 @@ It helps different stakeholders understand and implement the commitment:
     - `views/`: `IndexView` (`for`, `topics`, `concepts`), `PerspectiveView` (`for/:id`), `TopicView` (`topics/:id`, scrollytelling), `DeepDiveView` (`deep-dive/:id`) and `MapView` (`map`, `@xyflow/react`, lazy-loaded; its base CSS is loaded scoped in `styles.scss`). Unknown paths redirect to the reader.
     - **Host contract:** the host mounts `commitmentRoutes` as children of a plain route (`commitment`, not `commitment/*`, where React Router 7 resolves "." against the whole URL); `CommitmentRoot` derives the base path for links from it. The host also sets the CSS variable `--commitment-sticky-top` to the height of its fixed header (see `layouts/layout.tsx`), so the sticky lens bar sits below it.
 - **Node and pnpm:** OS4A needs Node ≥ 20 and pnpm 10 (`engines` in `package.json`). On this machine use the nvm Node 22 (`PATH=$HOME/.nvm/versions/node/v22.23.3/bin:$PATH`); the default Node 18 is too old for the app (the content script works with both).
-- `pnpm install` runs husky, which sets `core.hooksPath` so the **pre-commit hook runs lint, Prettier, type check and tests** (from OS4A). `NO_VERIFY=1` skips it; never use that to get around a failing check (G2.2).
+- `pnpm install` runs husky, which sets `core.hooksPath` so the **pre-commit hook runs `ci/check.sh`**: lint, Prettier, type check, content check and unit tests, the same as CI. `NO_VERIFY=1` skips it; never use that to get around a failing check (G2.2).
 - How to add the package to OS4A, and what to decide before going live: `docs/integration.md` (tested against OS4A `b39aaff` on 2026-10-27). Keep it current when the host contract changes. The original plan is in `~/.claude/plans/we-start-a-new-streamed-moler.md`.
 
 <!-- source: own rule, derived from OS4A code review, added 2026-10-26, updated 2026-10-27 -->
@@ -106,10 +106,17 @@ These are the starting points for the real deep-dive content. Don't use them for
 
 - **Content:** `pnpm check-content` validates `content/` (with both parsers) and fails if `mockup/data.js` or `model/content.generated.json` is out of date; `pnpm build-content` updates both. Commit them together with the content. `pnpm dev` regenerates the JSON on every content change (`tools/vite-plugin-content.mjs`, dev server only); builds and tests use the committed file, so `parse.test.ts` fails on a stale one.
 - **Mock-up:** there are no automated UI tests. Verify it manually in a browser at desktop width and at mobile width (< 1000px).
-- **App:** `pnpm lint`, `pnpm prettier-check`, `pnpm check-types`, `CI=1 pnpm test run` and `pnpm build`. Tests are in `src/packages/commitment/**/*.test.ts`; `src/testing/global-setup.ts` loads the jest-dom matchers.
-- **Browser tests:** `pnpm test:e2e` (Playwright, `tests/e2e/*.e2e.ts`, desktop and mobile width) builds the app, serves `dist/www` with `vite preview` and runs the reader, links/URL state and page tests; every test also fails on browser console errors. `E2E_BASE_URL=<url> pnpm test:e2e` tests a running server instead (a deployment, or OS4A with the package). Run them for every change to the UI. Use `location` from the page for URL checks: `page.url()` misses `replaceState`. First run on a machine: `pnpm exec playwright install chromium`.
+- **App:** `ci/check.sh` (`pnpm lint`, `pnpm prettier-check`, `pnpm check-types`, `pnpm check-content`, `CI=1 pnpm test run`) and `pnpm build`. Tests are in `src/packages/commitment/**/*.test.ts`; `src/testing/global-setup.ts` loads the jest-dom matchers.
+- **Browser tests:** `pnpm test:e2e` (Playwright, `tests/e2e/*.e2e.ts`, desktop and mobile width) builds the app, serves `dist/www` with `vite preview` and runs the reader, links/URL state and page tests; every test also fails on browser console errors. `E2E_BASE_URL=<url> pnpm exec playwright test` tests a running server instead (a deployment, or OS4A with the package). Run them for every change to the UI. Use `location` from the page for URL checks: `page.url()` misses `replaceState`. First run on a machine: `pnpm exec playwright install chromium`.
 - **In a browser:** `pnpm build && pnpm preview`, or `pnpm dev`, then open http://localhost:4173/ (preview) or http://localhost:5173/ (dev) at desktop and mobile widths.
 - **Effects need block bodies** (ESLint `no-restricted-syntax` in the package): newer browsers return a Promise from `scrollTo`/`scrollIntoView`, and an expression body makes React call it as cleanup and crash on unmount (found by the browser tests). `routes.tsx` has an `errorElement`, so a failing page doesn't break the host page.
+
+<!-- source: Daniel Nüst, request for an interim deployment, added 2026-10-27 -->
+## CI and deployment
+
+- **Interim** deployment: GitHub Pages (https://nfdi4earth.github.io/commitment-interactive/) from https://github.com/nfdi4earth/commitment-interactive, until the page moves into OS4A or the repository to RWTH GitLab. Details in `ci/README.md`.
+- **All CI steps live in `ci/*.sh`**; `.github/workflows/pages.yml` and the prepared `.gitlab-ci.yml` only install and call them, with the same job layout. Change a step in the script, not in a config.
+- Sub-path: `BASE_PATH` sets Vite's `base`, the router's `basename` and the browser tests' base URL. In the host app, write public assets as `` `${import.meta.env.BASE_URL}file.png` ``, not `/file.png` (Vite rewrites only HTML and CSS).
 
 <!-- source: Daniel Nüst, request, added 2026-10-27 -->
 ## Development workflow

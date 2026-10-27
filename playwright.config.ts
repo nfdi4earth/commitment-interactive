@@ -1,11 +1,16 @@
-// Browser tests (tests/e2e), run with `pnpm test:e2e`. They build the app and serve it with
+// Browser tests (tests/e2e). `pnpm test:e2e` builds the app; the tests serve dist/www with
 // `vite preview`, as a deployment would. E2E_BASE_URL tests a running server instead, e.g. a
 // preview deployment ("https://…/commitment-interactive/").
 import { defineConfig, devices } from "@playwright/test";
+import { existsSync } from "node:fs";
 
 // E2E_BASE_URL with one slash at the end, so that relative paths stay below it
 const external = process.env.E2E_BASE_URL?.replace(/\/*$/, "/");
 // BASE_PATH: the sub-path the build was made for (ci/build-site.sh), with slashes as in vite.config.ts
+if (!external && !existsSync("dist/www/index.html"))
+    throw new Error(
+        "No build in dist/www: run `pnpm test:e2e`, which builds first, or `pnpm build`."
+    );
 const local = `http://localhost:4173${`/${process.env.BASE_PATH ?? ""}/`.replace(/\/+/g, "/")}`;
 
 export default defineConfig({
@@ -37,10 +42,9 @@ export default defineConfig({
     webServer: external
         ? undefined
         : {
-              // E2E_SKIP_BUILD: dist/www is built already (ci/e2e.sh)
-              command: `${process.env.E2E_SKIP_BUILD ? "" : "pnpm build && "}pnpm preview --port 4173 --strictPort`,
+              command: "pnpm preview --port 4173 --strictPort",
               url: local,
               reuseExistingServer: !process.env.CI,
-              timeout: 180_000
+              timeout: 60_000
           }
 });

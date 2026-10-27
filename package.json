@@ -20,7 +20,7 @@
         "prettier": "pnpm prettier:common -w",
         "prettier:common": "prettier ./src ./tests ./tools playwright.config.ts --cache",
         "test": "vitest",
-        "test:e2e": "playwright test",
+        "test:e2e": "pnpm build && playwright test",
         "prepare": "husky && pnpm check-duplicates",
         "postinstall": "pnpm chakra typegen src/apps/commitment-standalone/theme.ts"
     },

@@ -17,6 +17,10 @@ You can:
 - follow deep dives on concepts such as licensing and openness
 - explore an **overview map** that connects perspectives, topics, statements and concepts
 
+## Preview
+
+An interim preview is published from the `main` branch at https://nfdi4earth.github.io/commitment-interactive/, until the page moves into OneStop4All. CI: see [`ci/`](ci/README.md).
+
 ## Run the app (in development)
 
 The React app has all pages of the mock-up, in the OneStop4All page frame; the detail content is still example content. You need [Node.js](https://nodejs.org/) 20 or newer and [pnpm](https://pnpm.io/) 10.
