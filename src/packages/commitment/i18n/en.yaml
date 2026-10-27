@@ -4,6 +4,10 @@ messages:
   example-badge: "example content"
   mock-short: "Mock-up"
   back: "Back"
+  error:
+    title: "Something went wrong"
+    text: "This page could not be shown. Reload it to try again."
+    reload: "Reload"
   show-in-text: "Show in text →"
   back-to:
     commitment: "to the Commitment"

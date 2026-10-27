@@ -3,7 +3,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Center, Spinner } from "@chakra-ui/react";
 import { routes } from "@os4a/routes/routes";
 
-const router = createBrowserRouter(routes);
+// BASE_URL is the deployment's sub-path (vite.config.ts, BASE_PATH), e.g. on GitHub Pages
+const router = createBrowserRouter(routes, { basename: import.meta.env.BASE_URL });
 
 export function AppUI() {
     return (

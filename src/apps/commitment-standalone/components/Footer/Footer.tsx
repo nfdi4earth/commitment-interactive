@@ -145,7 +145,10 @@ export const Footer = () => {
                                 rel="noreferrer"
                             >
                                 <Flex gap="10px" alignItems="center">
-                                    <img src="/gitlab-logo.svg" alt="gitlab logo" />
+                                    <img
+                                        src={`${import.meta.env.BASE_URL}gitlab-logo.svg`}
+                                        alt="gitlab logo"
+                                    />
                                     <div className="footerLinkLabel">GITLAB</div>
                                 </Flex>
                             </a>
@@ -157,7 +160,10 @@ export const Footer = () => {
                                 rel="noreferrer"
                             >
                                 <Flex gap="10px" alignItems="center">
-                                    <img src="/mastodon.svg" alt="mastodon logo" />
+                                    <img
+                                        src={`${import.meta.env.BASE_URL}mastodon.svg`}
+                                        alt="mastodon logo"
+                                    />
                                     <div className="footerLinkLabel">MASTODON</div>
                                 </Flex>
                             </a>
@@ -169,14 +175,18 @@ export const Footer = () => {
                                 rel="noreferrer"
                             >
                                 <Flex gap="10px" alignItems="center">
-                                    <img src="/ccby.png" width={80} alt="ccby logo" />
+                                    <img
+                                        src={`${import.meta.env.BASE_URL}ccby.png`}
+                                        width={80}
+                                        alt="ccby logo"
+                                    />
                                     <div className="footerLinkLabel">CC BY 4.0</div>
                                 </Flex>
                             </a>
                         </Box>
                         <Box flex="1 1 50px"></Box>
                         <Box>
-                            <img src="/dfg-logo.svg" alt="dfg logo" />
+                            <img src={`${import.meta.env.BASE_URL}dfg-logo.svg`} alt="dfg logo" />
                         </Box>
                     </Box>
                 </Container>

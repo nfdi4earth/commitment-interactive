@@ -7,10 +7,10 @@ import {
     type Facet,
     type FacetKind,
     type Statement,
+    plainText,
     type Tags
 } from "./types";
 import { content } from "./content";
-import { plainText } from "./parse";
 
 export type Lens = Partial<Record<FacetKind, string>>;
 

@@ -1,10 +1,26 @@
 import { describe, expect, it } from "vitest";
-import { content, contentErrors, contentFiles } from "./content";
-import { parseContent, plainText, type ContentFiles } from "./parse";
+import generated from "./content.generated.json";
+import { contentFileKey, parseContent, type ContentFiles } from "./parse";
+import { plainText } from "./types";
+
+const raw = import.meta.glob<string>("../content/**/*.md", {
+    query: "?raw",
+    import: "default",
+    eager: true
+});
+/** The files keyed by their path relative to the package, e.g. `content/roles/student.md`. */
+const contentFiles: ContentFiles = Object.fromEntries(
+    Object.entries(raw).map(([path, text]) => [contentFileKey(path), text])
+);
+const { content, errors } = parseContent(contentFiles);
 
 describe("content/", () => {
     it("has no problems", () => {
-        expect(contentErrors).toEqual([]);
+        expect(errors).toEqual([]);
+    });
+
+    it("matches the generated file the app loads (else run `pnpm build-content`)", () => {
+        expect(JSON.parse(JSON.stringify(content))).toEqual(generated);
     });
 
     it("has the 12 statements of the Commitment in two boxes", () => {

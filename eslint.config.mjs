@@ -119,6 +119,16 @@ export default tseslint.config(
         // The commitment package is the drop-in unit for OneStop4All: it must not depend on the host.
         files: ["src/packages/commitment/**"],
         rules: {
+            // An expression body becomes the effect's cleanup: `useEffect(() => el.scrollTo(…))`
+            // returns a Promise in newer browsers, and React then fails when it unmounts.
+            "no-restricted-syntax": [
+                "error",
+                {
+                    selector:
+                        "CallExpression:matches([callee.name=/^use(Layout|Insertion)?Effect$/], [callee.property.name=/^use(Layout|Insertion)?Effect$/]) > ArrowFunctionExpression:first-child[body.type!='BlockStatement'][body.type!='ArrowFunctionExpression']",
+                    message: "Give effects a block body: an expression body becomes the effect's cleanup."
+                }
+            ],
             "no-restricted-imports": [
                 "error",
                 {

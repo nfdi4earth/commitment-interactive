@@ -9,6 +9,7 @@ import {
     useState,
     type ReactNode
 } from "react";
+import { useIntl } from "open-pioneer:react-hooks";
 import {
     Navigate,
     Outlet,
@@ -29,7 +30,9 @@ export function CommitmentRoot() {
     // a new page starts at the top; a layout effect, so that it runs before the pages' effects,
     // which may scroll on to a target (useReveal)
     const { pathname } = useLocation();
-    useLayoutEffect(() => window.scrollTo({ top: 0 }), [pathname]);
+    useLayoutEffect(() => {
+        window.scrollTo({ top: 0 });
+    }, [pathname]);
     return (
         <BasePath.Provider value={base}>
             <div className="commitment-view">
@@ -170,6 +173,26 @@ export function useAppPath(): (path: string) => string {
 /** Overlays (tooltips, popovers, drawers) render in a portal outside the page; this re-applies the styles. */
 export function Scoped({ children }: { children: ReactNode }) {
     return <div className="commitment-view">{children}</div>;
+}
+
+/** Shown instead of a page that failed, so that the rest of the host page keeps working. */
+export function ErrorView() {
+    const intl = useIntl();
+    return (
+        <div className="commitment-view">
+            <div className="error-view" role="alert">
+                <h1 className="page-title">{intl.formatMessage({ id: "error.title" })}</h1>
+                <p>{intl.formatMessage({ id: "error.text" })}</p>
+                <button
+                    type="button"
+                    className="btn-solid"
+                    onClick={() => window.location.reload()}
+                >
+                    {intl.formatMessage({ id: "error.reload" })}
+                </button>
+            </div>
+        </div>
+    );
 }
 
 /** Unknown paths inside the app lead back to the reader. */

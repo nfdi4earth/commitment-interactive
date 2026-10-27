@@ -7,6 +7,10 @@ messages:
   example-badge: "Beispielinhalt"
   mock-short: "Mock-up"
   back: "Zurück"
+  error:
+    title: "Etwas ist schiefgelaufen"
+    text: "Diese Seite konnte nicht angezeigt werden. Laden Sie sie neu, um es noch einmal zu versuchen."
+    reload: "Neu laden"
   show-in-text: "Im Text zeigen →"
   back-to:
     commitment: "zum Commitment"

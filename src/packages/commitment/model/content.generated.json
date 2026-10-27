@@ -1,0 +1,1391 @@
+{
+ "preamble": [
+  "**Science advances when knowledge is openly shared.** In response to the growing geo-societal challenges of our planet, and in light of the [UN Sustainable Development Goals](annotation:sdgs), trustworthy research practices require the open sharing of well-documented data and their provenance in an ethical manner. This requires a cultural and systemic change that evolves current practices and that promotes solutions for data sharing and improvements of incentives within and beyond the Earth System Sciences. **Only by working together as a community can this happen.**",
+  "At its core, **Earth System Sciences** aims to unravel the complex processes that drive the Earth as a dynamic system. This includes the fluxes of matter and energy in the five main spheres - the geosphere, hydrosphere (including the cryosphere), atmosphere, biosphere and anthroposphere (cf. Leopoldina's report [Earth System Science: Discovery, Diagnosis, and Solutions in Times of Global Change](https://doi.org/10.26164/LEOPOLDINA_03_00591)).",
+  "Data acquisition, simulation, integration, and analysis are crucial to understanding these complex processes. The Earth System Sciences community already embraces many Open Science practices, including making its manifold types of **research outputs [findable, accessible, interoperable, and reusable](annotation:fair-principles)** for humans and machines (as stated in the [The FAIR Guiding Principles for scientific data management and stewardship](https://doi.org/10.1038/sdata.2016.18)). Equal priority should be given to data management and analysis tools that enable data-driven methods. Efficient and effective use of research outputs, facilities, and funding, as well as appropriate [reward systems and recognition of all research activities](annotation:reward-systems) are equally important parts of Earth System Sciences data activities.",
+  "**[NFDI4Earth](https://www.nfdi4earth.de/)** - the consortium for the Earth System Sciences within the National Research Data Infrastructure ([NFDI](https://www.nfdi.de/?lang=en)) - aims to become a central facilitator for research data management in the German Earth System Sciences community, enabling more intensive and widespread open knowledge sharing. The **mission of NFDI4Earth is to provide easy, efficient, open and, as far as possible, unrestricted and standardised access to all relevant Earth system data, scientific data management and data analysis services, and to ensure sustainable and quality-assured research data management infrastructures**. This commitment will help to engage the NFDI4Earth community in shaping, promoting, and implementing the NFDI4Earth agenda. In the longer term, the results of this work will also help to drive the much needed change in the way research is evaluated, as expressed in the [DORA and CoARA declarations](annotation:dora-coara).",
+  "**NFDI4Earth invites** institutions and individual researchers, laboratories, infrastructure providers, publishers, academic societies, government agencies, administrations, industry, funders, and research organisations to sign the following statement of commitment and become ambassadors for change towards more FAIR and Open data practices in Earth System Sciences. To support this shift, the NFDI4Earth website provides background information and guidance for different stakeholders."
+ ],
+ "intro": "Signatories of the NFDI4Earth FAIRness and Openness Commitment pledge to support NFDI4Earth's mission, products, and services. The signature of members and/or representatives of the Earth System Sciences community is a public signal of agreement with the goals and values of the Commitment. By collectively supporting the Commitment, the signatories realise NFDI4Earth as a community of practice, taking into account the full range of expertise and all relevant user groups of Earth System Sciences for a sustainable shift towards more FAIR and Open Research.",
+ "boxes": [
+  {
+   "id": "boxA",
+   "title": "[We commit](annotation:we-commit) to advance FAIRness and Openness in Earth System Sciences.",
+   "from": 1,
+   "to": 9
+  },
+  {
+   "id": "boxB",
+   "title": "We value data infrastructures and [data experts](annotation:data-experts).",
+   "from": 10,
+   "to": 12
+  }
+ ],
+ "statements": [
+  {
+   "n": 1,
+   "box": "boxA",
+   "text": "Commit to the mission of [NFDI](annotation:nfdi) in bringing together research communities to provide data for the common good, and the recognition of the role of NFDI4Earth as a [facilitator of sustainable and collaboratively developed solutions](annotation:facilitator) in Earth System Sciences.",
+   "short": "NFDI mission",
+   "roles": [
+    "institution",
+    "organisation",
+    "researcher"
+   ],
+   "topics": [
+    "proposal-writing"
+   ],
+   "concepts": [
+    "infrastructure",
+    "openness"
+   ]
+  },
+  {
+   "n": 2,
+   "box": "boxA",
+   "text": "Support and uphold, [where appropriate and possible](annotation:where-appropriate), the principles and values outlined in [existing Open Science declarations and statements](annotation:os-declarations).",
+   "short": "Open Science declarations",
+   "roles": [
+    "researcher",
+    "institution",
+    "organisation"
+   ],
+   "topics": [
+    "research-evaluation",
+    "scholarly-communication",
+    "open-access"
+   ],
+   "concepts": [
+    "openness"
+   ]
+  },
+  {
+   "n": 3,
+   "box": "boxA",
+   "text": "Be familiar with [relevant data laws and acts](annotation:data-laws), especially those related to [geospatial data](annotation:geospatial), in both national and European jurisdictions. These laws facilitate data sharing at both national and international levels.",
+   "short": "Data laws & acts",
+   "roles": [
+    "researcher",
+    "student",
+    "institution"
+   ],
+   "topics": [
+    "proposal-writing",
+    "publishing"
+   ],
+   "concepts": [
+    "licensing",
+    "openness"
+   ]
+  },
+  {
+   "n": 4,
+   "box": "boxA",
+   "text": "Give credit to [all sources underlying our research findings](annotation:all-sources) and, whenever possible, credit is given through [proper citations](annotation:citations).",
+   "short": "Give credit",
+   "roles": [
+    "student",
+    "researcher",
+    "organisation"
+   ],
+   "topics": [
+    "publishing",
+    "reviewing",
+    "research-evaluation",
+    "scholarly-communication"
+   ],
+   "concepts": [
+    "credit"
+   ]
+  },
+  {
+   "n": 5,
+   "box": "boxA",
+   "text": "Choose to publish Earth System Sciences data in [Earth System Sciences domain repositories](annotation:domain-repos) and other suitable research infrastructures that meet [all four aspects of FAIR principles](annotation:four-aspects) and consider the specific characteristics of Earth System Sciences data.",
+   "short": "Domain repositories",
+   "roles": [
+    "researcher",
+    "student"
+   ],
+   "topics": [
+    "publishing",
+    "open-access",
+    "proposal-writing",
+    "reviewing"
+   ],
+   "concepts": [
+    "fairness",
+    "infrastructure"
+   ]
+  },
+  {
+   "n": 6,
+   "box": "boxA",
+   "text": "Strengthen FAIR and Open Data practices by supporting [educational networks](annotation:edu-networks), robust training programmes, and the production of [educational materials](annotation:edu-materials) that promote transparency and accessibility of research outputs.",
+   "short": "Education & training",
+   "roles": [
+    "student",
+    "institution",
+    "organisation"
+   ],
+   "topics": [
+    "teaching"
+   ],
+   "concepts": [
+    "openness",
+    "fairness"
+   ]
+  },
+  {
+   "n": 7,
+   "box": "boxA",
+   "text": "Adopt [Data Management Plans](annotation:dmps) as important tools for all research projects. These plans are invaluable for strategically planning data documentation, publication, and collaboratively monitoring data management activities. We seek and consider [expert curation and guidance](annotation:expert-curation) for them.",
+   "short": "Data Management Plans",
+   "roles": [
+    "researcher",
+    "student",
+    "institution"
+   ],
+   "topics": [
+    "proposal-writing",
+    "teaching"
+   ],
+   "concepts": [
+    "fairness"
+   ]
+  },
+  {
+   "n": 8,
+   "box": "boxA",
+   "text": "[Where possible](annotation:where-possible), use [open and permissive data and software licences](annotation:licences) that legally enable the envisioned free and open sharing of Earth System Sciences data.",
+   "short": "Open licences",
+   "roles": [
+    "researcher",
+    "student",
+    "institution"
+   ],
+   "topics": [
+    "publishing",
+    "open-access",
+    "reviewing"
+   ],
+   "concepts": [
+    "licensing",
+    "openness"
+   ]
+  },
+  {
+   "n": 9,
+   "box": "boxA",
+   "text": "Support and align scientific work with [governing bodies and organisations](annotation:governing-bodies) that advance the underlying causes of this commitment.",
+   "short": "Governing bodies",
+   "roles": [
+    "institution",
+    "organisation"
+   ],
+   "topics": [
+    "research-evaluation"
+   ],
+   "concepts": [
+    "standards"
+   ]
+  },
+  {
+   "n": 10,
+   "box": "boxB",
+   "text": "Recognise the vital role that Earth System Sciences domain repositories and their [curation services](annotation:curation-services) play in achieving and preserving the highest possible FAIRness and Openness in the Earth System Sciences. As researchers, institutions, and funding agencies, we endeavour to ensure the [sustainability of these repositories](annotation:sustainability) and other relevant research infrastructures.",
+   "short": "Sustain repositories",
+   "roles": [
+    "institution",
+    "researcher"
+   ],
+   "topics": [
+    "proposal-writing",
+    "research-evaluation"
+   ],
+   "concepts": [
+    "infrastructure"
+   ]
+  },
+  {
+   "n": 11,
+   "box": "boxB",
+   "text": "Collaborate with [data curators and repository managers](annotation:curators) and leverage their expertise to make Earth System Sciences research outputs transparent, machine-readable, interoperable, and re-usable in the long term. They use diverse approaches, such as the [NFDI4Earth Label](annotation:label), to document and advance interoperability across data repositories.",
+   "short": "Data curators",
+   "roles": [
+    "researcher",
+    "institution",
+    "organisation"
+   ],
+   "topics": [
+    "publishing"
+   ],
+   "concepts": [
+    "infrastructure",
+    "credit",
+    "fairness"
+   ]
+  },
+  {
+   "n": 12,
+   "box": "boxB",
+   "text": "Adhere to and contribute to [international standards](annotation:standards) for harmonising Earth System Sciences data, metadata, data quality, and application programming interfaces (APIs). Support their implementation and development across research infrastructures, as this is crucial for effective interdisciplinary research and advancements in novel analysis methods such as [Artificial Intelligence or Machine Learning (AI & ML)](annotation:ai-ml).",
+   "short": "International standards",
+   "roles": [
+    "researcher",
+    "organisation",
+    "institution"
+   ],
+   "topics": [
+    "reviewing",
+    "publishing"
+   ],
+   "concepts": [
+    "standards",
+    "fairness"
+   ]
+  }
+ ],
+ "annotations": {
+  "ai-ml": {
+   "id": "ai-ml",
+   "target": "c12",
+   "quote": "Artificial Intelligence or Machine Learning (AI & ML)",
+   "depth": "note",
+   "title": "AI & ML",
+   "body": "Machine learning needs large, consistently described training data – standards make datasets combinable.",
+   "roles": [],
+   "topics": [],
+   "concepts": [],
+   "links": []
+  },
+  "all-sources": {
+   "id": "all-sources",
+   "target": "c4",
+   "quote": "all sources underlying our research findings",
+   "depth": "note",
+   "title": "All sources",
+   "body": "Not just papers: *datasets, software, samples, models, workflows* and the people who curated them.",
+   "roles": [],
+   "topics": [],
+   "concepts": [
+    "credit"
+   ],
+   "links": []
+  },
+  "citations": {
+   "id": "citations",
+   "target": "c4",
+   "quote": "proper citations",
+   "depth": "explainer",
+   "title": "Proper citations",
+   "body": "Cite data like a paper: *Author (Year). Title. Publisher/Repository. DOI.* Put the citation in the reference list, not only in the text.\n\nReviewers can ask for missing data citations.",
+   "roles": [
+    "student",
+    "researcher"
+   ],
+   "topics": [
+    "publishing",
+    "reviewing"
+   ],
+   "concepts": [
+    "credit"
+   ],
+   "links": [
+    {
+     "label": "FORCE11 Data Citation Principles",
+     "url": "https://doi.org/10.25490/a97f-egyk"
+    }
+   ]
+  },
+  "curation-services": {
+   "id": "curation-services",
+   "target": "c10",
+   "quote": "curation services",
+   "depth": "note",
+   "title": "Curation services",
+   "body": "Checking, enriching and documenting submitted data – often invisible but essential work.",
+   "roles": [],
+   "topics": [],
+   "concepts": [
+    "infrastructure"
+   ],
+   "links": []
+  },
+  "curators": {
+   "id": "curators",
+   "target": "c11",
+   "quote": "data curators and repository managers",
+   "depth": "explainer",
+   "title": "Data curators and repository managers",
+   "body": "Involve curators early. Acknowledge them – or invite them as co-authors of data papers where their contribution warrants it (see CRediT role “Data curation”).",
+   "roles": [
+    "researcher"
+   ],
+   "topics": [],
+   "concepts": [
+    "credit",
+    "infrastructure"
+   ],
+   "links": [
+    {
+     "label": "CRediT taxonomy",
+     "url": "https://credit.niso.org/"
+    }
+   ]
+  },
+  "data-experts": {
+   "id": "data-experts",
+   "target": "boxB",
+   "quote": "data experts",
+   "depth": "deepdive",
+   "title": "Data experts",
+   "body": "[Example content] **Data experts** are the people who make FAIR data possible: data curators, data stewards, repository managers, research software engineers and data scientists in infrastructure teams.\n\nTheir work is often invisible in publications and evaluations. Valuing them means:\n\n1. **crediting** them, e.g. with the [CRediT](https://credit.niso.org/) role *Data curation*\n2. **involving** them early in projects\n3. **creating career paths** for them at institutions\n\nStatements 10–12 spell out how: sustaining repositories, collaborating with curators and building on shared standards.",
+   "roles": [
+    "institution",
+    "researcher",
+    "organisation"
+   ],
+   "topics": [
+    "research-evaluation",
+    "proposal-writing"
+   ],
+   "concepts": [
+    "infrastructure",
+    "credit"
+   ],
+   "links": [
+    {
+     "label": "CRediT taxonomy",
+     "url": "https://credit.niso.org/"
+    },
+    {
+     "label": "NFDI4Earth User Support Network",
+     "url": "https://www.nfdi4earth.de/"
+    }
+   ],
+   "statements": [
+    10,
+    11,
+    12
+   ]
+  },
+  "data-laws": {
+   "id": "data-laws",
+   "target": "c3",
+   "quote": "relevant data laws and acts",
+   "depth": "explainer",
+   "title": "Data laws and acts",
+   "body": "Relevant examples:\n\n- **GDPR** – personal data\n- **INSPIRE Directive** – spatial data infrastructure in the EU\n- German **Geodata Access Act** (*GeoZG*)\n\nTip: check early whether your data contains personal information, e.g. GPS tracks or interview locations.",
+   "roles": [
+    "researcher",
+    "institution"
+   ],
+   "topics": [
+    "proposal-writing"
+   ],
+   "concepts": [
+    "licensing"
+   ],
+   "links": [
+    {
+     "label": "INSPIRE",
+     "url": "https://eur-lex.europa.eu/eli/dir/2007/2/oj"
+    },
+    {
+     "label": "GDPR",
+     "url": "https://eur-lex.europa.eu/eli/reg/2016/679/oj"
+    }
+   ]
+  },
+  "dmps": {
+   "id": "dmps",
+   "target": "c7",
+   "quote": "Data Management Plans",
+   "depth": "explainer",
+   "title": "Data Management Plans",
+   "body": "A DMP describes what data you will create, how you document, store, share and archive it, and who is responsible.\n\nMany funders now require one; the DFG asks for a data handling section in proposals.",
+   "roles": [
+    "researcher",
+    "student",
+    "institution"
+   ],
+   "topics": [
+    "proposal-writing"
+   ],
+   "concepts": [
+    "fairness"
+   ],
+   "links": [
+    {
+     "label": "RDMO",
+     "url": "https://rdmorganiser.github.io/"
+    },
+    {
+     "label": "DFG (see guidelines on research data)",
+     "url": "https://www.dfg.de/en"
+    }
+   ]
+  },
+  "domain-repos": {
+   "id": "domain-repos",
+   "target": "c5",
+   "quote": "Earth System Sciences domain repositories",
+   "depth": "explainer",
+   "title": "ESS domain repositories",
+   "body": "Domain repositories (e.g. PANGAEA, GFZ Data Services, BonaRes) know your data types, offer curation and use community metadata standards.\n\nFind suitable repositories in OneStop4All.",
+   "roles": [
+    "researcher",
+    "student"
+   ],
+   "topics": [
+    "publishing"
+   ],
+   "concepts": [
+    "infrastructure",
+    "fairness"
+   ],
+   "links": [
+    {
+     "label": "Search repositories in OneStop4All",
+     "url": "https://onestop4all.nfdi4earth.de/search"
+    }
+   ]
+  },
+  "dora-coara": {
+   "id": "dora-coara",
+   "target": "pre-4",
+   "quote": "DORA and CoARA declarations",
+   "depth": "explainer",
+   "title": "DORA and CoARA",
+   "body": "The **San Francisco Declaration on Research Assessment** (DORA) and the **Coalition for Advancing Research Assessment** (CoARA) call for evaluating research on its merits rather than on journal-based metrics.\n\nFor you this may mean: list datasets and software in your CV, and use narrative CVs where offered.",
+   "roles": [
+    "institution",
+    "researcher"
+   ],
+   "topics": [
+    "research-evaluation"
+   ],
+   "concepts": [],
+   "links": [
+    {
+     "label": "DORA",
+     "url": "https://sfdora.org/"
+    },
+    {
+     "label": "CoARA",
+     "url": "https://coara.eu/"
+    }
+   ]
+  },
+  "edu-materials": {
+   "id": "edu-materials",
+   "target": "c6",
+   "quote": "educational materials",
+   "depth": "note",
+   "title": "Educational materials",
+   "body": "Open Educational Resources (OER), licensed so that others can reuse and adapt them.",
+   "roles": [],
+   "topics": [
+    "teaching"
+   ],
+   "concepts": [],
+   "links": []
+  },
+  "edu-networks": {
+   "id": "edu-networks",
+   "target": "c6",
+   "quote": "educational networks",
+   "depth": "note",
+   "title": "Educational networks",
+   "body": "E.g. the NFDI4Earth EduTrain community and university data literacy networks.",
+   "roles": [],
+   "topics": [
+    "teaching"
+   ],
+   "concepts": [],
+   "links": []
+  },
+  "expert-curation": {
+   "id": "expert-curation",
+   "target": "c7",
+   "quote": "expert curation and guidance",
+   "depth": "note",
+   "title": "Expert curation",
+   "body": "Ask your repository's curators or the [NFDI4Earth User Support Network](mailto:helpdesk@nfdi4earth.de) early – **before** the data is collected.",
+   "roles": [],
+   "topics": [],
+   "concepts": [],
+   "links": []
+  },
+  "facilitator": {
+   "id": "facilitator",
+   "target": "c1",
+   "quote": "facilitator of sustainable and collaboratively developed solutions",
+   "depth": "explainer",
+   "title": "NFDI4Earth as facilitator",
+   "body": "NFDI4Earth does not replace existing infrastructures. It connects them – e.g. via the **OneStop4All** search, the **Living Handbook**, the **User Support Network** and the **Label**.",
+   "roles": [
+    "organisation",
+    "institution"
+   ],
+   "topics": [],
+   "concepts": [
+    "infrastructure"
+   ],
+   "links": [
+    {
+     "label": "OneStop4All",
+     "url": "https://onestop4all.nfdi4earth.de/"
+    }
+   ]
+  },
+  "fair-principles": {
+   "id": "fair-principles",
+   "target": "pre-3",
+   "quote": "findable, accessible, interoperable, and reusable",
+   "depth": "explainer",
+   "title": "The FAIR principles",
+   "body": "FAIR stands for **Findable, Accessible, Interoperable, Reusable**. FAIR is about machine-actionability – FAIR data is not necessarily open data.\n\nExample: a dataset with a DOI, rich metadata and a clear licence in a domain repository is a good start.",
+   "roles": [
+    "student",
+    "researcher"
+   ],
+   "topics": [],
+   "concepts": [
+    "fairness"
+   ],
+   "links": [
+    {
+     "label": "Wilkinson et al. (2016)",
+     "url": "https://doi.org/10.1038/sdata.2016.18"
+    },
+    {
+     "label": "GO FAIR",
+     "url": "https://www.go-fair.org/"
+    }
+   ]
+  },
+  "four-aspects": {
+   "id": "four-aspects",
+   "target": "c5",
+   "quote": "all four aspects of FAIR principles",
+   "depth": "deepdive",
+   "title": "All four aspects of FAIR",
+   "body": "Many repositories are good at **F** and **A** (DOIs, landing pages) but weaker at **I** and **R** (machine-readable formats, vocabularies, licences, provenance).\n\nThe commitment asks you to choose repositories that cover all four. The NFDI4Earth Label is one way to see this at a glance.\n\n[Example content – a real deep dive would include checklists per data type.]",
+   "roles": [
+    "researcher"
+   ],
+   "topics": [],
+   "concepts": [
+    "fairness"
+   ],
+   "links": [],
+   "figure": "fair",
+   "deepdive": "fairness"
+  },
+  "geospatial": {
+   "id": "geospatial",
+   "target": "c3",
+   "quote": "geospatial data",
+   "depth": "note",
+   "title": "Geospatial data",
+   "body": "Data with a location – from sample coordinates to satellite imagery. Location can make data personal.",
+   "roles": [],
+   "topics": [],
+   "concepts": [],
+   "links": []
+  },
+  "governing-bodies": {
+   "id": "governing-bodies",
+   "target": "c9",
+   "quote": "governing bodies and organisations",
+   "depth": "explainer",
+   "title": "Governing bodies",
+   "body": "Bodies such as the **RDA**, **OGC**, **ISO/TC 211**, **EOSC** and **GDI-DE** develop the standards and policies the commitment refers to.",
+   "roles": [
+    "institution",
+    "organisation"
+   ],
+   "topics": [],
+   "concepts": [
+    "standards"
+   ],
+   "links": [
+    {
+     "label": "RDA",
+     "url": "https://www.rd-alliance.org/"
+    },
+    {
+     "label": "OGC",
+     "url": "https://www.ogc.org/"
+    }
+   ]
+  },
+  "label": {
+   "id": "label",
+   "target": "c11",
+   "quote": "NFDI4Earth Label",
+   "depth": "explainer",
+   "title": "NFDI4Earth Label",
+   "body": "The Label documents how repositories implement FAIR and interoperability criteria, helping researchers choose where to publish.",
+   "roles": [
+    "institution",
+    "researcher"
+   ],
+   "topics": [],
+   "concepts": [
+    "fairness",
+    "infrastructure"
+   ],
+   "links": [
+    {
+     "label": "NFDI4Earth Label in OneStop4All",
+     "url": "https://onestop4all.nfdi4earth.de/label"
+    }
+   ]
+  },
+  "legend-deepdive": {
+   "id": "legend-deepdive",
+   "target": "legend",
+   "depth": "deepdive",
+   "title": "Deep dive",
+   "body": "A word with a **filled dot** opens this side panel. Deep dives give you several paragraphs, figures and further reading on one subject, while the Commitment text stays visible next to it.\n\nIf a full deep-dive page exists for a concept, a button at the bottom takes you there – try the one in statement 8, “open and permissive data and software licences”.\n\nClose the panel with × or the Escape key, or by clicking outside of it.",
+   "roles": [],
+   "topics": [],
+   "concepts": [],
+   "links": []
+  },
+  "legend-explainer": {
+   "id": "legend-explainer",
+   "target": "legend",
+   "depth": "explainer",
+   "title": "Explainer",
+   "body": "A click on a word with a **half-filled dot** opens a box like this one: a short paragraph, often with external links and the perspectives, topics or concepts it relates to.\n\nClick a coloured badge to highlight all related parts of the Commitment, or use **Copy link** to share exactly this place.",
+   "roles": [],
+   "topics": [],
+   "concepts": [],
+   "links": [
+    {
+     "label": "Example: NFDI4Earth OneStop4All",
+     "url": "https://onestop4all.nfdi4earth.de/"
+    }
+   ]
+  },
+  "legend-note": {
+   "id": "legend-note",
+   "target": "legend",
+   "depth": "note",
+   "title": "Short note",
+   "body": "Hover over (or tap) a dotted word to see a one-sentence clarification – like this one.",
+   "roles": [],
+   "topics": [],
+   "concepts": [],
+   "links": []
+  },
+  "licences": {
+   "id": "licences",
+   "target": "c8",
+   "quote": "open and permissive data and software licences",
+   "depth": "deepdive",
+   "title": "Open and permissive licences",
+   "body": "A licence tells others what they may do with your data or code. Without one, the default is *all rights reserved* – even if the file is publicly downloadable.\n\nCommon open choices:\n\n- **Data:** [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) or [CC0](https://creativecommons.org/publicdomain/zero/1.0/)\n- **Software:** permissive licences such as [MIT](https://choosealicense.com/licenses/mit/) or [Apache-2.0](https://choosealicense.com/licenses/apache-2.0/)\n\nAvoid “non-commercial” (NC) and “no derivatives” (ND) clauses for research data – they block reuse in many projects.",
+   "roles": [
+    "researcher",
+    "student",
+    "institution"
+   ],
+   "topics": [
+    "publishing",
+    "open-access"
+   ],
+   "concepts": [
+    "licensing",
+    "openness"
+   ],
+   "links": [
+    {
+     "label": "Creative Commons licence chooser",
+     "url": "https://chooser-beta.creativecommons.org/"
+    },
+    {
+     "label": "choosealicense.com",
+     "url": "https://choosealicense.com/"
+    },
+    {
+     "label": "The Turing Way: Licensing",
+     "url": "https://book.the-turing-way.org/reproducible-research/licensing"
+    }
+   ],
+   "figure": "licence",
+   "deepdive": "licensing"
+  },
+  "nfdi": {
+   "id": "nfdi",
+   "target": "c1",
+   "quote": "NFDI",
+   "depth": "note",
+   "title": "NFDI",
+   "body": "The German National Research Data Infrastructure: 26 consortia across all disciplines, funded by federal and state governments.",
+   "roles": [],
+   "topics": [],
+   "concepts": [],
+   "links": [
+    {
+     "label": "nfdi.de",
+     "url": "https://www.nfdi.de/?lang=en"
+    }
+   ]
+  },
+  "os-declarations": {
+   "id": "os-declarations",
+   "target": "c2",
+   "quote": "existing Open Science declarations and statements",
+   "depth": "explainer",
+   "title": "Open Science declarations",
+   "body": "A small selection of declarations the commitment builds on. The real app will use the curated list from the commitment website.",
+   "roles": [
+    "researcher",
+    "institution"
+   ],
+   "topics": [
+    "scholarly-communication"
+   ],
+   "concepts": [
+    "openness"
+   ],
+   "links": [
+    {
+     "label": "UNESCO Recommendation on Open Science (2021)",
+     "url": "https://doi.org/10.54677/MNMH8546"
+    },
+    {
+     "label": "Beijing Declaration on Research Data",
+     "url": "https://codata.org/"
+    },
+    {
+     "label": "COPDESS",
+     "url": "https://copdess.org/"
+    }
+   ]
+  },
+  "reward-systems": {
+   "id": "reward-systems",
+   "target": "pre-3",
+   "quote": "reward systems and recognition of all research activities",
+   "depth": "note",
+   "title": "Reward systems",
+   "body": "Recognising datasets, software and curation work in hiring and evaluation – not only journal articles.",
+   "roles": [],
+   "topics": [
+    "research-evaluation"
+   ],
+   "concepts": [],
+   "links": []
+  },
+  "sdgs": {
+   "id": "sdgs",
+   "target": "pre-1",
+   "quote": "UN Sustainable Development Goals",
+   "depth": "note",
+   "title": "UN Sustainable Development Goals",
+   "body": "17 global goals adopted by the UN in 2015. Many of them (e.g. climate action, life below water) depend directly on Earth system data.",
+   "roles": [],
+   "topics": [],
+   "concepts": [
+    "openness"
+   ],
+   "links": []
+  },
+  "standards": {
+   "id": "standards",
+   "target": "c12",
+   "quote": "international standards",
+   "depth": "explainer",
+   "title": "International standards",
+   "body": "Examples: **CF conventions** for netCDF, **ISO 19115** for geospatial metadata, **OGC API** for web services, **DCAT/GeoDCAT** for catalogues.\n\nAs a reviewer, you can check whether the data uses community formats.",
+   "roles": [
+    "researcher",
+    "organisation"
+   ],
+   "topics": [
+    "reviewing"
+   ],
+   "concepts": [
+    "standards",
+    "fairness"
+   ],
+   "links": []
+  },
+  "sustainability": {
+   "id": "sustainability",
+   "target": "c10",
+   "quote": "sustainability of these repositories",
+   "depth": "explainer",
+   "title": "Sustainable repositories",
+   "body": "Repositories need long-term funding. As a researcher you can budget data publication costs in proposals; as an institution you can co-fund domain repositories.",
+   "roles": [
+    "institution",
+    "researcher"
+   ],
+   "topics": [
+    "proposal-writing",
+    "research-evaluation"
+   ],
+   "concepts": [
+    "infrastructure"
+   ],
+   "links": []
+  },
+  "we-commit": {
+   "id": "we-commit",
+   "target": "boxA",
+   "quote": "We commit",
+   "depth": "explainer",
+   "title": "What does “we commit” mean?",
+   "body": "Signing is a **public, voluntary statement of intent** by individuals, groups and organisations. It is not a contract and has no reporting duties – but it makes your support visible and invites others to join.\n\n[Example content] Each signatory decides which steps fit their role; the perspectives in this app suggest where to start.",
+   "roles": [
+    "student",
+    "researcher",
+    "institution",
+    "organisation"
+   ],
+   "topics": [],
+   "concepts": [
+    "openness"
+   ],
+   "links": [
+    {
+     "label": "Sign the Commitment",
+     "url": "https://nfdi4earth.de/commit"
+    },
+    {
+     "label": "List of signatories",
+     "url": "https://nfdi4earth.de/commitment"
+    }
+   ]
+  },
+  "where-appropriate": {
+   "id": "where-appropriate",
+   "target": "c2",
+   "quote": "where appropriate and possible",
+   "depth": "note",
+   "title": "“Where appropriate and possible”",
+   "body": "Openness is the default, but legal, ethical or contractual reasons can justify exceptions: as open as possible, as closed as necessary.",
+   "roles": [],
+   "topics": [],
+   "concepts": [
+    "openness"
+   ],
+   "links": []
+  },
+  "where-possible": {
+   "id": "where-possible",
+   "target": "c8",
+   "quote": "Where possible",
+   "depth": "note",
+   "title": "“Where possible”",
+   "body": "Some data cannot be openly licensed (third-party rights, personal data). The commitment asks for open licences as the default.",
+   "roles": [],
+   "topics": [],
+   "concepts": [
+    "openness",
+    "licensing"
+   ],
+   "links": []
+  }
+ },
+ "roles": [
+  {
+   "id": "student",
+   "kind": "role",
+   "label": "Student",
+   "plural": "Students",
+   "colour": "#F1C129",
+   "icon": "cap",
+   "order": 1,
+   "blurb": "You are starting to work with data – in coursework, a thesis or as a student assistant.",
+   "notes": {
+    "3": {
+     "note": "Check whether your thesis data includes **personal** or *restricted* data.",
+     "step": "Ask your supervisor about data agreements"
+    },
+    "4": {
+     "note": "Cite datasets and software in your thesis like papers.",
+     "step": "Find the DOI of one dataset you use"
+    },
+    "5": {
+     "note": "Publish your thesis data in a domain repository, not only as a PDF appendix.",
+     "step": "Look up the repository your group uses"
+    },
+    "6": {
+     "note": "Join a data literacy course or summer school.",
+     "step": "Bookmark one OER course"
+    },
+    "7": {
+     "note": "Write a one-page DMP for your thesis.",
+     "step": "Use the DMP template of your university"
+    },
+    "8": {
+     "note": "Pick CC BY 4.0 for your data and MIT for your scripts.",
+     "step": "Read the licensing deep dive"
+    }
+   }
+  },
+  {
+   "id": "researcher",
+   "kind": "role",
+   "label": "Researcher",
+   "plural": "Researchers",
+   "colour": "#22C0D2",
+   "icon": "flask",
+   "order": 2,
+   "blurb": "You collect, analyse and publish data, write proposals and review the work of others.",
+   "notes": {
+    "1": {
+     "note": "Mention relevant NFDI4Earth services in your proposals.",
+     "step": "Search OneStop4All for a service you could use"
+    },
+    "2": {
+     "note": "Know which declarations your institution has signed.",
+     "step": "Check if your institution signed DORA"
+    },
+    "3": {
+     "note": "Plan legal checks in your DMP.",
+     "step": "List data with access restrictions"
+    },
+    "4": {
+     "note": "Cite data and software in the reference list.",
+     "step": "Add data citations to your next paper"
+    },
+    "5": {
+     "note": "Choose a domain repository that covers all four FAIR aspects.",
+     "step": "Compare two repositories via the Label"
+    },
+    "7": {
+     "note": "Write and update a DMP for every project.",
+     "step": "Schedule a DMP review at month 12"
+    },
+    "8": {
+     "note": "Default to CC BY 4.0 / CC0 for data, permissive licences for code.",
+     "step": "Add a LICENSE file to your repos"
+    },
+    "10": {
+     "note": "Budget data publication costs in proposals.",
+     "step": "Add a curation line to your next budget"
+    },
+    "11": {
+     "note": "Involve curators early and credit them.",
+     "step": "Contact a repository before data collection"
+    },
+    "12": {
+     "note": "Use community formats and metadata standards.",
+     "step": "Check your data against CF conventions"
+    }
+   }
+  },
+  {
+   "id": "institution",
+   "kind": "role",
+   "label": "Institution",
+   "plural": "Institutions",
+   "colour": "#0485B1",
+   "icon": "building",
+   "order": 3,
+   "blurb": "Universities, research centres and agencies that set policies, run infrastructure and evaluate research.",
+   "notes": {
+    "1": {
+     "note": "Sign the commitment as an institution.",
+     "step": "Nominate a contact person"
+    },
+    "2": {
+     "note": "Align institutional policies with DORA/CoARA.",
+     "step": "Review hiring criteria"
+    },
+    "3": {
+     "note": "Offer legal advice on data sharing.",
+     "step": "Publish a data law FAQ"
+    },
+    "6": {
+     "note": "Fund training programmes and PhD school modules.",
+     "step": "Add RDM to the PhD curriculum"
+    },
+    "7": {
+     "note": "Offer DMP consulting.",
+     "step": "Provide an institutional DMP template"
+    },
+    "8": {
+     "note": "Adopt an open licensing policy.",
+     "step": "Set CC BY as default in the repository"
+    },
+    "9": {
+     "note": "Engage in standards bodies.",
+     "step": "Join an RDA interest group"
+    },
+    "10": {
+     "note": "Co-fund domain repositories.",
+     "step": "Include repositories in the strategy"
+    },
+    "11": {
+     "note": "Create career paths for data stewards.",
+     "step": "Advertise a data steward position"
+    },
+    "12": {
+     "note": "Require standard-compliant APIs in procurement.",
+     "step": "Check OGC API support in new systems"
+    }
+   }
+  },
+  {
+   "id": "organisation",
+   "kind": "role",
+   "label": "Organisation / Group",
+   "plural": "Organisations & groups",
+   "colour": "#81CA4F",
+   "icon": "people",
+   "order": 4,
+   "blurb": "Research groups, departments, societies and networks that shape everyday practice.",
+   "notes": {
+    "1": {
+     "note": "Sign the commitment as a group.",
+     "step": "Discuss it in the next group meeting"
+    },
+    "2": {
+     "note": "Agree on group-wide Open Science practices.",
+     "step": "Write a group data policy"
+    },
+    "4": {
+     "note": "Make data citation a group norm.",
+     "step": "Add a citation check to internal review"
+    },
+    "6": {
+     "note": "Share training material openly.",
+     "step": "Publish slides under CC BY"
+    },
+    "9": {
+     "note": "Align with societies and networks.",
+     "step": "Link your society's policy"
+    },
+    "11": {
+     "note": "Collaborate with curators on data papers.",
+     "step": "Invite a curator to a group meeting"
+    },
+    "12": {
+     "note": "Contribute to community standards.",
+     "step": "Comment on a draft standard"
+    }
+   }
+  }
+ ],
+ "topics": [
+  {
+   "id": "proposal-writing",
+   "kind": "topic",
+   "label": "Proposal writing",
+   "colour": "#E76F51",
+   "icon": "pen",
+   "order": 1,
+   "knownFrom": "DFG and EU proposals, data management sections, budget planning",
+   "steps": [
+    {
+     "n": 7,
+     "title": "The data management section",
+     "text": "Most funders ask how you will handle data. Statement 7 asks you to adopt a DMP – write the proposal section as a short DMP, e.g. with [RDMO](https://rdmorganiser.github.io/) or your *funder's template*."
+    },
+    {
+     "n": 5,
+     "title": "Name your target repository",
+     "text": "Reviewers like concrete plans. Name the ESS domain repository where you will publish data (statement 5), and why it fits your data types."
+    },
+    {
+     "n": 10,
+     "title": "Budget for curation",
+     "text": "Data publication and curation take time and sometimes money. Statement 10 asks us to sustain repositories – include these costs in your budget."
+    },
+    {
+     "n": 3,
+     "title": "Legal aspects",
+     "text": "Plan for data laws early (statement 3): personal data, INSPIRE-relevant data or third-party data need a strategy before the project starts."
+    },
+    {
+     "n": 1,
+     "title": "Use NFDI services",
+     "text": "Mentioning existing NFDI4Earth services (statement 1) shows you build on community infrastructure instead of reinventing it."
+    }
+   ]
+  },
+  {
+   "id": "publishing",
+   "kind": "topic",
+   "label": "Publishing",
+   "colour": "#F4A261",
+   "icon": "book",
+   "order": 2,
+   "knownFrom": "submitting papers, data availability statements, supplementary material",
+   "steps": [
+    {
+     "n": 5,
+     "title": "Data first",
+     "text": "Deposit the data in a domain repository before you submit the paper, so the data DOI can go into the data availability statement."
+    },
+    {
+     "n": 8,
+     "title": "Choose a licence",
+     "text": "Pick an open licence for data (CC BY 4.0 / CC0) and code (e.g. MIT). See the licensing deep dive."
+    },
+    {
+     "n": 4,
+     "title": "Cite your sources",
+     "text": "Cite all datasets and software you used in the reference list – including your own."
+    },
+    {
+     "n": 11,
+     "title": "Work with curators",
+     "text": "Repository curators will check your submission. Plan time for their feedback."
+    },
+    {
+     "n": 12,
+     "title": "Use standard formats",
+     "text": "Community formats make your data reusable – and reviewers increasingly check this."
+    },
+    {
+     "n": 3,
+     "title": "Check legal restrictions",
+     "text": "Make sure you are allowed to publish all data, especially third-party or personal data."
+    }
+   ]
+  },
+  {
+   "id": "open-access",
+   "kind": "topic",
+   "label": "Open access",
+   "colour": "#E9C46A",
+   "icon": "unlock",
+   "order": 3,
+   "knownFrom": "APCs, green and gold OA, institutional repositories",
+   "steps": []
+  },
+  {
+   "id": "reviewing",
+   "kind": "topic",
+   "label": "Reviewing",
+   "colour": "#264653",
+   "icon": "eye",
+   "order": 4,
+   "knownFrom": "peer review of papers, data and proposals",
+   "steps": []
+  },
+  {
+   "id": "research-evaluation",
+   "kind": "topic",
+   "label": "Research evaluation",
+   "colour": "#E5AC0C",
+   "icon": "chart",
+   "order": 5,
+   "knownFrom": "hiring, tenure and funding committees, CVs, indicators",
+   "steps": []
+  },
+  {
+   "id": "scholarly-communication",
+   "kind": "topic",
+   "label": "Scholarly communication",
+   "colour": "#05668D",
+   "icon": "chat",
+   "order": 6,
+   "knownFrom": "conferences, preprints, social media, science communication",
+   "steps": []
+  },
+  {
+   "id": "teaching",
+   "kind": "topic",
+   "label": "Teaching & supervision",
+   "colour": "#AEAB65",
+   "icon": "cap",
+   "order": 7,
+   "knownFrom": "lectures, thesis supervision, summer schools",
+   "steps": []
+  }
+ ],
+ "concepts": [
+  {
+   "id": "openness",
+   "kind": "concept",
+   "label": "Openness",
+   "colour": "#2A9D8F",
+   "icon": "bulb",
+   "order": 1
+  },
+  {
+   "id": "fairness",
+   "kind": "concept",
+   "label": "FAIRness",
+   "colour": "#2A9D8F",
+   "icon": "bulb",
+   "order": 2
+  },
+  {
+   "id": "licensing",
+   "kind": "concept",
+   "label": "Licensing",
+   "colour": "#2A9D8F",
+   "icon": "bulb",
+   "order": 3
+  },
+  {
+   "id": "credit",
+   "kind": "concept",
+   "label": "Credit & citation",
+   "colour": "#2A9D8F",
+   "icon": "bulb",
+   "order": 4
+  },
+  {
+   "id": "infrastructure",
+   "kind": "concept",
+   "label": "Infrastructure",
+   "colour": "#2A9D8F",
+   "icon": "bulb",
+   "order": 5
+  },
+  {
+   "id": "standards",
+   "kind": "concept",
+   "label": "Standards",
+   "colour": "#2A9D8F",
+   "icon": "bulb",
+   "order": 6
+  }
+ ],
+ "deepdives": {
+  "fairness": {
+   "id": "fairness",
+   "title": "FAIRness",
+   "concept": "fairness",
+   "statements": [
+    5,
+    7,
+    11,
+    12
+   ],
+   "anchors": [
+    "fair-principles",
+    "four-aspects"
+   ],
+   "links": [],
+   "placeholder": true,
+   "lead": "Placeholder deep dive – coming soon.",
+   "sections": [
+    {
+     "heading": "Coming soon",
+     "text": "This deep dive is a placeholder in the mock-up."
+    }
+   ]
+  },
+  "licensing": {
+   "id": "licensing",
+   "title": "Licensing data and software",
+   "concept": "licensing",
+   "statements": [
+    8,
+    3,
+    6
+   ],
+   "anchors": [
+    "licences",
+    "where-possible",
+    "data-laws"
+   ],
+   "links": [
+    {
+     "label": "Creative Commons licences",
+     "url": "https://creativecommons.org/licenses/"
+    },
+    {
+     "label": "choosealicense.com",
+     "url": "https://choosealicense.com/"
+    },
+    {
+     "label": "The Turing Way: Licensing",
+     "url": "https://book.the-turing-way.org/reproducible-research/licensing"
+    },
+    {
+     "label": "REUSE (FSFE)",
+     "url": "https://reuse.software/"
+    }
+   ],
+   "figure": "licence",
+   "placeholder": false,
+   "lead": "Why the commitment asks for open and permissive licences – and how to choose one.",
+   "sections": [
+    {
+     "heading": "No licence ≠ open",
+     "text": "If you publish data without a licence, others legally cannot reuse it, even if they can download it. A licence turns “visible” into “reusable”."
+    },
+    {
+     "heading": "Data licences",
+     "text": "For research data, two licences are most widely used:\n\n- **CC BY 4.0** – reuse with *attribution*\n- **CC0** – public domain dedication\n\nMany ESS repositories, e.g. [PANGAEA](https://www.pangaea.de/), default to CC BY 4.0."
+    },
+    {
+     "heading": "Software licences",
+     "text": "**Permissive** licences (MIT, Apache-2.0, BSD) allow reuse in almost any context. **Copyleft** licences (GPL) require derived work to stay open. See [choosealicense.com](https://choosealicense.com/) for a comparison."
+    },
+    {
+     "heading": "When open is not possible",
+     "text": "Personal data, third-party rights or contracts can prevent open licensing. Document the reason and use the most open option that is possible (statement 8: “where possible”)."
+    },
+    {
+     "heading": "Practices what it preaches",
+     "text": "NFDI4Earth audits the licences of its own software repositories. [Example: a chart of licence types across NFDI4Earth GitLab projects would go here.]"
+    }
+   ]
+  },
+  "openness": {
+   "id": "openness",
+   "title": "Openness",
+   "concept": "openness",
+   "statements": [
+    2,
+    6,
+    8,
+    1,
+    3
+   ],
+   "anchors": [
+    "where-appropriate",
+    "where-possible",
+    "os-declarations"
+   ],
+   "links": [
+    {
+     "label": "UNESCO Recommendation on Open Science",
+     "url": "https://doi.org/10.54677/MNMH8546"
+    },
+    {
+     "label": "Open Definition",
+     "url": "https://opendefinition.org/"
+    }
+   ],
+   "figure": "openness",
+   "placeholder": false,
+   "lead": "“As open as possible, as closed as necessary” – how openness runs through the whole commitment.",
+   "sections": [
+    {
+     "heading": "A thread, not a statement",
+     "text": "No single statement is “the openness statement”. Openness appears in the preamble, in statements 1, 2, 6 and 8, and implicitly in the call for sharing."
+    },
+    {
+     "heading": "Open is a spectrum",
+     "text": "Between closed and fully open there are many steps: embargoed, restricted access, open with attribution, public domain. The commitment asks you to move as far to the open end as you responsibly can."
+    },
+    {
+     "heading": "Openness and FAIR",
+     "text": "FAIR data is not necessarily open, and open data is not necessarily FAIR. The commitment asks for both."
+    },
+    {
+     "heading": "Openness for institutions",
+     "text": "Institutions enable openness through policies, infrastructure and recognition in research evaluation (DORA, CoARA)."
+    }
+   ]
+  }
+ }
+}

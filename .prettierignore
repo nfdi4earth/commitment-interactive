@@ -1,2 +1,4 @@
 # Hand-edited content (docs/content-authoring.md); its format is checked by `pnpm check-content` and the tests.
 src/packages/commitment/content/
+# Generated from content/ by tools/build-app-content.mjs.
+src/packages/commitment/model/content.generated.json

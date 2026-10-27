@@ -60,6 +60,16 @@ export interface Concept extends Facet {
  */
 export type AnnotatedMarkdown = string;
 
+/** Link target of an annotated quote: `[quote](annotation:<id>)`. */
+export const ANNOTATION_SCHEME = "annotation:";
+
+const ANNOTATION_LINK = new RegExp(`\\[([^\\]]*)\\]\\(${ANNOTATION_SCHEME}[\\w-]+\\)`, "g");
+
+/** Removes annotation links from annotated Markdown, keeping the quoted text. */
+export function plainText(md: AnnotatedMarkdown): string {
+    return md.replace(ANNOTATION_LINK, "$1");
+}
+
 export interface Box {
     id: string;
     title: AnnotatedMarkdown;

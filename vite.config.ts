@@ -7,6 +7,7 @@ import react from "@vitejs/plugin-react-swc";
 import { resolve } from "node:path";
 import { defineConfig } from "vite";
 import eslint from "vite-plugin-eslint";
+import { commitmentContent } from "./tools/vite-plugin-content.mjs";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -21,8 +22,9 @@ export default defineConfig(({ mode }) => {
         // Load .env files from this directory instead of `root`.
         envDir: __dirname,
 
-        // Generates relative urls in html etc.
-        base: "/",
+        // The path the site is served under; BASE_PATH sets it for a deployment in a sub-path,
+        // e.g. "/commitment-interactive/" on GitHub Pages (see ci/build-site.sh)
+        base: `/${process.env.BASE_PATH ?? ""}/`.replace(/\/+/g, "/"),
 
         // Vite's build output is written to dist/www
         build: {
@@ -46,7 +48,8 @@ export default defineConfig(({ mode }) => {
                 apps: []
             }),
             react(),
-            eslint()
+            eslint(),
+            commitmentContent()
         ],
 
         resolve: {

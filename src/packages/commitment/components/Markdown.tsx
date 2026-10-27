@@ -1,7 +1,7 @@
 import { memo, useMemo, type ReactNode } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import { Link } from "react-router-dom";
-import { ANNOTATION_SCHEME } from "../model/parse";
+import { ANNOTATION_SCHEME } from "../model/types";
 import { ExternalLink, useAppPath } from "./base";
 
 // Content texts use a small Markdown subset (docs/content-authoring.md); everything else is dropped.

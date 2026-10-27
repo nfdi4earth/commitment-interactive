@@ -17,9 +17,17 @@ import type {
     Statement,
     Topic
 } from "./types";
+import { ANNOTATION_SCHEME } from "./types";
 
 /** Raw file contents by path relative to the package, e.g. `content/roles/student.md`. */
 export type ContentFiles = Record<string, string>;
+
+/** The key of a file in ContentFiles, from any path that ends in `content/…` (also `\` paths). */
+export const contentFileKey = (path: string) =>
+    path
+        .split("\\")
+        .join("/")
+        .replace(/^.*?(?=content\/)/, "");
 
 export interface ParseResult {
     content: Content;
@@ -30,7 +38,6 @@ const DEPTHS: Depth[] = ["note", "explainer", "deepdive"];
 const FIGURES: Figure[] = ["licence", "openness", "fair"];
 const ID = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const HEX = /^#[0-9A-Fa-f]{6}$/;
-export const ANNOTATION_SCHEME = "annotation:";
 
 const oneLine = (s: string) => s.replace(/\s+/g, " ").trim();
 const stripComments = (s: string) => s.replace(/<!--[\s\S]*?-->/g, "");
@@ -47,11 +54,6 @@ const EMPHASIS: [RegExp, number][] = [
     [/(?<![\p{L}\p{N}_])__(?![\s_])[^\n]*?[^\s_]__(?![\p{L}\p{N}_])/gu, 2],
     [/(?<![\p{L}\p{N}_])_(?![\s_])[^_\n]*?[^\s_]_(?![\p{L}\p{N}_])/gu, 1]
 ];
-
-/** Removes annotation links from annotated Markdown, keeping the quoted text. */
-export function plainText(md: string): string {
-    return md.replace(/\[([^\]]*)\]\(annotation:[\w-]+\)/g, "$1");
-}
 
 /** Splits a body at `## ` headings. */
 export function splitSections(body: string): { lead: string; sections: DeepDiveSection[] } {

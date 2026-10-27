@@ -28,9 +28,11 @@ pnpm dev        # then open http://localhost:5173/
 
 `pnpm build` writes a static site to `dist/www/`.
 
+Tests: `pnpm test` (content and unit tests) and `pnpm test:e2e` (browser tests with Playwright at desktop and mobile width; the first time, run `pnpm exec playwright install chromium`).
+
 ## Editing the content
 
-All texts are Markdown files in [`src/packages/commitment/content/`](src/packages/commitment/content/). After changing them, run `node tools/build-content.mjs` (needs Node.js 18 or newer) to check them and update the mock-up. See [docs/content-authoring.md](docs/content-authoring.md).
+All texts are Markdown files in [`src/packages/commitment/content/`](src/packages/commitment/content/). While `pnpm dev` runs, the app shows every change at once. Before committing, run `pnpm build-content` and commit the generated files with your change; see [docs/content-authoring.md](docs/content-authoring.md).
 
 ## Design
 

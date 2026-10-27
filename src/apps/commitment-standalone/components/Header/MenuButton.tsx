@@ -22,7 +22,7 @@ export function MenuButton({ hideIcon = false, header = true }: MenuButtonProps)
                         color="primary_color"
                         className="bg-icon-05668D"
                         alt="Bg icon 05668D"
-                        src="/bg-icon-05668D.png"
+                        src={`${import.meta.env.BASE_URL}bg-icon-05668D.png`}
                         width={7}
                     />
                 )}

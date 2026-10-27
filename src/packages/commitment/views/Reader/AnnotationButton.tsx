@@ -65,6 +65,8 @@ export function AnnotationButton({ id, children }: { id: string; children: React
                 openDelay={100}
                 closeDelay={250}
                 closeOnClick={false}
+                // a note opened by a click or a link (in the URL) stays while the page scrolls
+                closeOnScroll={!open}
                 positioning={{ placement: "top" }}
                 lazyMount
                 unmountOnExit

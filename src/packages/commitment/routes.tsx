@@ -1,6 +1,6 @@
 import { lazy } from "react";
 import type { RouteObject } from "react-router-dom";
-import { CommitmentRoot, ToReader } from "./components/base";
+import { CommitmentRoot, ErrorView, ToReader } from "./components/base";
 
 const ReaderView = lazy(() => import("./views/Reader/ReaderView"));
 const IndexView = lazy(() => import("./views/IndexView"));
@@ -14,6 +14,7 @@ const MapView = lazy(() => import("./views/MapView"));
 export const commitmentRoutes: RouteObject[] = [
     {
         element: <CommitmentRoot />,
+        errorElement: <ErrorView />,
         children: [
             { index: true, element: <ReaderView /> },
             { path: "for", element: <IndexView kind="role" /> },

@@ -21,17 +21,19 @@ IDs (file names) use lower case letters, digits and hyphens, e.g. `data-laws.md`
 ## Workflow
 
 1. Edit or add a file in `src/packages/commitment/content/`.
-2. Run the check and build, which needs [Node.js](https://nodejs.org/) 18 or newer and nothing else:
+2. Look at your change:
+   - in the app: while `pnpm dev` runs (http://localhost:5173/), every saved change shows up at once. Problems are listed in the terminal where `pnpm dev` runs, with file name and reason; the app keeps the last good content.
+   - in the mock-up: run `node tools/build-content.mjs` (needs only [Node.js](https://nodejs.org/) 18 or newer) and reload `mockup/index.html`.
+3. Run the check and build:
 
    ```bash
-   node tools/build-content.mjs
+   pnpm build-content
    ```
 
-   It either lists every problem with file name and reason, or writes `mockup/data.js`.
-3. Reload `mockup/index.html` in the browser and look at your change.
-4. Commit the content files **and** the regenerated `mockup/data.js`. Never edit `mockup/data.js` by hand.
+   It either lists every problem with file name and reason, or writes the two files made from the content: `mockup/data.js` for the mock-up and `src/packages/commitment/model/content.generated.json` for the app.
+4. Commit the content files **and** the two generated files. Never edit them by hand.
 
-`node tools/build-content.mjs --check` only checks and fails if `mockup/data.js` is out of date. Use it before committing, and later in CI.
+`pnpm check-content` only checks and fails if a generated file is out of date. `pnpm test` and the pre-commit hook also report a stale `content.generated.json`.
 
 ## File format
 
@@ -194,4 +196,4 @@ Use colours from the NFDI4Earth palette in `README.md#colour-palette`. Icons are
 
 ## In the React app
 
-The React app reads the same files: the header with `js-yaml` and the text with `react-markdown`, both also used by OneStop4All. The header format is a strict subset of YAML, so the files stay valid for both. The app applies the same checks; `pnpm test` fails with the same messages as `node tools/build-content.mjs`, and `pnpm dev` shows your change in the app after a reload.
+The React app reads the same files: the header with `js-yaml` and the text with `react-markdown`, both also used by OneStop4All. The header format is a strict subset of YAML, so the files stay valid for both. The app applies the same checks, with the same messages as `node tools/build-content.mjs`, when it builds `content.generated.json` (see "Workflow"); the browser only gets that file.
