@@ -2,7 +2,7 @@
 
 The package `src/packages/commitment/` is a self-contained part of the app, including its texts (`content/`), styles, English and German UI strings, and tests. This repository runs it in a thin copy of the OneStop4All (OS4A) shell. This page describes how to add it to OS4A as a page under `/commitment`, like `/label`.
 
-**Tested** on 2026-10-27 in a fresh copy of OS4A at commit `b39aaff` (v1.11.2), following the steps below: `pnpm install` (no unexpected duplicates), `pnpm check-types`, `pnpm build` and the package's tests passed; `pnpm lint` showed one warning in OS4A's own code. This repository's browser tests (`E2E_BASE_URL=http://localhost:4180/ pnpm exec playwright test` against OS4A's `vite preview`) passed 47 of 48: on mobile, OS4A's "Ask our Bot" button covers the reader's "Contents" button (see "Things to decide"). An earlier test (same day) also checked the German UI strings.
+**Tested** on 2026-10-27 in a fresh copy of OS4A at commit `b39aaff` (v1.11.2), following the steps below: `pnpm install` (no unexpected duplicates), `pnpm check-types`, `pnpm build` and the package's tests passed; `pnpm lint` showed one warning in OS4A's own code. This repository's browser tests (`E2E_BASE_URL=http://localhost:4180/ pnpm exec playwright test` against OS4A's `vite preview`) passed 47 of 48: on mobile, OS4A's "Ask our Bot" button covers the reader's "Contents" button. With the host settings (step 6) the bot button is hidden on the Commitment pages (it still shows on `/label`), and the current tests passed: 49 passed, 1 skipped (2026-10-27). An earlier test (same day) also checked the German UI strings.
 
 ## Steps
 
@@ -50,9 +50,28 @@ The package `src/packages/commitment/` is a self-contained part of the app, incl
    >
    ```
 
-6. **Add the test setup file.** OS4A's `vite.config.ts` names `src/testing/global-setup.ts`, which does not exist in OS4A, so all tests fail to start. Copy `src/testing/global-setup.ts` from this repository (one line: `import "@testing-library/jest-dom/vitest";`).
+6. **Apply the host settings.** The package passes settings for the host page as the route's `handle` (`CommitmentHostSettings` in `routes.tsx`). Currently there is one: `chatbot: false` hides OS4A's chatbot button on the Commitment pages (see "Things to decide"). In `layouts/layout.tsx`, which is a component of OS4A's data router:
 
-7. **Keep Prettier away from the content**, which is edited by hand, and from the content file generated from it: add both to OS4A's `.prettierignore`:
+   ```tsx
+   import { Outlet, useMatches } from "react-router-dom";
+   import type { CommitmentHostSettings } from "commitment";
+
+   /** The chatbot button, unless the page turns it off with `handle: { chatbot: false }`. */
+   function Chatbot() {
+       const off = useMatches().some(
+           (m) => (m.handle as Partial<CommitmentHostSettings> | undefined)?.chatbot === false
+       );
+       return off ? null : <ChatbotToaster />;
+   }
+   // in Layout, instead of `<ChatbotToaster />`:
+   {showChatbotToaster && <Chatbot />}
+   ```
+
+   `useMatches()` re-renders on every URL change, and the reader changes the URL as you use it, so keep it in this small component rather than in `Layout` itself.
+
+7. **Add the test setup file.** OS4A's `vite.config.ts` names `src/testing/global-setup.ts`, which does not exist in OS4A, so all tests fail to start. Copy `src/testing/global-setup.ts` from this repository (one line: `import "@testing-library/jest-dom/vitest";`).
+
+8. **Keep Prettier away from the content**, which is edited by hand, and from the content file generated from it: add both to OS4A's `.prettierignore`:
 
    ```
    src/packages/commitment/content/
@@ -61,14 +80,14 @@ The package `src/packages/commitment/` is a self-contained part of the app, incl
 
    The app loads the generated file (`model/content.generated.json`), so OS4A needs no build step for the content. It is updated in this repository and copied with the package.
 
-8. **Link the page**, e.g. in the menu (`components/BaseMenu/BaseMenu.tsx`) next to the Label, with strings in OS4A's `i18n/en.yaml` and `de.yaml`. For the sitemap, add a `handle: { sitemap: … }` to the route as for `/label`.
+9. **Link the page**, e.g. in the menu (`components/BaseMenu/BaseMenu.tsx`) next to the Label, with strings in OS4A's `i18n/en.yaml` and `de.yaml`. For the sitemap, add a `handle: { sitemap: … }` to the route as for `/label`.
 
 Nothing else is needed: the package uses OS4A's theme as it is, sets its colours from the content files as CSS variables, keeps its styles under `.commitment-view`, uses no OS4A services, and works inside the shadow root.
 
 ## Things to decide before going live
 
-- **Overlapping buttons on small screens:** OS4A's "Ask our Bot" button and the reader's "Contents" button are both fixed at the bottom right; the bot button covers the other one, so the contents menu can't be opened on a phone (the browser test "the contents menu scrolls to a statement" fails in OS4A). One of them has to move.
-- **German:** OS4A declares English and German, and Pioneer requires every package to support both, so the package has `i18n/de.yaml` (UI strings only; please review the translation). OS4A currently forces English in `src/index.html`. The texts in `content/` are English only.
+- **Chatbot button, hidden for now:** OS4A's "Ask our Bot" button and the reader's "Contents" button are both fixed at the bottom right on small screens, and the bot button covers the other one. Until there is a layout fix for that, the host setting `chatbot: false` (step 6) hides the bot button on the Commitment pages. To show it again, find a different fix first (e.g. move one of the buttons), then set `chatbot: true` in the route `handle` in `routes.tsx`. The browser test "the contents menu scrolls to a statement" fails in OS4A while the buttons overlap.
+- **German:** OS4A declares English and German, and Pioneer requires every package to support both, so the package has `i18n/de.yaml` (UI strings only; the translation is not reviewed yet, a review is postponed but due before going live). OS4A currently forces English in `src/index.html`. The texts in `content/` are English only.
 - **Example content:** all annotations, perspective notes, topic steps and deep dives are fake (see `README.md`), and the pages say so. Replace them before the page is announced.
 - **Where content is edited after the move:** either keep editing here and copy the package again (step 1), or move the editing to OS4A. Keep one place.
 
