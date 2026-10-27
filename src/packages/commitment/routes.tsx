@@ -10,6 +10,7 @@ const DeepDiveView = lazy(() => import("./views/DeepDiveView"));
 // lazy, so that @xyflow/react only loads with the map
 const MapView = lazy(() => import("./views/MapView"));
 
+// ci/build-site.sh writes a page for each of these routes for static hosting: keep it in step.
 /** Relative routes; the host mounts them under any path, e.g. `commitment` (not `commitment/*`). */
 export const commitmentRoutes: RouteObject[] = [
     {

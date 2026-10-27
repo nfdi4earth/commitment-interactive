@@ -22,7 +22,20 @@ export const test = base.extend<{ errors: string[] }>({
         async ({ page }, use) => {
             const errors: string[] = [];
             page.on("pageerror", (e) => errors.push(String(e)));
-            page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
+            // static hosts answer unknown paths with the app's 404.html and status 404, which the
+            // browser logs for the page itself; any other failed load still counts
+            const notFoundPages = new Set<string>();
+            page.on("response", (r) => {
+                if (r.request().isNavigationRequest() && r.status() === 404)
+                    notFoundPages.add(r.url());
+            });
+            page.on("console", (m) => {
+                if (m.type() !== "error") return;
+                const notFoundPage =
+                    m.text().startsWith("Failed to load resource") &&
+                    notFoundPages.has(m.location().url);
+                if (!notFoundPage) errors.push(m.text());
+            });
             await use(errors);
             expect(errors, "errors in the browser console").toEqual([]);
         },

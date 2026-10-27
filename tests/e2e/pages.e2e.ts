@@ -64,6 +64,22 @@ test("the overview map links nodes to the reader", async ({ page }) => {
     await expect.poll(() => query(page)).toEqual({ focus: "c8" });
 });
 
+// meaningful against a static host (E2E_BASE_URL, ci/build-site.sh); `vite preview` answers 200 always
+test("every page answers with status 200, also when opened directly", async ({ page }) => {
+    test.skip(isMobile(page), "the status does not depend on the viewport");
+    for (const path of [
+        "",
+        "/for",
+        "/for/student",
+        "/topics/publishing",
+        "/deep-dive/licensing",
+        "/map"
+    ]) {
+        const response = await page.goto(app(path));
+        expect(response?.status(), path).toBe(200);
+    }
+});
+
 test("unknown paths lead back", async ({ page }) => {
     await page.goto(app("/nope"));
     await expect(page).toHaveURL(/\/commitment$/);

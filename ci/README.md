@@ -9,8 +9,9 @@ interim GitHub Actions setup (`.github/workflows/pages.yml`) and the prepared Gi
 - `ci/build-site.sh`: the static site in `dist/www`, for the Pages URL in `PAGES_URL` (`ci/base-path.sh`)
 - `ci/e2e.sh`: the browser tests against that build
 
-Both configs run `check` and `build-e2e` in parallel on every branch and merge/pull request, and
-publish `dist/www` from the default branch.
+Both configs run `check` and `build-e2e` in parallel on every branch and merge/pull request,
+publish `dist/www` from the default branch, and then run the browser tests against the published
+site (`E2E_BASE_URL`), which is the only place real status codes and redirects show.
 
 One-time setup: on GitHub, set Settings → Pages → Source to "GitHub Actions"; on GitLab, Pages
 must be enabled for the project. No secrets are needed. Pages from a private GitHub repository need a

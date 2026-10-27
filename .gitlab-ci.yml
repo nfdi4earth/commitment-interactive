@@ -53,3 +53,15 @@ pages:
     paths: [dist/www]
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# the same browser tests against the published site (GitHub: job e2e-deployed); GitLab publishes
+# after the pipeline, so this may run before the new version is live
+e2e-deployed:
+  stage: .post
+  needs: [pages]
+  variables:
+    E2E_BASE_URL: $CI_PAGES_URL
+  script:
+    - ci/e2e.sh
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
