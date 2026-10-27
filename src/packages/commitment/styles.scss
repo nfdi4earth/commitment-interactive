@@ -1136,15 +1136,29 @@
         .toc {
             max-height: 60vh;
             border-left: none;
-            padding: 14px 6px;
+            // the last entries can scroll clear of the host's buttons at the bottom right
+            padding: 14px 6px 72px;
         }
+        // bottom left: hosts put their own buttons at the bottom right (OS4A's chatbot)
         .toc-toggle {
             display: inline-flex;
             position: fixed;
             bottom: 16px;
-            right: 16px;
+            left: 16px;
             z-index: 56;
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+        }
+        // narrow phones: icon only, so it fits next to a host button at the bottom right
+        // (OS4A's chatbot button is about 210px wide); screen readers still get the label
+        @media (max-width: 399.98px) {
+            .toc-toggle-label {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+                clip-path: inset(50%);
+                white-space: nowrap;
+            }
         }
         .lensbar {
             padding: 6px 0;

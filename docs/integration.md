@@ -2,7 +2,7 @@
 
 The package `src/packages/commitment/` is a self-contained part of the app, including its texts (`content/`), styles, English and German UI strings, and tests. This repository runs it in a thin copy of the OneStop4All (OS4A) shell. This page describes how to add it to OS4A as a page under `/commitment`, like `/label`.
 
-**Tested** on 2026-10-27 in a fresh copy of OS4A at commit `b39aaff` (v1.11.2), following the steps below: `pnpm install` (no unexpected duplicates), `pnpm check-types`, `pnpm build` and the package's tests passed; `pnpm lint` showed one warning in OS4A's own code. This repository's browser tests (`E2E_BASE_URL=http://localhost:4180/ pnpm exec playwright test` against OS4A's `vite preview`) passed 47 of 48: on mobile, OS4A's "Ask our Bot" button covers the reader's "Contents" button. With the host settings (step 6) the bot button is hidden on the Commitment pages (it still shows on `/label`), and the current tests passed: 49 passed, 1 skipped (2026-10-27). An earlier test (same day) also checked the German UI strings.
+**Tested** on 2026-10-27 in a fresh copy of OS4A at commit `b39aaff` (v1.11.2), following the steps below: `pnpm install` (no unexpected duplicates), `pnpm check-types`, `pnpm build` and the package's tests passed; `pnpm lint` showed one warning in OS4A's own code. This repository's browser tests (`E2E_BASE_URL=http://localhost:4180/ pnpm exec playwright test` against OS4A's `vite preview`, with OS4A's chatbot button shown) passed: 49 passed, 1 skipped (2026-10-27). The chatbot button and the reader's "Contents" button no longer overlap at widths from 320 to 999px.
 
 ## Steps
 
@@ -50,7 +50,7 @@ The package `src/packages/commitment/` is a self-contained part of the app, incl
    >
    ```
 
-6. **Apply the host settings.** The package passes settings for the host page as the route's `handle` (`CommitmentHostSettings` in `routes.tsx`). Currently there is one: `chatbot: false` hides OS4A's chatbot button on the Commitment pages (see "Things to decide"). In `layouts/layout.tsx`, which is a component of OS4A's data router:
+6. **Apply the host settings.** The package passes settings for the host page as the route's `handle` (`CommitmentHostSettings` in `routes.tsx`). Currently there is one: `chatbot`, which lets the page hide OS4A's chatbot button. It is `true` now, so this step is optional; with it, hiding the button again is a one-word change in `routes.tsx`. In `layouts/layout.tsx`, which is a component of OS4A's data router:
 
    ```tsx
    import { Outlet, useMatches } from "react-router-dom";
@@ -86,7 +86,7 @@ Nothing else is needed: the package uses OS4A's theme as it is, sets its colours
 
 ## Things to decide before going live
 
-- **Chatbot button, hidden for now:** OS4A's "Ask our Bot" button and the reader's "Contents" button are both fixed at the bottom right on small screens, and the bot button covers the other one. Until there is a layout fix for that, the host setting `chatbot: false` (step 6) hides the bot button on the Commitment pages. To show it again, find a different fix first (e.g. move one of the buttons), then set `chatbot: true` in the route `handle` in `routes.tsx`. The browser test "the contents menu scrolls to a statement" fails in OS4A while the buttons overlap.
+- **Buttons at the bottom of small screens:** OS4A's chatbot button sits at the bottom right and the reader's "Contents" button at the bottom left (icon only below 400px width). If OS4A changes its button (wider, or on the left), check `/commitment` at 320 to 420px width; if they collide, set `chatbot: false` in `routes.tsx` (step 6) until the layout is fixed.
 - **German:** OS4A declares English and German, and Pioneer requires every package to support both, so the package has `i18n/de.yaml` (UI strings only; the translation is not reviewed yet, a review is postponed but due before going live). OS4A currently forces English in `src/index.html`. The texts in `content/` are English only.
 - **Example content:** all annotations, perspective notes, topic steps and deep dives are fake (see `README.md`), and the pages say so. Replace them before the page is announced.
 - **Where content is edited after the move:** either keep editing here and copy the package again (step 1), or move the editing to OS4A. Keep one place.

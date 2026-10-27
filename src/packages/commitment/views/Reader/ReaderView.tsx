@@ -383,7 +383,10 @@ export default function ReaderView() {
                 className="btn-solid toc-toggle"
                 onClick={() => setTocOpen((o) => !o)}
             >
-                <Icon name="text" size={18} /> {intl.formatMessage({ id: "contents.toggle" })}
+                <Icon name="text" size={18} />
+                <span className="toc-toggle-label">
+                    {intl.formatMessage({ id: "contents.toggle" })}
+                </span>
             </button>
             <SidePanel panel={panel} onClose={close} />
         </ReaderContext.Provider>

@@ -16,10 +16,8 @@ const MapView = lazy(() => import("./views/MapView"));
  */
 export interface CommitmentHostSettings {
     /**
-     * Show the host's chatbot button. Off for now: on small screens OS4A's "Ask our Bot" button
-     * and the reader's "Contents" button are both fixed at the bottom right, and the bot button
-     * covers the other one. Turn it back on only together with a layout fix for that overlap; the
-     * browser test "the contents menu scrolls to a statement" fails in OS4A while they overlap.
+     * Show the host's chatbot button. OS4A's sits at the bottom right; the reader's "Contents"
+     * button sits at the bottom left so that the two don't overlap on small screens.
      */
     chatbot: boolean;
 }
@@ -29,7 +27,7 @@ export interface CommitmentHostSettings {
 export const commitmentRoutes: RouteObject[] = [
     {
         element: <CommitmentRoot />,
-        handle: { chatbot: false } satisfies CommitmentHostSettings,
+        handle: { chatbot: true } satisfies CommitmentHostSettings,
         errorElement: <ErrorView />,
         children: [
             { index: true, element: <ReaderView /> },
