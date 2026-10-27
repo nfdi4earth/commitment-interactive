@@ -2,7 +2,7 @@ import { Container } from "@chakra-ui/react";
 import { useIntl } from "open-pioneer:react-hooks";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { useAppPath } from "./base";
+import { ExternalLink, useAppPath } from "./base";
 
 function BackIcon() {
     return (
@@ -30,9 +30,9 @@ export function BackLink({ to, label }: { to: string; label: string }) {
         </>
     );
     return /^https?:/.test(to) ? (
-        <a className="backto" href={to} target="_blank" rel="noreferrer">
+        <ExternalLink href={to} className="backto">
             {content}
-        </a>
+        </ExternalLink>
     ) : (
         <Link className="backto" to={appPath(to)}>
             {content}
@@ -48,10 +48,15 @@ interface PageProps {
     children: ReactNode;
 }
 
+/** The OneStop4All page container. */
+export function PageContainer({ children }: { children: ReactNode }) {
+    return <Container maxW={{ base: "100%", custombreak: "80%" }}>{children}</Container>;
+}
+
 /** Content page in the OneStop4All container. */
 export function Page({ back, title, badge, children }: PageProps) {
     return (
-        <Container maxW={{ base: "100%", custombreak: "80%" }}>
+        <PageContainer>
             <BackLink to={back.to} label={back.label} />
             {title && (
                 <h1 className="page-title">
@@ -59,6 +64,6 @@ export function Page({ back, title, badge, children }: PageProps) {
                 </h1>
             )}
             {children}
-        </Container>
+        </PageContainer>
     );
 }

@@ -3,9 +3,8 @@ import { Link } from "react-router-dom";
 import { useAppPath } from "../components/base";
 import { Icon } from "../components/Icon";
 import { Page } from "../components/Page";
-import { content } from "../model/content";
-import { deepDiveFor, facetsOf } from "../model/lens";
-import { FACET_FIELD, type Facet, type FacetKind, type Role, type Topic } from "../model/types";
+import { deepDiveFor, facetsOf, statementsWith } from "../model/lens";
+import { type Facet, type FacetKind, type Role, type Topic } from "../model/types";
 
 const PATH: Record<FacetKind, (f: Facet) => string> = {
     role: (f) => `/for/${f.id}`,
@@ -35,9 +34,7 @@ export default function IndexView({ kind }: { kind: FacetKind }) {
             <p className="page-sub">{intl.formatMessage({ id: `index.${kind}.sub` })}</p>
             <div className="tiles">
                 {facetsOf(kind).map((f) => {
-                    const n = content.statements.filter((s) =>
-                        s[FACET_FIELD[kind]].includes(f.id)
-                    ).length;
+                    const n = statementsWith(kind, f.id).length;
                     return (
                         <Link key={f.id} className="tile" to={appPath(PATH[kind](f))}>
                             <div className="tile-icon" style={{ color: f.colour }}>

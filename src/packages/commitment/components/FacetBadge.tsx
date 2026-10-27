@@ -1,9 +1,9 @@
+import { useIntl } from "open-pioneer:react-hooks";
 import { Link } from "react-router-dom";
-import { colourVars, facet } from "../model/lens";
-import type { FacetKind } from "../model/types";
+import { colourVars, facet, facetsOf } from "../model/lens";
+import { FACET_FIELD, FACET_KINDS, type Facet, type FacetKind, type Tags } from "../model/types";
 import { useAppPath } from "./base";
 import { Icon } from "./Icon";
-import { useIntl } from "open-pioneer:react-hooks";
 
 /** Small tag that opens the reader with this facet selected. */
 export function FacetTag({ kind, id }: { kind: FacetKind; id: string }) {
@@ -26,26 +26,39 @@ export function FacetTag({ kind, id }: { kind: FacetKind; id: string }) {
 }
 
 /** All facet tags of an item. */
-export function FacetTags({
-    roles,
-    topics,
-    concepts
-}: {
-    roles: string[];
-    topics: string[];
-    concepts: string[];
-}) {
+export function FacetTags({ tags }: { tags: Tags }) {
     return (
         <div className="facet-tags">
-            {roles.map((id) => (
-                <FacetTag key={"r" + id} kind="role" id={id} />
-            ))}
-            {topics.map((id) => (
-                <FacetTag key={"t" + id} kind="topic" id={id} />
-            ))}
-            {concepts.map((id) => (
-                <FacetTag key={"c" + id} kind="concept" id={id} />
-            ))}
+            {FACET_KINDS.flatMap((kind) =>
+                tags[FACET_FIELD[kind]].map((id) => (
+                    <FacetTag key={`${kind}:${id}`} kind={kind} id={id} />
+                ))
+            )}
         </div>
     );
+}
+
+/** Props and content of a chip: a badge whose shape and colour encode the facet. */
+export function chip(kind: FacetKind, f: Facet) {
+    return {
+        "className": "chip",
+        "data-kind": kind,
+        "style": colourVars(f.colour),
+        "children": (
+            <>
+                <Icon name={f.icon} />
+                <span className="chip-text">{f.label}</span>
+            </>
+        )
+    };
+}
+
+const PAGE: Partial<Record<FacetKind, string>> = { role: "/for", topic: "/topics" };
+
+/** Chips linking to the pages of the other perspectives or topics. */
+export function OtherFacets({ kind, current }: { kind: "role" | "topic"; current: string }) {
+    const appPath = useAppPath();
+    return facetsOf(kind)
+        .filter((f) => f.id !== current)
+        .map((f) => <Link key={f.id} to={appPath(`${PAGE[kind]}/${f.id}`)} {...chip(kind, f)} />);
 }

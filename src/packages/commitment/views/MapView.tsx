@@ -8,34 +8,32 @@ import {
     type NodeProps
 } from "@xyflow/react";
 import { useIntl } from "open-pioneer:react-hooks";
-import { useMemo, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppPath } from "../components/base";
 import { Page } from "../components/Page";
 import { content } from "../model/content";
-import { ink } from "../model/lens";
+import { facet, ink } from "../model/lens";
 
 // Overview map: perspectives and topics (left) → statements (middle) → concepts (right).
 // Same layout as the mock-up's SVG map; @xyflow/react adds zoom, pan and fit.
 type Kind = "role" | "topic" | "stmt" | "concept";
-type MapNodeData = {
-    kind: Kind;
-    label: string;
-    colour: string;
-    onEnter(): void;
-    onLeave(): void;
-    onOpen(): void;
-};
+type MapNodeData = { kind: Kind; label: string; colour: string };
 type MapNode = Node<MapNodeData, "item">;
 type LabelNode = Node<{ label: string }, "label">;
 
 const H = 32;
+const PRIMARY = "#05668D";
+
+// Mouse and click go through ReactFlow's node handlers; keyboard focus comes from the node's button.
+const Hover = createContext<(id: string | null) => void>(() => {});
 const COLUMNS = { left: { x: 30, w: 210 }, middle: { x: 440, w: 230 }, right: { x: 870, w: 200 } };
 
-function ItemNode({ data }: NodeProps<MapNode>) {
+function ItemNode({ id, data }: NodeProps<MapNode>) {
+    const setHovered = useContext(Hover);
     const style =
         data.kind === "stmt"
-            ? { background: "#fff", color: "#05668D", borderColor: data.colour }
+            ? { background: "#fff", color: PRIMARY, borderColor: data.colour }
             : { background: data.colour, color: ink(data.colour), borderColor: data.colour };
     return (
         <>
@@ -45,11 +43,8 @@ function ItemNode({ data }: NodeProps<MapNode>) {
                 className="mnode"
                 data-kind={data.kind}
                 style={style}
-                onMouseEnter={data.onEnter}
-                onMouseLeave={data.onLeave}
-                onFocus={data.onEnter}
-                onBlur={data.onLeave}
-                onClick={data.onOpen}
+                onFocus={() => setHovered(id)}
+                onBlur={() => setHovered(null)}
             >
                 {data.label}
             </button>
@@ -67,16 +62,10 @@ export default function MapView() {
     const appPath = useAppPath();
     const navigate = useNavigate();
     const [hovered, setHovered] = useState<string | null>(null);
-    // on touch screens, the first tap only shows the connections
     const [selected, setSelected] = useState<string | null>(null);
     const focus = hovered ?? selected;
 
     const { nodes, edges } = useMemo(() => {
-        const open = (id: string) => {
-            const [k, v] = id.split(":");
-            navigate(appPath(k === "s" ? `?focus=c${v}` : `?${k}=${v}`));
-        };
-        const canHover = window.matchMedia?.("(hover: hover)").matches ?? true;
         const item = (
             id: string,
             kind: Kind,
@@ -93,19 +82,7 @@ export default function MapView() {
             height: H,
             draggable: false,
             selectable: false,
-            // xyflow disables pointer events on nodes without its own handlers; ours are on the button
-            style: { pointerEvents: "all" },
-            data: {
-                kind,
-                label,
-                colour,
-                onEnter: () => setHovered(id),
-                onLeave: () => setHovered(null),
-                onOpen: () => {
-                    if (canHover || selected === id) open(id);
-                    else setSelected(id);
-                }
-            }
+            data: { kind, label, colour }
         });
         const label = (id: string, text: string, x: number, y: number): LabelNode => ({
             id,
@@ -147,7 +124,7 @@ export default function MapView() {
                     `s:${s.n}`,
                     "stmt",
                     `${s.n} · ${s.short}`,
-                    "#05668D",
+                    PRIMARY,
                     M.x,
                     50 + i * 52 + (s.box === "boxA" ? 0 : 16),
                     M.w
@@ -157,25 +134,32 @@ export default function MapView() {
                 item(`concept:${c.id}`, "concept", c.label, c.colour, R.x, 120 + i * 80, R.w)
             )
         ];
-        const colourOf = new Map(
-            nodes.flatMap((n) => (n.type === "item" ? [[n.id, n.data.colour]] : []))
-        );
-        const edges: Edge[] = content.statements
-            .flatMap((s) => [
-                ...s.roles.map((r) => [`role:${r}`, `s:${s.n}`, `role:${r}`]),
-                ...s.topics.map((t) => [`topic:${t}`, `s:${s.n}`, `topic:${t}`]),
-                ...s.concepts.map((c) => [`s:${s.n}`, `concept:${c}`, `concept:${c}`])
-            ])
-            .map(([source = "", target = "", colourFrom = ""]) => ({
-                id: `${source}>${target}`,
-                source,
-                target,
-                selectable: false,
-                focusable: false,
-                style: { stroke: colourOf.get(colourFrom) }
-            }));
+        const edge = (source: string, target: string, colour?: string): Edge => ({
+            id: `${source}>${target}`,
+            source,
+            target,
+            selectable: false,
+            focusable: false,
+            style: { stroke: colour }
+        });
+        const edges = content.statements.flatMap((s) => [
+            ...s.roles.map((r) => edge(`role:${r}`, `s:${s.n}`, facet("role", r)?.colour)),
+            ...s.topics.map((t) => edge(`topic:${t}`, `s:${s.n}`, facet("topic", t)?.colour)),
+            ...s.concepts.map((c) => edge(`s:${s.n}`, `concept:${c}`, facet("concept", c)?.colour))
+        ]);
         return { nodes, edges };
-    }, [intl, navigate, appPath, selected]);
+    }, [intl]);
+
+    const open = (id: string) => {
+        const [k, v] = id.split(":");
+        navigate(appPath(k === "s" ? `?focus=c${v}` : `?${k}=${v}`));
+    };
+    // on touch screens, the first tap only shows the connections
+    const onNodeClick = (id: string) => {
+        const canHover = window.matchMedia?.("(hover: hover)").matches ?? true;
+        if (canHover || selected === id) open(id);
+        else setSelected(id);
+    };
 
     // highlight the connections of the hovered or selected node; perspectives and topics also
     // follow their statements on to the concepts
@@ -213,23 +197,28 @@ export default function MapView() {
         >
             <p className="map-help">{intl.formatMessage({ id: "map.help" })}</p>
             <div className={`map-wrap${focus ? " map-focus" : ""}`}>
-                <ReactFlow
-                    nodes={view.nodes}
-                    edges={view.edges}
-                    nodeTypes={NODE_TYPES}
-                    fitView
-                    minZoom={0.3}
-                    maxZoom={3}
-                    nodesDraggable={false}
-                    nodesConnectable={false}
-                    nodesFocusable={false}
-                    edgesFocusable={false}
-                    elementsSelectable={false}
-                    onPaneClick={() => setSelected(null)}
-                    proOptions={{ hideAttribution: true }}
-                >
-                    <Controls showInteractive={false} />
-                </ReactFlow>
+                <Hover.Provider value={setHovered}>
+                    <ReactFlow
+                        nodes={view.nodes}
+                        edges={view.edges}
+                        nodeTypes={NODE_TYPES}
+                        fitView
+                        minZoom={0.3}
+                        maxZoom={3}
+                        nodesDraggable={false}
+                        nodesConnectable={false}
+                        nodesFocusable={false}
+                        edgesFocusable={false}
+                        elementsSelectable={false}
+                        onNodeClick={(_, n) => n.type === "item" && onNodeClick(n.id)}
+                        onNodeMouseEnter={(_, n) => n.type === "item" && setHovered(n.id)}
+                        onNodeMouseLeave={() => setHovered(null)}
+                        onPaneClick={() => setSelected(null)}
+                        proOptions={{ hideAttribution: true }}
+                    >
+                        <Controls showInteractive={false} />
+                    </ReactFlow>
+                </Hover.Provider>
             </div>
         </Page>
     );

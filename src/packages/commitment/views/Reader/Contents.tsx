@@ -1,8 +1,8 @@
 import { useIntl } from "open-pioneer:react-hooks";
+import { Link } from "react-router-dom";
 import { useAppPath } from "../../components/base";
 import { content } from "../../model/content";
-import { lensActive, statementHit, type Lens } from "../../model/lens";
-import { plainText } from "../../model/parse";
+import { boxTitle, lensActive, statementHit, statementsIn, type Lens } from "../../model/lens";
 
 interface Props {
     lens: Lens;
@@ -24,49 +24,45 @@ export function Contents({ lens, current, onJump }: Props) {
             <div className="toc-head">{intl.formatMessage({ id: "contents.title" })}</div>
             <ul>
                 <li>
-                    <a
+                    <Link
                         className="toc-top"
-                        href={appPath("?focus=preamble")}
+                        to={appPath("?focus=preamble")}
                         onClick={jump("preamble", false)}
                     >
                         {intl.formatMessage({ id: "contents.preamble" })}
-                    </a>
+                    </Link>
                 </li>
                 {content.boxes.map((b) => (
                     <li key={b.id}>
-                        <a
+                        <Link
                             className="toc-box"
-                            href={appPath(`?focus=${b.id}`)}
+                            to={appPath(`?focus=${b.id}`)}
                             onClick={jump(b.id, false)}
                         >
-                            {plainText(b.title).replace(/\.$/, "")}
-                        </a>
+                            {boxTitle(b)}
+                        </Link>
                         <ul>
-                            {content.statements
-                                .filter((s) => s.n >= b.from && s.n <= b.to)
-                                .map((s) => {
-                                    const hit = statementHit(s, lens);
-                                    const cls = [
-                                        "mm-item",
-                                        on && (hit ? "hit" : "dim"),
-                                        current === s.n && "current"
-                                    ].filter(Boolean);
-                                    return (
-                                        <li key={s.n}>
-                                            <a
-                                                className={cls.join(" ")}
-                                                href={appPath(`?focus=c${s.n}`)}
-                                                aria-current={
-                                                    current === s.n ? "location" : undefined
-                                                }
-                                                onClick={jump(`c${s.n}`, true)}
-                                            >
-                                                <span className="mm-n">{s.n}</span>
-                                                <span className="mm-label">{s.short}</span>
-                                            </a>
-                                        </li>
-                                    );
-                                })}
+                            {statementsIn(b).map((s) => {
+                                const hit = statementHit(s, lens);
+                                const cls = [
+                                    "mm-item",
+                                    on && (hit ? "hit" : "dim"),
+                                    current === s.n && "current"
+                                ].filter(Boolean);
+                                return (
+                                    <li key={s.n}>
+                                        <Link
+                                            className={cls.join(" ")}
+                                            to={appPath(`?focus=c${s.n}`)}
+                                            aria-current={current === s.n ? "location" : undefined}
+                                            onClick={jump(`c${s.n}`, true)}
+                                        >
+                                            <span className="mm-n">{s.n}</span>
+                                            <span className="mm-label">{s.short}</span>
+                                        </Link>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </li>
                 ))}

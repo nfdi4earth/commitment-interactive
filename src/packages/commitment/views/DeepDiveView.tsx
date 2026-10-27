@@ -5,7 +5,7 @@ import { Figure } from "../components/Figure";
 import { Markdown } from "../components/Markdown";
 import { Page } from "../components/Page";
 import { content } from "../model/content";
-import { LinkList } from "./Reader/AnnotationButton";
+import { LinkList } from "../components/LinkList";
 
 // annotation titles that are a quote already keep their own quotation marks
 const quoted = (t: string) => (/^[“"‘']/.test(t) ? t : `“${t}”`);

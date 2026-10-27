@@ -11,6 +11,7 @@ It helps students, researchers, institutions and organisations understand what t
 Open [`mockup/index.html`](mockup/index.html) in a web browser. No installation is needed.
 
 You can:
+
 - read the commitment with annotations at different depths (hover, click, side panel)
 - switch **perspectives** (student, researcher, institution, organisation/group) and **topics** (e.g. proposal writing, publishing, reviewing) to highlight the relevant parts
 - follow deep dives on concepts such as licensing and openness
@@ -72,9 +73,9 @@ Notes:
 
 ## The Commitment
 
-NFDI4Earth Consortium (2024). *NFDI4Earth FAIRness and Openness Commitment* (Version 1.0). Zenodo. https://doi.org/10.5281/zenodo.10123880
+NFDI4Earth Consortium (2024). *NFDI4Earth FAIRness and Openness Commitment* (Version 1.0). Zenodo. <https://doi.org/10.5281/zenodo.10123880>
 
-Sign the Commitment at https://nfdi4earth.de/commit.
+Sign the Commitment at <https://nfdi4earth.de/commit>.
 
 ## How this was made
 

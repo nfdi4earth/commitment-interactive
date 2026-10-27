@@ -7,7 +7,8 @@ import { CopyLink } from "../../components/CopyLink";
 import { FacetTags } from "../../components/FacetBadge";
 import { Markdown } from "../../components/Markdown";
 import { content } from "../../model/content";
-import { annotationHit, deepDiveFor, lensActive, statementHit } from "../../model/lens";
+import { LinkList } from "../../components/LinkList";
+import { annotationHit, deepDiveFor, statementHit, statementOf } from "../../model/lens";
 import type { Annotation } from "../../model/types";
 import { useReader } from "./context";
 
@@ -17,20 +18,8 @@ export function deeperFor(a: Annotation) {
     return a.concepts.map(deepDiveFor).find(Boolean);
 }
 
-export function LinkList({ links }: { links: Annotation["links"] }) {
-    if (!links.length) return null;
-    return (
-        <ul className="links">
-            {links.map((l) => (
-                <li key={l.url}>
-                    <a href={l.url} target="_blank" rel="noreferrer">
-                        {l.label}
-                    </a>
-                </li>
-            ))}
-        </ul>
-    );
-}
+/** Quotes may contain `**bold**` or `_italic_` markers; screen readers would read them out. */
+const stripEmphasis = (md: string) => md.replace(/\*+|\b_+|_+\b/g, "");
 
 /**
  * An annotated passage: a note opens as tooltip, an explainer as popover, a deep dive in the side panel.
@@ -42,18 +31,14 @@ export function AnnotationButton({ id, children }: { id: string; children: React
     const a = content.annotations[id];
     if (!a) return <>{children}</>;
 
-    const statement = /^c\d+$/.test(a.target)
-        ? content.statements[Number(a.target.slice(1)) - 1]
-        : undefined;
+    const statement = statementOf(a.target);
     const hit =
-        lensActive(reader.lens) &&
-        annotationHit(a, reader.lens) &&
-        (!statement || statementHit(statement, reader.lens));
+        annotationHit(a, reader.lens) && (!statement || statementHit(statement, reader.lens));
     const open = reader.openId === id;
     const setOpen = (o: boolean) => reader.setOpenId(o ? id : null);
     const label = intl.formatMessage(
         { id: "annotation.aria" },
-        { quote: a.quote ?? a.title, depth: a.depth, title: a.title }
+        { quote: stripEmphasis(a.quote ?? a.title), depth: a.depth, title: a.title }
     );
     const props = {
         "type": "button" as const,
@@ -139,11 +124,7 @@ export function AnnotationButton({ id, children }: { id: string; children: React
                                     </Popover.Title>
                                     <Markdown text={a.body} />
                                     <LinkList links={a.links} />
-                                    <FacetTags
-                                        roles={a.roles}
-                                        topics={a.topics}
-                                        concepts={a.concepts}
-                                    />
+                                    <FacetTags tags={a} />
                                     <div className="pop-actions">
                                         <CopyLink
                                             anchor={id}
@@ -168,13 +149,11 @@ export function AnnotationButton({ id, children }: { id: string; children: React
     );
 }
 
+const renderAnnotation = (id: string, children: ReactNode) => (
+    <AnnotationButton id={id}>{children}</AnnotationButton>
+);
+
 /** Commitment text with its annotated passages. */
 export function AnnotatedText({ text }: { text: string }) {
-    return (
-        <Markdown
-            inline
-            text={text}
-            annotation={(id, children) => <AnnotationButton id={id}>{children}</AnnotationButton>}
-        />
-    );
+    return <Markdown inline text={text} annotation={renderAnnotation} />;
 }

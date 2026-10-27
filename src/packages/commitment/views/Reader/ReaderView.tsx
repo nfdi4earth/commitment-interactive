@@ -1,18 +1,20 @@
-import { Container } from "@chakra-ui/react";
 import { useIntl } from "open-pioneer:react-hooks";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useAppPath } from "../../components/base";
+import { ExternalLink, scrollBehavior, useAppPath, useEnterBand } from "../../components/base";
 import { Icon } from "../../components/Icon";
+import { BackLink, PageContainer } from "../../components/Page";
 import { content } from "../../model/content";
 import {
     annotationHit,
+    annotationsOn,
     colourVars,
     facet,
     lensActive,
     lensColour,
     lensFromQuery,
-    statementHit
+    statementHit,
+    statementsIn
 } from "../../model/lens";
 import { FACET_FIELD, FACET_KINDS, type FacetKind, type Statement } from "../../model/types";
 import { AnnotatedText, AnnotationButton } from "./AnnotationButton";
@@ -26,17 +28,15 @@ const SIGN_URL = "https://nfdi4earth.de/commit";
 const DOI_URL = "https://doi.org/10.5281/zenodo.10123880";
 
 const ext = (href: string) =>
-    function ExternalLink(chunks: React.ReactNode[]) {
+    function Ext(chunks: React.ReactNode[]) {
         return (
-            <a key={href} href={href} target="_blank" rel="noreferrer">
+            <ExternalLink key={href} href={href}>
                 {chunks}
-            </a>
+            </ExternalLink>
         );
     };
 
-function reducedMotion() {
-    return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-}
+const PREAMBLE_ANNOTATIONS = content.preamble.flatMap((_, i) => annotationsOn(`pre-${i + 1}`));
 
 /** The annotated Commitment with lens bar, contents menu and side panel. */
 export default function ReaderView() {
@@ -54,15 +54,21 @@ export default function ReaderView() {
     const [current, setCurrent] = useState<number | null>(null);
     const [notFound, setNotFound] = useState<string | null>(null);
 
-    // scroll targets, registered by ref callbacks (no document queries: OneStop4All uses a shadow root)
+    // scroll targets, registered by ref callbacks (no document queries: OneStop4All uses a shadow root);
+    // one callback per id, so that React does not re-register them on every render
     const anchors = useRef(new Map<string, HTMLElement>());
-    const anchor = useCallback(
-        (id: string) => (el: HTMLElement | null) => {
-            if (el) anchors.current.set(id, el);
-            else anchors.current.delete(id);
-        },
-        []
-    );
+    const anchorRefs = useRef(new Map<string, (el: HTMLElement | null) => void>());
+    const anchor = useCallback((id: string) => {
+        let ref = anchorRefs.current.get(id);
+        if (!ref) {
+            ref = (el) => {
+                if (el) anchors.current.set(id, el);
+                else anchors.current.delete(id);
+            };
+            anchorRefs.current.set(id, ref);
+        }
+        return ref;
+    }, []);
 
     const openPanel = useCallback((p: Panel) => {
         setOpenId(null);
@@ -76,7 +82,7 @@ export default function ReaderView() {
     function scrollTo(id: string, pulse: boolean) {
         const el = anchors.current.get(id);
         if (!el) return false;
-        el.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "start" });
+        el.scrollIntoView({ behavior: scrollBehavior(), block: "start" });
         if (pulse) {
             el.classList.remove("pulse");
             void el.offsetWidth; // restart the animation
@@ -144,21 +150,11 @@ export default function ReaderView() {
     }
 
     // current statement for the contents menu
-    useEffect(() => {
-        const io = new IntersectionObserver(
-            (entries) =>
-                entries.forEach(
-                    (e) =>
-                        e.isIntersecting && setCurrent(Number((e.target as HTMLElement).dataset.n))
-                ),
-            { rootMargin: "-40% 0px -55% 0px" }
-        );
-        content.statements.forEach((s) => {
-            const el = anchors.current.get(`c${s.n}`);
-            if (el) io.observe(el);
-        });
-        return () => io.disconnect();
-    }, []);
+    useEnterBand(
+        useCallback(() => content.statements.map((s) => anchors.current.get(`c${s.n}`)), []),
+        "-40% 0px -55% 0px",
+        useCallback((el: HTMLElement) => setCurrent(Number(el.dataset.n)), [])
+    );
 
     // the lens bar's height positions the contents menu and the scroll targets below it
     const lensBar = useRef<HTMLDivElement>(null);
@@ -172,21 +168,15 @@ export default function ReaderView() {
     }, []);
 
     // preamble: one count of relevant passages per selected facet
-    const preambleAnnotations = Object.values(content.annotations).filter((a) =>
-        a.target.startsWith("pre-")
-    );
     const preCounts = FACET_KINDS.flatMap((k) => {
         const f = facet(k, lens[k]);
         if (!f) return [];
-        const n = preambleAnnotations.filter((a) => a[FACET_FIELD[k]].includes(f.id)).length;
+        const n = PREAMBLE_ANNOTATIONS.filter((a) => a[FACET_FIELD[k]].includes(f.id)).length;
         return [{ kind: k, f, n }];
     });
     // a preamble paragraph or the intro is dimmed unless it holds a passage that lights up
     const passageDim = (target: string) =>
-        on &&
-        !Object.values(content.annotations).some(
-            (a) => a.target === target && annotationHit(a, lens)
-        );
+        on && !annotationsOn(target).some((a) => annotationHit(a, lens));
 
     const rootStyle = {
         "--lens": lensColour(lens) ?? "var(--primary)",
@@ -233,21 +223,8 @@ export default function ReaderView() {
 
     return (
         <ReaderContext.Provider value={reader}>
-            <Container maxW={{ base: "100%", custombreak: "80%" }}>
-                <a className="backto" href={COMMITMENT_SITE} target="_blank" rel="noreferrer">
-                    <svg width="12" height="18" viewBox="0 0 16 24" fill="none" aria-hidden="true">
-                        <path
-                            d="M14.4541 22.5L2.99955 12L14.4541 1.5"
-                            stroke="#05668D"
-                            strokeWidth="3"
-                            strokeLinecap="round"
-                        />
-                    </svg>
-                    <span>
-                        <b>{intl.formatMessage({ id: "back" })}</b>{" "}
-                        {intl.formatMessage({ id: "reader.back" })}
-                    </span>
-                </a>
+            <PageContainer>
+                <BackLink to={COMMITMENT_SITE} label={intl.formatMessage({ id: "reader.back" })} />
                 <h1 className="page-title">
                     {intl.formatMessage({ id: "title" })}{" "}
                     <span className="mock-badge">{intl.formatMessage({ id: "mock-badge" })}</span>
@@ -269,11 +246,11 @@ export default function ReaderView() {
                         </Link>
                     ))}
                 </div>
-            </Container>
+            </PageContainer>
 
             <LensBar ref={lensBar} lens={lens} onToggle={toggle} onClear={clear} />
 
-            <Container maxW={{ base: "100%", custombreak: "80%" }}>
+            <PageContainer>
                 <div className={`reader-root${on ? " lens-on" : ""}`} style={rootStyle}>
                     {notFound && (
                         <p className="focus-missing" role="status">
@@ -382,16 +359,14 @@ export default function ReaderView() {
                                         <AnnotatedText text={b.title} />
                                     </div>
                                     <div className="statements">
-                                        {content.statements
-                                            .filter((s) => s.n >= b.from && s.n <= b.to)
-                                            .map(statement)}
+                                        {statementsIn(b).map(statement)}
                                     </div>
                                 </div>
                             ))}
                         </article>
                     </div>
                 </div>
-            </Container>
+            </PageContainer>
 
             <button
                 type="button"

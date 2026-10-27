@@ -1,13 +1,13 @@
 import { useIntl } from "open-pioneer:react-hooks";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { useAppPath } from "../components/base";
+import { scrollBehavior, useAppPath, useEnterBand } from "../components/base";
+import { OtherFacets } from "../components/FacetBadge";
 import { Icon } from "../components/Icon";
 import { Markdown } from "../components/Markdown";
 import { Page } from "../components/Page";
 import { content } from "../model/content";
-import { colourVars } from "../model/lens";
-import { plainText } from "../model/parse";
+import { colourVars, statementsWith } from "../model/lens";
 import type { TopicStep } from "../model/types";
 
 /** Topic page: steps scroll by on the right, the matching statement lights up on the left. */
@@ -18,42 +18,40 @@ export default function TopicView() {
     const topic = content.topics.find((t) => t.id === id);
     const [active, setActive] = useState(0);
 
-    const relevant = new Set(
-        content.statements.filter((s) => id && s.topics.includes(id)).map((s) => s.n)
+    const tagged = useMemo(() => (topic ? statementsWith("topic", topic.id) : []), [topic]);
+    const relevant = useMemo(() => new Set(tagged.map((s) => s.n)), [tagged]);
+    const steps: TopicStep[] = useMemo(
+        () =>
+            !topic
+                ? []
+                : topic.steps.length
+                  ? topic.steps
+                  : // no steps written yet: one generated placeholder step per tagged statement
+                    tagged.map((s) => ({
+                        n: s.n,
+                        title: s.short,
+                        text: intl.formatMessage(
+                            { id: "topic.placeholder-step" },
+                            {
+                                topic: topic.label.toLowerCase(),
+                                n: s.n,
+                                short: s.short.toLowerCase()
+                            }
+                        )
+                    })),
+        [topic, tagged, intl]
     );
-    const steps: TopicStep[] = !topic
-        ? []
-        : topic.steps.length
-          ? topic.steps
-          : // no steps written yet: one generated placeholder step per tagged statement
-            content.statements
-                .filter((s) => relevant.has(s.n))
-                .map((s) => ({
-                    n: s.n,
-                    title: s.short,
-                    text: intl.formatMessage(
-                        { id: "topic.placeholder-step" },
-                        { topic: topic.label.toLowerCase(), n: s.n, short: s.short.toLowerCase() }
-                    )
-                }));
 
     // the step in the middle of the viewport is the active one
     const stepEls = useRef<(HTMLElement | null)[]>([]);
     const condEls = useRef(new Map<number, HTMLElement>());
     const sticky = useRef<HTMLDivElement>(null);
-    useEffect(() => {
-        setActive(0);
-        const io = new IntersectionObserver(
-            (entries) =>
-                entries.forEach(
-                    (e) =>
-                        e.isIntersecting && setActive(Number((e.target as HTMLElement).dataset.i))
-                ),
-            { rootMargin: "-45% 0px -45% 0px" }
-        );
-        stepEls.current.forEach((el) => el && io.observe(el));
-        return () => io.disconnect();
-    }, [id, steps.length]);
+    useEffect(() => setActive(0), [id]);
+    useEnterBand(
+        useCallback(() => stepEls.current.slice(0, steps.length), [steps]),
+        "-45% 0px -45% 0px",
+        useCallback((el: HTMLElement) => setActive(Number(el.dataset.i)), [])
+    );
 
     // small screens: the condensed Commitment is a short scroll box; keep the active statement in view
     const activeN = steps[active]?.n;
@@ -61,7 +59,7 @@ export default function TopicView() {
         const box = sticky.current;
         const el = activeN === undefined ? undefined : condEls.current.get(activeN);
         if (box && el && box.scrollHeight > box.clientHeight)
-            box.scrollTo({ top: el.offsetTop - 40, behavior: "smooth" });
+            box.scrollTo({ top: el.offsetTop - 40, behavior: scrollBehavior() });
     }, [activeN]);
 
     if (!topic) return <Navigate to={appPath("/topics")} replace />;
@@ -108,7 +106,7 @@ export default function TopicView() {
                         >
                             <span className="cn">{s.n}</span>
                             <span>
-                                <Markdown inline text={plainText(s.text)} />
+                                <Markdown inline text={s.text} />
                             </span>
                         </div>
                     ))}
@@ -147,20 +145,7 @@ export default function TopicView() {
                     <div className="topic-others">
                         <p className="lens-label">{intl.formatMessage({ id: "topic.others" })}</p>
                         <div className="other-roles">
-                            {content.topics
-                                .filter((o) => o.id !== topic.id)
-                                .map((o) => (
-                                    <Link
-                                        key={o.id}
-                                        className="chip"
-                                        data-kind="topic"
-                                        style={colourVars(o.colour)}
-                                        to={appPath(`/topics/${o.id}`)}
-                                    >
-                                        <Icon name={o.icon} />
-                                        <span className="chip-text">{o.label}</span>
-                                    </Link>
-                                ))}
+                            <OtherFacets kind="topic" current={topic.id} />
                         </div>
                     </div>
                 </div>

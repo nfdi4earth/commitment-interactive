@@ -1,6 +1,16 @@
 // The "lens": selected perspective, topic and concept badges, kept in the URL query.
-import { FACET_FIELD, FACET_KINDS, type Facet, type FacetKind, type Tags } from "./types";
+import {
+    FACET_FIELD,
+    FACET_KINDS,
+    type Annotation,
+    type Box,
+    type Facet,
+    type FacetKind,
+    type Statement,
+    type Tags
+} from "./types";
 import { content } from "./content";
+import { plainText } from "./parse";
 
 export type Lens = Partial<Record<FacetKind, string>>;
 
@@ -18,6 +28,30 @@ export const facetsOf = (kind: FacetKind): Facet[] => FACETS[kind];
 /** The written (non-placeholder) deep dive of a concept, if any. */
 export const deepDiveFor = (concept: string) =>
     Object.values(content.deepdives).find((d) => d.concept === concept && !d.placeholder);
+
+/** The statement an annotation target (`c8`) stands for, if it is one. */
+export const statementOf = (target: string): Statement | undefined =>
+    /^c\d+$/.test(target) ? content.statements[Number(target.slice(1)) - 1] : undefined;
+
+const BOX_STATEMENTS = new Map(
+    content.boxes.map((b) => [b, content.statements.filter((s) => s.n >= b.from && s.n <= b.to)])
+);
+/** The statements of a box. */
+export const statementsIn = (box: Box): Statement[] => BOX_STATEMENTS.get(box) ?? [];
+/** The box a statement is in. */
+export const boxOf = (n: number) => content.boxes.find((b) => n >= b.from && n <= b.to);
+/** A box title as plain text, without its final full stop. */
+export const boxTitle = (box: Box | undefined) => plainText(box?.title ?? "").replace(/\.$/, "");
+
+/** The statements tagged with a facet. */
+export const statementsWith = (kind: FacetKind, id: string): Statement[] =>
+    content.statements.filter((s) => s[FACET_FIELD[kind]].includes(id));
+
+const BY_TARGET = new Map<string, Annotation[]>();
+for (const a of Object.values(content.annotations))
+    BY_TARGET.set(a.target, [...(BY_TARGET.get(a.target) ?? []), a]);
+/** The annotations on a target (`pre-1`, `intro`, `c8`, …). */
+export const annotationsOn = (target: string): Annotation[] => BY_TARGET.get(target) ?? [];
 
 /** Reads the lens from `?role=…&topic=…&concept=…`, ignoring unknown ids. */
 export function lensFromQuery(q: URLSearchParams): Lens {

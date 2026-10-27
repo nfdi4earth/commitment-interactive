@@ -25,11 +25,11 @@ It helps different stakeholders understand and implement the commitment:
 - `mockup/`: a clickable HTML/CSS/JS mock-up that runs without a build step (only the content needs one); open `mockup/index.html` in a browser. It was the reference for the interaction design; the React app now has all its pages. Retire it once the React app is deployed (then also drop `tools/build-content.mjs`'s `mockup/data.js` output).
 - **React app (all pages of the mock-up built):** the shell of the OneStop4All (OS4A) implementation at upstream commit `b39aaff` (v1.11.2, https://git.rwth-aachen.de/nfdi4earth/onestop4all/onestop4all-implementation), which uses Open Pioneer Trails, React 19, Chakra UI v3, Vite and pnpm. Root tooling (`package.json`, `pnpm-workspace.yaml` with the catalog, lockfile, ESLint, Prettier, `tsconfig`, `vite.config.ts`, `patches/`, `.husky/`) is copied from OS4A and trimmed. The repo has two workspace packages:
   - `src/apps/commitment-standalone/`: the thin host. It holds the OS4A theme (`theme.ts`, unchanged), layout, header, footer and menu, copied from OS4A and cut down. The search bar opens the live OS4A search, and user support is a `mailto:` link to the helpdesk (`links.ts`). It renders `<commitment-app>` in a shadow root and redirects `/` to `/commitment`.
-  - `src/packages/commitment/`: the **drop-in unit**. It exports `commitmentRoutes` (relative routes) that OS4A will later mount under `commitment/*`, like the `/label` page. An ESLint rule forbids imports from the host app.
+  - `src/packages/commitment/`: the **drop-in unit**. It exports `commitmentRoutes` (relative routes) that OS4A will later mount under `commitment`, like the `/label` page. An ESLint rule forbids imports from the host app.
     - `model/`: `parse.ts` (front matter with `js-yaml`, quote matching, all content checks), `content.ts` (loads `content/**/*.md` with `import.meta.glob`), `lens.ts`, `types.ts`. Annotated quotes become Markdown links `[quote](annotation:<id>)` that `components/Markdown.tsx` renders as annotation buttons.
     - `views/Reader/`: lens bar, contents menu, statements, annotations (note = Chakra Tooltip, explainer = Popover, deep dive = Drawer) and the statement panel; `?focus=` deep links.
     - `views/`: `IndexView` (`for`, `topics`, `concepts`), `PerspectiveView` (`for/:id`), `TopicView` (`topics/:id`, scrollytelling), `DeepDiveView` (`deep-dive/:id`) and `MapView` (`map`, `@xyflow/react`, lazy-loaded; its base CSS is loaded scoped in `styles.scss`). Unknown paths redirect to the reader.
-    - **Host contract:** the host mounts `commitmentRoutes` as children of a splat route (`commitment/*`); `CommitmentRoot` derives the base path for links from the splat. The host also sets the CSS variable `--commitment-sticky-top` to the height of its fixed header (see `layouts/layout.tsx`), so the sticky lens bar sits below it.
+    - **Host contract:** the host mounts `commitmentRoutes` as children of a plain route (`commitment`, not `commitment/*`, where React Router 7 resolves "." against the whole URL); `CommitmentRoot` derives the base path for links from it. The host also sets the CSS variable `--commitment-sticky-top` to the height of its fixed header (see `layouts/layout.tsx`), so the sticky lens bar sits below it.
 - **Node and pnpm:** OS4A needs Node ≥ 20 and pnpm 10 (`engines` in `package.json`). On this machine use the nvm Node 22 (`PATH=$HOME/.nvm/versions/node/v22.23.3/bin:$PATH`); the default Node 18 is too old for the app (the content script works with both).
 - `pnpm install` runs husky, which sets `core.hooksPath` so the **pre-commit hook runs lint, Prettier, type check and tests** (from OS4A). `NO_VERIFY=1` skips it; never use that to get around a failing check (G2.2).
 - How to add the package to OS4A, and what to decide before going live: `docs/integration.md` (tested against OS4A `b39aaff` on 2026-10-27). Keep it current when the host contract changes. The original plan is in `~/.claude/plans/we-start-a-new-streamed-moler.md`.
@@ -107,6 +107,20 @@ These are the starting points for the real deep-dive content. Don't use them for
 - **Mock-up:** there are no automated UI tests. Verify it manually in a browser at desktop width and at mobile width (< 1000px).
 - **App:** `pnpm lint`, `pnpm prettier-check`, `pnpm check-types`, `CI=1 pnpm test run` and `pnpm build`. Tests are in `src/packages/commitment/**/*.test.ts`; `src/testing/global-setup.ts` loads the jest-dom matchers.
 - **In a browser:** `pnpm build && pnpm preview`, or `pnpm dev`, then open http://localhost:4173/ (preview) or http://localhost:5173/ (dev) at desktop and mobile widths.
+
+<!-- source: Daniel Nüst, request, added 2026-10-27 -->
+## Development workflow
+
+After every code change, before reporting it as done or committing it:
+
+1. **Run `/simplify` first** on the changed code and apply its fixes.
+2. **Then run `/code-review`** with a level that depends on how many lines changed (`git diff --stat`, added plus removed, without `content/` and the generated `mockup/data.js` and `pnpm-lock.yaml`):
+   - up to 50 lines: `/code-review low`
+   - 51 to 300 lines: `/code-review medium`
+   - more than 300 lines: `/code-review high`, never higher unless asked
+3. Run the checks above and quote their results (G2.1).
+
+For trying the app out, keep a **live-reloading dev server** running (`pnpm dev`, http://localhost:5173/) instead of `pnpm preview`, so content and code edits show up without a rebuild. Stop any old preview or dev server before starting a new one.
 
 <!-- source: Daniel Nüst, feedback on the mock-up, added 2026-10-26, updated 2026-10-26 -->
 ## Design decisions from mock-up feedback

@@ -2,6 +2,7 @@ import { useIntl } from "open-pioneer:react-hooks";
 import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { useAppPath } from "../components/base";
+import { OtherFacets } from "../components/FacetBadge";
 import { Icon } from "../components/Icon";
 import { Markdown } from "../components/Markdown";
 import { Page } from "../components/Page";
@@ -14,18 +15,19 @@ export default function PerspectiveView() {
     const appPath = useAppPath();
     const { id } = useParams();
     const role = content.roles.find((r) => r.id === id);
-    // checked first steps; only kept while the page is open
-    const [done, setDone] = useState<Set<number>>(new Set());
+    // checked first steps ("role:n"); only kept while the app is open
+    const [done, setDone] = useState<Set<string>>(new Set());
     if (!role) return <Navigate to={appPath("/for")} replace />;
 
     const numbers = Object.keys(role.notes).map(Number);
+    const isDone = (n: number) => done.has(`${role.id}:${n}`);
     const toggle = (n: number) =>
         setDone((d) => {
             const next = new Set(d);
-            if (!next.delete(n)) next.add(n);
+            if (!next.delete(`${role.id}:${n}`)) next.add(`${role.id}:${n}`);
             return next;
         });
-    const count = numbers.filter((n) => done.has(n)).length;
+    const count = numbers.filter(isDone).length;
 
     return (
         <Page back={{ to: "/for", label: intl.formatMessage({ id: "back-to.perspectives" }) }}>
@@ -79,7 +81,7 @@ export default function PerspectiveView() {
                             <label>
                                 <input
                                     type="checkbox"
-                                    checked={done.has(n)}
+                                    checked={isDone(n)}
                                     onChange={() => toggle(n)}
                                 />{" "}
                                 {note.step}
@@ -97,20 +99,7 @@ export default function PerspectiveView() {
                 <span className="lens-label">
                     {intl.formatMessage({ id: "perspective.others" })}
                 </span>
-                {content.roles
-                    .filter((o) => o.id !== role.id)
-                    .map((o) => (
-                        <Link
-                            key={o.id}
-                            className="chip"
-                            data-kind="role"
-                            style={colourVars(o.colour)}
-                            to={appPath(`/for/${o.id}`)}
-                        >
-                            <Icon name={o.icon} />
-                            <span className="chip-text">{o.label}</span>
-                        </Link>
-                    ))}
+                <OtherFacets kind="role" current={role.id} />
             </div>
             <p className="page-cta">
                 <Link className="btn-solid" to={appPath(`?role=${role.id}`)}>

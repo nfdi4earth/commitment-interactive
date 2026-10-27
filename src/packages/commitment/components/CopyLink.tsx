@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useClipboard } from "@chakra-ui/react";
 import { useIntl } from "open-pioneer:react-hooks";
+import { useHref } from "react-router-dom";
 import { useAppPath } from "./base";
 import { Icon } from "./Icon";
 
@@ -7,23 +8,14 @@ import { Icon } from "./Icon";
 export function CopyLink({ anchor, label }: { anchor: string; label: string }) {
     const intl = useIntl();
     const appPath = useAppPath();
-    const [copied, setCopied] = useState(false);
-    useEffect(() => {
-        if (!copied) return;
-        const t = setTimeout(() => setCopied(false), 2500);
-        return () => clearTimeout(t);
-    }, [copied]);
-    const url = window.location.origin + appPath(`?focus=${anchor}`);
+    // useHref adds the router's basename, if the host has one
+    const url = new URL(useHref(appPath(`?focus=${anchor}`)), window.location.href).href;
+    const clipboard = useClipboard({ value: url, timeout: 2500 });
     return (
-        <button
-            type="button"
-            className="btn-outline"
-            title={url}
-            onClick={() => navigator.clipboard?.writeText(url).then(() => setCopied(true))}
-        >
+        <button type="button" className="btn-outline" title={url} onClick={clipboard.copy}>
             <Icon name="link" size={14} />
             <span aria-live="polite">
-                {copied ? intl.formatMessage({ id: "copy.done" }) : label}
+                {clipboard.copied ? intl.formatMessage({ id: "copy.done" }) : label}
             </span>
         </button>
     );

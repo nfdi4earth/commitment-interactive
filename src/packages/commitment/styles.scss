@@ -1,6 +1,25 @@
 // @xyflow/react base styles, scoped like everything else (they have no :root rules)
 @use "sass:meta";
 
+// round statement number, in the text and in the legend
+@mixin number-button($size) {
+    width: $size;
+    height: $size;
+    border-radius: 50%;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    background: #fff;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    &:hover {
+        background: var(--primary);
+        color: #fff;
+    }
+}
+
 // Styles of the commitment package, ported from the mock-up (mockup/style.css).
 // Everything is scoped under .commitment-view, which also wraps the content of overlays
 // (see Scoped in components/base.tsx). Tokens follow the OneStop4All theme.
@@ -12,7 +31,6 @@
     --primary-300: #4daac7;
     --active: #22c0d2;
     --border: #cccccc;
-    --sep: #e2e8f0;
     --text-bg: #f7fafc;
     --fg: #000000;
     --fg-2: #718096;
@@ -171,8 +189,8 @@
         top: var(--sticky-top);
         z-index: 20;
         background: #fff;
-        border-top: 1px solid var(--sep);
-        border-bottom: 1px solid var(--sep);
+        border-top: 1px solid var(--gray-200);
+        border-bottom: 1px solid var(--gray-200);
         padding: 10px 0;
         margin-bottom: 20px;
     }
@@ -314,21 +332,7 @@
             background 0.35s,
             box-shadow 0.35s;
         .num {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #fff;
-            cursor: pointer;
-            &:hover {
-                background: var(--primary);
-                color: #fff;
-            }
+            @include number-button(34px);
         }
         .stext {
             margin: 4px 0 0;
@@ -456,24 +460,12 @@
             color: var(--fg);
         }
     }
+    // the legend's sample of the statement number button
     .num-sample {
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        border: 2px solid var(--primary);
-        color: var(--primary);
-        background: #fff;
-        font-weight: 700;
-        font-size: 12px;
+        @include number-button(22px);
         display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
+        font-size: 12px;
         padding: 0;
-        &:hover {
-            background: var(--primary);
-            color: #fff;
-        }
     }
     .pre-count {
         display: inline-flex;
@@ -512,7 +504,7 @@
 
     /* ---------- contents menu ---------- */
     .toc {
-        border-left: 1px solid var(--sep);
+        border-left: 1px solid var(--gray-200);
         font-size: 14px;
         max-height: calc(100vh - var(--sticky-top) - var(--lens-h, 90px) - 40px);
         overflow-y: auto;
@@ -657,35 +649,25 @@
             text-decoration: underline;
         }
     }
-    .popover {
-        h4 {
-            margin: 0 0 8px;
-            color: var(--primary);
-            font-size: 18px;
-            font-weight: 700;
-            padding-right: 26px;
-        }
-        p {
-            font-size: 15px;
-        }
+    .popover h4,
+    .panel h3 {
+        margin: 0 0 8px;
+        color: var(--primary);
+        font-size: 18px;
+        font-weight: 700;
+        padding-right: 26px;
+    }
+    .popover p,
+    .panel p {
+        font-size: 15px;
     }
     .panel {
-        h3 {
-            margin: 0 0 8px;
-            color: var(--primary);
-            font-size: 18px;
-            font-weight: 700;
-            padding-right: 26px;
-        }
         .kicker {
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.6px;
             color: var(--fg-2);
             margin-bottom: 6px;
-        }
-        p {
-            font-size: 15px;
         }
         .quote {
             border-left: 4px solid var(--primary);
@@ -1116,7 +1098,7 @@
     }
 
     /* ---------- small screens (< custombreak 1000px) ---------- */
-    @media (max-width: 1000px) {
+    @media (max-width: 999.98px) {
         .text-box {
             padding: 20px;
         }

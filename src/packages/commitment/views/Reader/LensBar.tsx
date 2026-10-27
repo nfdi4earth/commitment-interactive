@@ -1,9 +1,9 @@
-import { Container } from "@chakra-ui/react";
 import { useIntl } from "open-pioneer:react-hooks";
 import { forwardRef } from "react";
-import { Icon } from "../../components/Icon";
+import { chip } from "../../components/FacetBadge";
+import { PageContainer } from "../../components/Page";
 import { content } from "../../model/content";
-import { colourVars, facet, facetsOf, lensActive, statementHit, type Lens } from "../../model/lens";
+import { facet, facetsOf, lensActive, statementHit, type Lens } from "../../model/lens";
 import { FACET_KINDS, type FacetKind } from "../../model/types";
 
 interface Props {
@@ -23,7 +23,7 @@ export const LensBar = forwardRef<HTMLDivElement, Props>(function LensBar(
     const names = FACET_KINDS.flatMap((k) => facet(k, lens[k])?.label ?? []);
     return (
         <div className="lensbar" ref={ref}>
-            <Container maxW={{ base: "100%", custombreak: "80%" }}>
+            <PageContainer>
                 <div className="lens-status" aria-live="polite">
                     <span>
                         {on
@@ -58,20 +58,15 @@ export const LensBar = forwardRef<HTMLDivElement, Props>(function LensBar(
                                 <button
                                     key={f.id}
                                     type="button"
-                                    className="chip"
-                                    data-kind={kind}
-                                    style={colourVars(f.colour)}
                                     aria-pressed={lens[kind] === f.id}
                                     onClick={() => onToggle(kind, f.id)}
-                                >
-                                    <Icon name={f.icon} />
-                                    <span className="chip-text">{f.label}</span>
-                                </button>
+                                    {...chip(kind, f)}
+                                />
                             ))}
                         </div>
                     </div>
                 ))}
-            </Container>
+            </PageContainer>
         </div>
     );
 });

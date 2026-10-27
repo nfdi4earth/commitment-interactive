@@ -1,8 +1,8 @@
-import type { ReactNode } from "react";
+import { memo, useMemo, type ReactNode } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import { Link } from "react-router-dom";
 import { ANNOTATION_SCHEME } from "../model/parse";
-import { useAppPath } from "./base";
+import { ExternalLink, useAppPath } from "./base";
 
 // Content texts use a small Markdown subset (docs/content-authoring.md); everything else is dropped.
 const BLOCK = ["p", "strong", "em", "ul", "ol", "li", "a"];
@@ -17,22 +17,25 @@ interface Props {
     annotation?: (id: string, children: ReactNode) => ReactNode;
 }
 
-export function Markdown({ text, inline, annotation }: Props) {
+// Memoised: parsing is the expensive part, and the reader re-renders on scroll and hover.
+export const Markdown = memo(function Markdown({ text, inline, annotation }: Props) {
     const appPath = useAppPath();
-    const components: Components = {
-        a: ({ href = "", children }) => {
-            if (href.startsWith(ANNOTATION_SCHEME))
-                return annotation
-                    ? annotation(href.slice(ANNOTATION_SCHEME.length), children)
-                    : children;
-            if (href.startsWith("#/")) return <Link to={appPath(href.slice(1))}>{children}</Link>;
-            return (
-                <a href={href} target="_blank" rel="noreferrer">
-                    {children}
-                </a>
-            );
-        }
-    };
+    const components: Components = useMemo(
+        () => ({
+            a: ({ href = "", children }) => {
+                // urlTransform empties disallowed URLs: show the text without a link
+                if (!href) return children;
+                if (href.startsWith(ANNOTATION_SCHEME))
+                    return annotation
+                        ? annotation(href.slice(ANNOTATION_SCHEME.length), children)
+                        : children;
+                if (href.startsWith("#/"))
+                    return <Link to={appPath(href.slice(1))}>{children}</Link>;
+                return <ExternalLink href={href}>{children}</ExternalLink>;
+            }
+        }),
+        [appPath, annotation]
+    );
     return (
         <ReactMarkdown
             skipHtml
@@ -44,4 +47,4 @@ export function Markdown({ text, inline, annotation }: Props) {
             {text}
         </ReactMarkdown>
     );
-}
+});

@@ -30,12 +30,12 @@ The package `src/packages/commitment/` is a self-contained part of the app, incl
      - "@types/d3-interpolate"
    ```
 
-4. **Mount the routes** in `src/apps/onestop4all/routes/routes.tsx`, as a child of the layout route. The path must end in `/*`, because the package derives the base of its links from that part of the path:
+4. **Mount the routes** in `src/apps/onestop4all/routes/routes.tsx`, as a child of the layout route. Use a plain path, not `commitment/*`: the package derives the base of its links from the route's path, and its own routes already catch unknown subpaths:
 
    ```tsx
    import { commitmentRoutes } from "commitment";
    // …
-   { path: "commitment/*", children: commitmentRoutes },
+   { path: "commitment", children: commitmentRoutes },
    ```
 
 5. **Tell the package the header height** in `src/apps/onestop4all/layouts/layout.tsx`, so that the sticky lens bar sits below OS4A's fixed header:

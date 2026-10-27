@@ -8,13 +8,9 @@ import { Figure } from "../../components/Figure";
 import { Icon } from "../../components/Icon";
 import { Markdown } from "../../components/Markdown";
 import { content } from "../../model/content";
-import { colourVars } from "../../model/lens";
-import { plainText } from "../../model/parse";
+import { LinkList } from "../../components/LinkList";
+import { boxOf, boxTitle, colourVars, statementOf } from "../../model/lens";
 import type { Panel } from "./context";
-import { LinkList } from "./AnnotationButton";
-
-const boxOf = (n: number) => content.boxes.find((b) => n >= b.from && n <= b.to);
-const boxTitle = (n: number) => plainText(boxOf(n)?.title ?? "").replace(/\.$/, "");
 
 function StatementTags({ numbers }: { numbers: number[] }) {
     const intl = useIntl();
@@ -36,9 +32,7 @@ function AnnotationPanel({ id }: { id: string }) {
     const appPath = useAppPath();
     const a = content.annotations[id];
     if (!a) return null;
-    const statement = /^c\d+$/.test(a.target)
-        ? content.statements[Number(a.target.slice(1)) - 1]
-        : undefined;
+    const statement = statementOf(a.target);
     const box = content.boxes.find((b) => b.id === a.target);
     const dd = a.deepdive ? content.deepdives[a.deepdive] : undefined;
     const related = a.statements ?? dd?.statements ?? (statement ? [statement.n] : []);
@@ -55,17 +49,17 @@ function AnnotationPanel({ id }: { id: string }) {
             </Drawer.Title>
             {statement && (
                 <div className="quote">
-                    <Markdown inline text={plainText(statement.text)} />
+                    <Markdown inline text={statement.text} />
                 </div>
             )}
             {box && (
                 <div className="quote">
                     <b>
-                        <Markdown inline text={plainText(box.title)} />
+                        <Markdown inline text={box.title} />
                     </b>
                 </div>
             )}
-            <FacetTags roles={a.roles} topics={a.topics} concepts={a.concepts} />
+            <FacetTags tags={a} />
             {a.figure && <Figure kind={a.figure} />}
             <Markdown text={a.body} />
             <LinkList links={a.links} />
@@ -92,15 +86,18 @@ function StatementPanel({ n }: { n: number }) {
     return (
         <>
             <div className="kicker">
-                {intl.formatMessage({ id: "panel.statement-kicker" }, { n, box: boxTitle(n) })}
+                {intl.formatMessage(
+                    { id: "panel.statement-kicker" },
+                    { n, box: boxTitle(boxOf(n)) }
+                )}
             </div>
             <Drawer.Title asChild>
                 <h3>{s.short}</h3>
             </Drawer.Title>
             <div className="quote">
-                <Markdown inline text={plainText(s.text)} />
+                <Markdown inline text={s.text} />
             </div>
-            <FacetTags roles={s.roles} topics={s.topics} concepts={s.concepts} />
+            <FacetTags tags={s} />
             <p>
                 <b>{intl.formatMessage({ id: "panel.means-for" })}</b>{" "}
                 <span className="mock-badge">{intl.formatMessage({ id: "example-badge" })}</span>

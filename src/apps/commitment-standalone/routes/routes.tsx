@@ -12,7 +12,7 @@ export const routes: RouteObject[] = [
         element: <Layout />,
         children: [
             { index: true, element: <Navigate to="/commitment" replace /> },
-            { path: "commitment/*", children: commitmentRoutes },
+            { path: "commitment", children: commitmentRoutes },
             { path: "*", element: <Navigate to="/commitment" replace /> }
         ]
     }

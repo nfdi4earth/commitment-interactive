@@ -10,7 +10,7 @@ const DeepDiveView = lazy(() => import("./views/DeepDiveView"));
 // lazy, so that @xyflow/react only loads with the map
 const MapView = lazy(() => import("./views/MapView"));
 
-/** Relative routes; the host mounts them under any path, e.g. `commitment/*`. */
+/** Relative routes; the host mounts them under any path, e.g. `commitment` (not `commitment/*`). */
 export const commitmentRoutes: RouteObject[] = [
     {
         element: <CommitmentRoot />,
