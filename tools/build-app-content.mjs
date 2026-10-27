@@ -1,7 +1,7 @@
 // Builds src/packages/commitment/model/content.generated.json from content/ for the React app, so
 // that the browser gets the parsed content and no YAML parser or content checks.
 // It runs the app's own parser (model/parse.ts) through Vite, so the rules are the same as in the
-// tests; the mock-up has its own copy in tools/build-content.mjs.
+// tests.
 //
 //   node tools/build-app-content.mjs           write the file (`pnpm dev` also does it on every change)
 //   node tools/build-app-content.mjs --check   fail if content/ has problems or the file is out of date

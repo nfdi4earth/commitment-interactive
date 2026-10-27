@@ -1,8 +1,7 @@
 // Parses the Markdown files of content/ into the content model and checks their integrity.
-// It applies the same rules as tools/build-content.mjs (which builds the mock-up); error messages
-// are written for content editors, see docs/content-authoring.md.
-import yaml from "js-yaml";
+// Error messages are written for content editors, see docs/content-authoring.md.
 import { ICON_NAMES } from "../components/icons";
+import { parseHeader } from "./header";
 import type {
     Annotation,
     Box,
@@ -132,13 +131,8 @@ export function parseContent(files: ContentFiles): ParseResult {
             return undefined;
         }
         try {
-            // CORE_SCHEMA: no dates or other implicit types beyond those tools/build-content.mjs accepts
-            const meta = yaml.load(m[1] ?? "", { schema: yaml.CORE_SCHEMA }) ?? {};
-            if (typeof meta !== "object" || Array.isArray(meta)) {
-                fail(file, 'the front matter must be "field: value" lines');
-                return undefined;
-            }
-            return { id, file, meta: meta as Meta, body: stripComments(m[2] ?? "").trim() };
+            const meta: Meta = parseHeader(m[1] ?? "");
+            return { id, file, meta, body: stripComments(m[2] ?? "").trim() };
         } catch (e) {
             fail(file, (e as Error).message);
             return undefined;

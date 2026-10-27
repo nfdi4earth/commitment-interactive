@@ -188,6 +188,15 @@ describe("parseContent", () => {
         expect(errors[0]).toMatch(/quote "cite data" not found in c2/);
     });
 
+    it("reports header problems with the file and its line", () => {
+        const { errors } = parseWith({
+            "content/annotations/x.md": annotation("target: c1\nquote: Use #3")
+        });
+        expect(errors[0]).toBe(
+            'content/annotations/x.md: line 3: value "Use #3" contains ": " or " #" – put it in "quotes"'
+        );
+    });
+
     it("reports unknown fields, unknown references and raw HTML", () => {
         const { errors } = parseWith({
             "content/annotations/x.md": annotation(

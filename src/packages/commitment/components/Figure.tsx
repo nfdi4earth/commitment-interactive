@@ -1,7 +1,7 @@
 import { useIntl } from "open-pioneer:react-hooks";
 import type { Figure as FigureKind } from "../model/types";
 
-// Placeholder figures of the mock-up (mockup/app.js, figure()). The labels inside the drawings are
+// Placeholder figures. The labels inside the drawings are
 // part of the placeholder images; captions and descriptions come from i18n.
 const FONT = "Arial";
 

@@ -1,6 +1,6 @@
 # CLAUDE.md – commitment-interactive
 
-<!-- source: own rule (project kick-off with Daniel Nüst), added 2026-10-26 -->
+<!-- source: own rule (project kick-off with Daniel Nüst), added 2026-10-26, updated 2026-10-27 -->
 ## Purpose
 
 This is an interactive, annotated version of the
@@ -12,26 +12,26 @@ It helps different stakeholders understand and implement the commitment:
   - `note`: one sentence, shown as a tooltip
   - `explainer`: a paragraph with links, shown as a popover
   - `deepdive`: several paragraphs with links and figures, shown as a side panel
-- **Perspectives (roles):** student, researcher, institution, organisation/group. Policy makers and institutional leadership are possible future perspectives (README "Possible future work"); the mock-up has no placeholders for them.
+- **Perspectives (roles):** student, researcher, institution, organisation/group. Policy makers and institutional leadership are possible future perspectives (README "Possible future work"); the app has no placeholders for them.
 - **Topics:** researcher activities such as research evaluation, proposal writing, scholarly communication, publishing, open access and reviewing. Researchers are the first target audience.
 - **Concepts:** cross-cutting ideas such as openness, FAIRness, licensing, credit, infrastructure and standards. Each concept can have a vertical deep dive.
 
-**Status:** the detail content is **fake example content** for mock-ups of the interaction mechanisms. Never present it as real guidance.
+**Status:** the detail content is **fake example content** that shows the interaction mechanisms. Never present it as real guidance.
 
 <!-- source: own rule, added 2026-10-26, updated 2026-10-27 (host settings: Daniel Nüst, 2026-10-27) -->
 ## Status and layout
 
-- `src/packages/commitment/content/` ("`content/`" below): all texts as Markdown files, see "Content model". It is inside the package so that it moves with it into OS4A; `.prettierignore` keeps Prettier off it. `tools/build-content.mjs` turns them into `mockup/data.js`.
-- `mockup/`: a clickable HTML/CSS/JS mock-up that runs without a build step (only the content needs one); open `mockup/index.html` in a browser. It was the reference for the interaction design; the React app now has all its pages. Retire it once the React app is deployed (then also drop `tools/build-content.mjs`'s `mockup/data.js` output).
-- **React app (all pages of the mock-up built):** the shell of the OneStop4All (OS4A) implementation at upstream commit `b39aaff` (v1.11.2, https://git.rwth-aachen.de/nfdi4earth/onestop4all/onestop4all-implementation), which uses Open Pioneer Trails, React 19, Chakra UI v3, Vite and pnpm. Root tooling (`package.json`, `pnpm-workspace.yaml` with the catalog, lockfile, ESLint, Prettier, `tsconfig`, `vite.config.ts`, `patches/`, `.husky/`) is copied from OS4A and trimmed. The repo has two workspace packages:
+- `src/packages/commitment/content/` ("`content/`" below): all texts as Markdown files, see "Content model". It is inside the package so that it moves with it into OS4A; `.prettierignore` keeps Prettier off it. `tools/build-app-content.mjs` turns them into `model/content.generated.json`.
+- The clickable HTML mock-up (`mockup/`, with its own content script `tools/build-content.mjs`) was the reference for the interaction design. It was removed on 2026-10-27, after the React app had all its pages and was deployed; it is in the git history before that date.
+- **React app:** the shell of the OneStop4All (OS4A) implementation at upstream commit `b39aaff` (v1.11.2, https://git.rwth-aachen.de/nfdi4earth/onestop4all/onestop4all-implementation), which uses Open Pioneer Trails, React 19, Chakra UI v3, Vite and pnpm. Root tooling (`package.json`, `pnpm-workspace.yaml` with the catalog, lockfile, ESLint, Prettier, `tsconfig`, `vite.config.ts`, `patches/`, `.husky/`) is copied from OS4A and trimmed. The repo has two workspace packages:
   - `src/apps/commitment-standalone/`: the thin host. It holds the OS4A theme (`theme.ts`, unchanged), layout, header, footer and menu, copied from OS4A and cut down. The search bar opens the live OS4A search, and user support is a `mailto:` link to the helpdesk (`links.ts`). It renders `<commitment-app>` in a shadow root and redirects `/` to `/commitment`.
   - `src/packages/commitment/`: the **drop-in unit**. It exports `commitmentRoutes` (relative routes) that OS4A will later mount under `commitment`, like the `/label` page. An ESLint rule forbids imports from the host app.
-    - `model/`: `parse.ts` (front matter with `js-yaml`, quote matching, all content checks), `content.ts` (loads the committed `content.generated.json`, built from `content/` with `parse.ts` by `tools/build-app-content.mjs`, so the browser gets no YAML parser and no checks, and OS4A needs no build step; see "Checks"), `lens.ts`, `types.ts`. Annotated quotes become Markdown links `[quote](annotation:<id>)` that `components/Markdown.tsx` renders as annotation buttons.
+    - `model/`: `parse.ts` (quote matching, all content checks), `header.ts` (front matter), `content.ts` (loads the committed `content.generated.json`, built from `content/` with `parse.ts` by `tools/build-app-content.mjs`, so the browser gets no YAML parser and no checks, and OS4A needs no build step; see "Checks"), `lens.ts`, `types.ts`. Annotated quotes become Markdown links `[quote](annotation:<id>)` that `components/Markdown.tsx` renders as annotation buttons.
     - `views/Reader/`: lens bar, contents menu, statements, annotations (note = Chakra Tooltip, explainer = Popover, deep dive = Drawer) and the statement panel; `?focus=` deep links.
     - **All page state except hovering is in the URL**, so a shared link shows the same view (list in `components/base.tsx`): reader `role`/`topic`/`concept` (lens), `focus` (open annotation, or a passage to scroll to), `statement` (statement panel), `preamble=open`; topic page `step`; perspective page `done`. Changes made on the page replace the URL with `state: { quiet: true }` (`useQueryState`) and don't scroll. Every other navigation (a link, a shared URL, Back, Forward, reload) scrolls to its target first, and what it opens appears when the page has stopped scrolling (`useReveal`, `scrollIntoViewThen`: `scrollend`, or no scroll event for 200 ms; no guessed delays). React runs effects twice in development (Pioneer uses `StrictMode`), so `scrollIntoViewThen` starts the scroll in the next frame.
     - `views/`: `IndexView` (`for`, `topics`, `concepts`), `PerspectiveView` (`for/:id`), `TopicView` (`topics/:id`, scrollytelling), `DeepDiveView` (`deep-dive/:id`) and `MapView` (`map`, `@xyflow/react`, lazy-loaded; its base CSS is loaded scoped in `styles.scss`). Unknown paths redirect to the reader.
     - **Host contract:** the host mounts `commitmentRoutes` as children of a plain route (`commitment`, not `commitment/*`, where React Router 7 resolves "." against the whole URL); `CommitmentRoot` derives the base path for links from it. The host also sets the CSS variable `--commitment-sticky-top` to the height of its fixed header (see `layouts/layout.tsx`), so the sticky lens bar sits below it. The package passes settings for the host page as the route `handle` (`CommitmentHostSettings` in `routes.tsx`, read in OS4A with `useMatches()`): `chatbot` (now `true`) lets the page hide OS4A's chatbot button (`docs/integration.md`, step 6).
-- **Node and pnpm:** OS4A needs Node ≥ 20 and pnpm 10 (`engines` in `package.json`). On this machine use the nvm Node 22 (`PATH=$HOME/.nvm/versions/node/v22.23.3/bin:$PATH`); the default Node 18 is too old for the app (the content script works with both).
+- **Node and pnpm:** OS4A needs Node ≥ 20 and pnpm 10 (`engines` in `package.json`). On this machine use the nvm Node 22 (`PATH=$HOME/.nvm/versions/node/v22.23.3/bin:$PATH`); the default Node 18 is too old for the app and the content script.
 - `pnpm install` runs husky, which sets `core.hooksPath` so the **pre-commit hook runs `ci/check.sh`**: lint, Prettier, type check, content check and unit tests, the same as CI. `NO_VERIFY=1` skips it; never use that to get around a failing check (G2.2).
 - How to add the package to OS4A, and what to decide before going live: `docs/integration.md` (tested against OS4A `b39aaff` on 2026-10-27). Keep it current when the host contract changes. The original plan is in `~/.claude/plans/we-start-a-new-streamed-moler.md`.
 
@@ -62,8 +62,7 @@ It helps different stakeholders understand and implement the commitment:
   - `deepdives/<id>.md`: `title`, `concept`, `statements`, `anchors`, `links`, `figure`, `placeholder`; the body is a lead paragraph plus `##` sections. Deep dives are part of this app, not the Living Handbook.
   - `roles/<id>.md` (body: description + `## Statement N` notes ending in one `- [ ] first step`), `topics/<id>.md` (body: steps `## Title {statement=N}`), `concepts/<id>.md` (front matter only).
 - **Annotations attach by quoting** (like a W3C TextQuoteSelector): exact, whole words, unique within the target or disambiguated by `occurrence`, no overlaps, not inside links, and never across the edge of `**bold**` or `*italic*` text (plain text, or text inside one bold or italic part; decided by Daniel Nüst, 2026-10-27: crossing quotes are too brittle, the author adapts the quote). Never add markers or IDs to `commitment.md`.
-- `tools/build-content.mjs` (Node ≥ 18, no dependencies) validates everything and generates `mockup/data.js`, turning quotes into `[[id|text]]` markers. **Never edit `mockup/data.js` by hand**; commit it together with the content change.
-  - Its front-matter parser accepts a strict YAML subset, so the React app can read the same files with `js-yaml`. Don't extend the format beyond what both accept.
+- Front matter is the small YAML subset of `docs/content-authoring.md` ("Header rules"). `model/header.ts` reads it, with messages for editors; a full YAML parser would silently change some values (`title: Step #3` would lose " #3", `quote: 1.5` would become a number). Change the format only together with the guide.
 - Daniel Nüst edits the content by hand. Error messages from the check are written for an editor, not a developer: keep them that way.
 - **Text formatting:** all content texts (the commitment, notes, explainers, deep dives, perspective notes, topic steps, deep-dive pages) are **Markdown**, restricted to:
   - paragraphs
@@ -71,13 +70,13 @@ It helps different stakeholders understand and implement the commitment:
   - plain `-` and `1.` lists
   - `[links](https://…)`
   - Raw HTML is not allowed (the check rejects it). Only `http(s)`, `mailto` and internal `#/` links are allowed; external links open in a new tab.
-  - In the React app use `react-markdown` (already an OS4A dependency) with `skipHtml` and `allowedElements` limited to `p, strong, em, ul, ol, li, a`. The mock-up has a small equivalent, `md()`/`mdInline()` in `mockup/app.js`.
-- The React app checks the content with the same rules in `src/packages/commitment/model/parse.ts`; `parse.test.ts` fails on any problem in `content/` and tests the quote rules. Keep `parse.ts` and `tools/build-content.mjs` in sync until the mock-up is retired.
+  - In the React app use `react-markdown` (already an OS4A dependency) with `skipHtml` and `allowedElements` limited to `p, strong, em, ul, ol, li, a`.
+- The content is checked by `src/packages/commitment/model/parse.ts`; `parse.test.ts` fails on any problem in `content/` and tests the quote rules.
 
-<!-- source: own rule, added 2026-10-26 -->
+<!-- source: own rule, added 2026-10-26, updated 2026-10-27 -->
 ## Sources for real content later
 
-These are the starting points for the real deep-dive content. Don't use them for the mock-ups yet.
+These are the starting points for the real deep-dive content. Don't use them until real content is written.
 
 - **Canonical text:** `../nfdi4earth-deliverables/FAIRness-and-Openness-Commitment/NFDI4Earth_FAIRness-and-Openness-Commitment.source.md` (CC-BY 4.0)
 - **"Additional Information" deliverable:** `../nfdi4earth-deliverables/FAIRness-and-Openness-Commitment-Additional-Information/`
@@ -104,8 +103,7 @@ These are the starting points for the real deep-dive content. Don't use them for
 <!-- source: own rule, added 2026-10-26, updated 2026-10-27 -->
 ## Checks
 
-- **Content:** `pnpm check-content` validates `content/` (with both parsers) and fails if `mockup/data.js` or `model/content.generated.json` is out of date; `pnpm build-content` updates both. Commit them together with the content. `pnpm dev` regenerates the JSON on every content change (`tools/vite-plugin-content.mjs`, dev server only); builds and tests use the committed file, so `parse.test.ts` fails on a stale one.
-- **Mock-up:** there are no automated UI tests. Verify it manually in a browser at desktop width and at mobile width (< 1000px).
+- **Content:** `pnpm check-content` validates `content/` and fails if `model/content.generated.json` is out of date; `pnpm build-content` updates it. Commit it together with the content. `pnpm dev` regenerates the JSON on every content change (`tools/vite-plugin-content.mjs`, dev server only); builds and tests use the committed file, so `parse.test.ts` fails on a stale one.
 - **App:** `ci/check.sh` (`pnpm lint`, `pnpm prettier-check`, `pnpm check-types`, `pnpm check-content`, `CI=1 pnpm test run`) and `pnpm build`. Tests are in `src/packages/commitment/**/*.test.ts`; `src/testing/global-setup.ts` loads the jest-dom matchers.
 - **Browser tests:** `pnpm test:e2e` (Playwright, `tests/e2e/*.e2e.ts`, desktop and mobile width) builds the app, serves `dist/www` with `vite preview` and runs the reader, links/URL state and page tests; every test also fails on browser console errors. `E2E_BASE_URL=<url> pnpm exec playwright test` tests a running server instead (a deployment, or OS4A with the package). Run them for every change to the UI. Use `location` from the page for URL checks: `page.url()` misses `replaceState`. First run on a machine: `pnpm exec playwright install chromium`.
 - **In a browser:** `pnpm build && pnpm preview`, or `pnpm dev`, then open http://localhost:4173/ (preview) or http://localhost:5173/ (dev) at desktop and mobile widths.
@@ -124,7 +122,7 @@ These are the starting points for the real deep-dive content. Don't use them for
 After every code change, before reporting it as done or committing it:
 
 1. **Run `/simplify` first** on the changed code and apply its fixes.
-2. **Then run `/code-review`** with a level that depends on how many lines changed (`git diff --stat`, added plus removed, without `content/` and the generated `mockup/data.js` and `pnpm-lock.yaml`):
+2. **Then run `/code-review`** with a level that depends on how many lines changed (`git diff --stat`, added plus removed, without `content/`, the generated `model/content.generated.json` and `pnpm-lock.yaml`):
    - up to 50 lines: `/code-review low`
    - 51 to 300 lines: `/code-review medium`
    - more than 300 lines: `/code-review high`, never higher unless asked
@@ -139,7 +137,7 @@ For trying the app out, keep a **live-reloading dev server** running (`pnpm dev`
 - **The reading overview is a plain contents menu**, not a zoom/pan minimap. It keeps the synced current-section highlight and the lens hit/dim state. On mobile it is a bottom sheet behind a "Contents" button at the bottom left (hosts put their own buttons at the bottom right). Zoom and pan stay only in the overview map.
 - **Scrollytelling (topic pages):** keep little vertical space between steps (about 14vh), so the next step is always visible. Show "Step x of n", progress dots and a "Next: …" cue.
 
-<!-- source: Daniel Nüst, request to re-use NFDI4Earth colours; logos (2023) and Rollup service brick colours PDF (2026), added 2026-10-26 -->
+<!-- source: Daniel Nüst, request to re-use NFDI4Earth colours; logos (2023) and Rollup service brick colours PDF (2026), added 2026-10-26, updated 2026-10-27 -->
 ## Colour palette
 
 - Facet colours re-use the NFDI4Earth palette; the full list with sources is in `README.md#colour-palette`:
@@ -147,5 +145,5 @@ For trying the app out, keep a **live-reloading dev server** running (`pnpm dev`
   - topics use the service brick colours
   - all concepts use the Commitment brick colour `#2A9D8F`
 - The base UI stays on the OS4A theme (`#05668D`).
-- Never put text directly in a facet colour on white, because several colours are too light. Use dark text with a coloured icon or border. On a coloured fill, choose dark or white text by contrast (`ink()` in `mockup/app.js`).
+- Never put text directly in a facet colour on white, because several colours are too light. Use dark text with a coloured icon or border. On a coloured fill, choose dark or white text by contrast (`ink()` in `model/lens.ts`).
 - **Shapes encode kinds** everywhere (badges, tags, counts, map nodes): perspectives and concepts are round pills, topics have 4px corners, statements are square. The map is called "Overview map", because it shows more than concepts.

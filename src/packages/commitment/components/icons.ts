@@ -1,4 +1,4 @@
-// Icon set of the mock-up (mockup/app.js), 24×24 stroke icons. Content files name them in `icon:`.
+// 24×24 stroke icons. Content files name them in `icon:`.
 export const ICON_PATHS: Record<string, string> = {
     cap: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v6"/>',
     flask: '<path d="M9 3h6"/><path d="M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2h12.4a1.5 1.5 0 0 0 1.3-2L14 9V3"/><path d="M7 15h10"/>',

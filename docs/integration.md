@@ -21,7 +21,7 @@ The package `src/packages/commitment/` is a self-contained part of the app, incl
    "commitment": "workspace:^"
    ```
 
-   The package brings `js-yaml` and `react-markdown` (OS4A uses both already) and one new library, `@xyflow/react` (MIT), for the overview map. Run `pnpm install`.
+   The package brings `react-markdown` (OS4A uses it already; `js-yaml` only for a test) and one new library, `@xyflow/react` (MIT), for the overview map. Run `pnpm install`.
 
 3. **Allow one duplicate type package.** OS4A's duplicate check reports `@types/d3-interpolate` (3.0.1 from OS4A's dependencies, 3.0.4 from `@xyflow/react`); `pnpm dedupe` does not resolve it. These are TypeScript types only, like `@types/d3-color` and `@types/d3-time`, which OS4A already allows. Add it to `support/duplicate-packages.yaml`:
 

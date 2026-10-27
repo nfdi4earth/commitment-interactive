@@ -1,6 +1,6 @@
 # Writing and editing content
 
-All text in the app lives in [`src/packages/commitment/content/`](../src/packages/commitment/content/) as plain Markdown files. It sits inside the app's package so that it moves with the page into OneStop4All. Below, `content/` means this folder. You edit these files; a small script checks them and builds the data the mock-up reads.
+All text in the app lives in [`src/packages/commitment/content/`](../src/packages/commitment/content/) as plain Markdown files. It sits inside the app's package so that it moves with the page into OneStop4All. Below, `content/` means this folder. You edit these files; a small script checks them and builds the data the app reads.
 
 > The current annotations, perspective notes, topic steps and deep dives are **made-up example content**. Replace them, don't extend them as if they were real guidance.
 
@@ -21,19 +21,17 @@ IDs (file names) use lower case letters, digits and hyphens, e.g. `data-laws.md`
 ## Workflow
 
 1. Edit or add a file in `src/packages/commitment/content/`.
-2. Look at your change:
-   - in the app: while `pnpm dev` runs (http://localhost:5173/), every saved change shows up at once. Problems are listed in the terminal where `pnpm dev` runs, with file name and reason; the app keeps the last good content.
-   - in the mock-up: run `node tools/build-content.mjs` (needs only [Node.js](https://nodejs.org/) 18 or newer) and reload `mockup/index.html`.
+2. Look at your change in the app: while `pnpm dev` runs (http://localhost:5173/), every saved change shows up at once. Problems are listed in the terminal where `pnpm dev` runs, with file name and reason; the app keeps the last good content.
 3. Run the check and build:
 
    ```bash
    pnpm build-content
    ```
 
-   It either lists every problem with file name and reason, or writes the two files made from the content: `mockup/data.js` for the mock-up and `src/packages/commitment/model/content.generated.json` for the app.
-4. Commit the content files **and** the two generated files. Never edit them by hand.
+   It either lists every problem with file name and reason, or writes the file the app reads, `src/packages/commitment/model/content.generated.json`.
+4. Commit the content files **and** the generated file. Never edit it by hand.
 
-`pnpm check-content` only checks and fails if a generated file is out of date. `pnpm test` and the pre-commit hook also report a stale `content.generated.json`.
+`pnpm check-content` only checks and fails if the generated file is out of date. `pnpm test` and the pre-commit hook also report a stale `content.generated.json`.
 
 ## File format
 
@@ -53,10 +51,16 @@ A licence tells others what they may do with your data or code. …
 
 ### Header rules
 
-- One `field: value` per line. Lists are written `[a, b, c]`.
-- Put a value in `"double quotes"` if it
-  - starts with `#`, `*`, `[`, `{`, `&`, `!`, `|`, `>`, `'`, `"`, `%`, `@` or `` ` `` – this is why colours are written `colour: "#F1C129"`
+- One `field: value` per line. Lists are written `[a, b, c]`, or one item per line starting with `- ` (a dash and a space), as for `links` below.
+- Use spaces, never tabs.
+- Put a value in `"double quotes"` (or `'single quotes'`, with `''` for a `'` inside) if it
+  - starts with `#`, `*`, `[`, `]`, `{`, `}`, `,`, `&`, `!`, `|`, `>`, `%`, `@` or `` ` ``, or with a quote that does not enclose the whole value, or with `-`, `?` or `:` followed by a space – this is why colours are written `colour: "#F1C129"`
   - contains a colon followed by a space, e.g. `label: "The Turing Way: Licensing"`
+  - contains a space followed by `#`, e.g. `title: "Step #3"`
+  - is text that consists only of digits (with or without a leading `-`), or is exactly `true` or `false`, e.g. `quote: "2024"` (without quotes, it would be read as a number or a yes/no value)
+  - is a list item with `[` or `]` in it, e.g. `["[draft] notes"]`
+- Inside `"double quotes"`, write a backslash as `\\`.
+- Every field needs a value; leave out a field instead of leaving it empty.
 - Links in the header are a list of `label` and `url` pairs, indented by two spaces:
 
   ```yaml
@@ -66,7 +70,7 @@ A licence tells others what they may do with your data or code. …
   ```
 
 - Unknown or misspelled fields are reported as errors, so a typo can't silently hide content.
-- HTML comments (`<!-- … -->`) anywhere in a file are ignored. Use them for notes to other editors.
+- Notes to other editors: in the header, a line starting with `#` is ignored; in the text below it, HTML comments (`<!-- … -->`) are ignored.
 
 ### Markdown rules
 
@@ -110,7 +114,7 @@ An annotation attaches to a passage by **quoting** it. The Commitment text itsel
 | `links` | no | further-reading links, shown as a list below the text |
 | `deepdive` | no | ID of a deep-dive page; the side panel gets an "Open full deep dive" button |
 | `statements` | no | statement numbers listed as "Related statements" (default: the statement the quote is in) |
-| `figure` | no | one of the mock-up's built-in figures: `licence`, `openness`, `fair` |
+| `figure` | no | one of the built-in placeholder figures: `licence`, `openness`, `fair` |
 
 How quotes are matched:
 
@@ -183,17 +187,15 @@ The real deep dives will be written from the starting points listed in `CLAUDE.m
 
 ## Colours and icons
 
-Use colours from the NFDI4Earth palette in `README.md#colour-palette`. Icons are names from the mock-up's icon set: `cap`, `flask`, `building`, `people`, `scale`, `compass`, `pen`, `book`, `unlock`, `eye`, `chart`, `chat`, `bulb`, `map`, `user`, `text`, `link`. The check lists the valid names if you use an unknown one.
+Use colours from the NFDI4Earth palette in `README.md#colour-palette`. Icons are names from the app's icon set: `cap`, `flask`, `building`, `people`, `scale`, `compass`, `pen`, `book`, `unlock`, `eye`, `chart`, `chat`, `bulb`, `map`, `user`, `text`, `link`. The check lists the valid names if you use an unknown one.
 
 ## What the check verifies
 
-- every file has a valid header, with no unknown fields and all required fields
+- every file has a valid header that follows the header rules above, with no unknown fields and all required fields
 - every referenced perspective, topic, concept, statement, annotation and deep dive exists
 - every quote is found exactly once (or at the given `occurrence`), with no overlaps, not inside a link and not across the edge of bold or italic text
 - no raw HTML and only allowed link types
 - statement numbers in `commitment.md` run from 1 without gaps, and every statement has a file in `content/statements/`
 - `order` values are unique within roles, topics and concepts
 
-## In the React app
-
-The React app reads the same files: the header with `js-yaml` and the text with `react-markdown`, both also used by OneStop4All. The header format is a strict subset of YAML, so the files stay valid for both. The app applies the same checks, with the same messages as `node tools/build-content.mjs`, when it builds `content.generated.json` (see "Workflow"); the browser only gets that file.
+The app reads the header with its own small parser for these rules, and the text with `react-markdown`, which OneStop4All also uses. It runs these checks when it builds `content.generated.json` (see "Workflow"); the browser only gets that file.

@@ -16,7 +16,7 @@ import { content } from "../model/content";
 import { facet, ink } from "../model/lens";
 
 // Overview map: perspectives and topics (left) → statements (middle) → concepts (right).
-// Same layout as the mock-up's SVG map; @xyflow/react adds zoom, pan and fit.
+// A fixed layout in columns; @xyflow/react adds zoom, pan and fit.
 type Kind = "role" | "topic" | "stmt" | "concept";
 type MapNodeData = { kind: Kind; label: string; colour: string };
 type MapNode = Node<MapNodeData, "item">;

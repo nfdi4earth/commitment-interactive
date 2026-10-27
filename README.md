@@ -4,26 +4,22 @@ An interactive, annotated version of the
 [NFDI4Earth FAIRness and Openness Commitment](https://nfdi4earth.de/commitment).
 It helps students, researchers, institutions and organisations understand what the 12 statements mean in their daily work, and how to put them into practice.
 
-> **Status: early mock-up.** All explanations, deep dives and examples are **made-up placeholder content** that shows how the interaction could work. They are not official guidance from NFDI4Earth.
+> **Status: early prototype.** All explanations, deep dives and examples are **made-up placeholder content** that shows how the interaction could work. They are not official guidance from NFDI4Earth.
 
-## Try the mock-up
+## Try it
 
-Open [`mockup/index.html`](mockup/index.html) in a web browser. No installation is needed.
-
-You can:
+Open the preview at https://nfdi4earth.github.io/commitment-interactive/. You can:
 
 - read the commitment with annotations at different depths (hover, click, side panel)
 - switch **perspectives** (student, researcher, institution, organisation/group) and **topics** (e.g. proposal writing, publishing, reviewing) to highlight the relevant parts
 - follow deep dives on concepts such as licensing and openness
 - explore an **overview map** that connects perspectives, topics, statements and concepts
 
-## Preview
-
-An interim preview is published from the `main` branch at https://nfdi4earth.github.io/commitment-interactive/, until the page moves into OneStop4All. CI: see [`ci/`](ci/README.md).
+The preview is published from the `main` branch, as an interim solution until the page moves into OneStop4All. CI: see [`ci/`](ci/README.md).
 
 ## Run the app (in development)
 
-The React app has all pages of the mock-up, in the OneStop4All page frame; the detail content is still example content. You need [Node.js](https://nodejs.org/) 20 or newer and [pnpm](https://pnpm.io/) 10.
+The app runs in the OneStop4All page frame; the detail content is still example content. You need [Node.js](https://nodejs.org/) 20 or newer and [pnpm](https://pnpm.io/) 10.
 
 ```bash
 pnpm install
@@ -44,12 +40,12 @@ The app follows the design of [NFDI4Earth OneStop4All](https://onestop4all.nfdi4
 
 ## Colour palette
 
-The mock-up re-uses colours that NFDI4Earth already uses. Base UI colours (links, buttons, headings, box banners) follow the OneStop4All theme. The facet colours below come from these sources:
+The app re-uses colours that NFDI4Earth already uses. Base UI colours (links, buttons, headings, box banners) follow the OneStop4All theme. The facet colours below come from these sources:
 
 - **Logos** (`NFDI4Earth_2Participate`, `_2Facilitate`, `_2Coordinate`, `_2Interoperate`, PNG, 2023). Colours were measured from the pixels, ignoring anti-aliasing.
 - **Service bricks** (`NFDI4Earth_Rollup_2026_Jan_2_brick_colours.pdf`). Values were taken from the table and confirmed in the PDF's drawing commands.
 
-| Hex | Source | Used in the mock-up for |
+| Hex | Source | Used for |
 |---|---|---|
 | `#05668D` | NFDI4Earth blue: all logos, OneStop4All primary colour | base UI colour; topic *Scholarly communication* |
 | `#A4E5EC` | 2Facilitate, light (also the OneStop4All logo) | – |
@@ -85,9 +81,9 @@ Sign the Commitment at <https://nfdi4earth.de/commit>.
 
 ## How this was made
 
-The mock-up in `mockup/` was generated over multiple prompts with [Claude Code](https://claude.com/claude-code) (Anthropic) in October 2026. The prompts and the review of each iteration came from Daniel Nüst. It builds on:
+The app, and the clickable HTML mock-up it started from (`mockup/`, removed on 2026-10-27, see the git history), were generated over multiple prompts with [Claude Code](https://claude.com/claude-code) (Anthropic) in October 2026. The prompts and the review of each iteration came from Daniel Nüst. They build on:
 
-- **OneStop4All implementation**, upstream commit `b39aaff` (v1.11.2), <https://git.rwth-aachen.de/nfdi4earth/onestop4all/onestop4all-implementation> (Apache-2.0). Layout, theme tokens, header and footer structure, the logo SVGs, the icons and the images in `mockup/assets/` are taken or adapted from it. The React app in `src/` starts from a trimmed copy of it: build tooling, theme, layout, header, footer, menu, search bar and images.
+- **OneStop4All implementation**, upstream commit `b39aaff` (v1.11.2), <https://git.rwth-aachen.de/nfdi4earth/onestop4all/onestop4all-implementation> (Apache-2.0). Layout, theme tokens, header and footer structure, the logo SVGs, the icons and the images are taken or adapted from it. The React app in `src/` starts from a trimmed copy of it: build tooling, theme, layout, header, footer, menu, search bar and images.
 - **Commitment text** from `FAIRness-and-Openness-Commitment/NFDI4Earth_FAIRness-and-Openness-Commitment.source.md` in the [NFDI4Earth deliverables repository](https://git.rwth-aachen.de/nfdi4earth/crosstopics/nfdi4earth-deliverables) (CC BY 4.0).
 - **Colour palette:** NFDI4Earth task-area logos and the 2026 service rollup colours (see [Colour palette](#colour-palette)).
 
