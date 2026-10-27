@@ -16,6 +16,17 @@ You can:
 - follow deep dives on concepts such as licensing and openness
 - explore an **overview map** that connects perspectives, topics, statements and concepts
 
+## Run the app (in development)
+
+The React app is being built; for now it shows the OneStop4All page frame with a placeholder. You need [Node.js](https://nodejs.org/) 20 or newer and [pnpm](https://pnpm.io/) 10.
+
+```bash
+pnpm install
+pnpm dev        # then open http://localhost:5173/
+```
+
+`pnpm build` writes a static site to `dist/www/`.
+
 ## Editing the content
 
 All texts are Markdown files in [`content/`](content/). After changing them, run `node tools/build-content.mjs` (needs Node.js 18 or newer) to check them and update the mock-up. See [docs/content-authoring.md](docs/content-authoring.md).
@@ -69,7 +80,7 @@ Sign the Commitment at https://nfdi4earth.de/commit.
 
 The mock-up in `mockup/` was generated over multiple prompts with [Claude Code](https://claude.com/claude-code) (Anthropic) in October 2026. The prompts and the review of each iteration came from Daniel Nüst. It builds on:
 
-- **OneStop4All implementation**, upstream commit `b39aaff` (v1.11.2), <https://git.rwth-aachen.de/nfdi4earth/onestop4all/onestop4all-implementation> (Apache-2.0). Layout, theme tokens, header and footer structure, the logo SVGs, the icons and the images in `mockup/assets/` are taken or adapted from it.
+- **OneStop4All implementation**, upstream commit `b39aaff` (v1.11.2), <https://git.rwth-aachen.de/nfdi4earth/onestop4all/onestop4all-implementation> (Apache-2.0). Layout, theme tokens, header and footer structure, the logo SVGs, the icons and the images in `mockup/assets/` are taken or adapted from it. The React app in `src/` starts from a trimmed copy of it: build tooling, theme, layout, header, footer, menu, search bar and images.
 - **Commitment text** from `FAIRness-and-Openness-Commitment/NFDI4Earth_FAIRness-and-Openness-Commitment.source.md` in the [NFDI4Earth deliverables repository](https://git.rwth-aachen.de/nfdi4earth/crosstopics/nfdi4earth-deliverables) (CC BY 4.0).
 - **Colour palette:** NFDI4Earth task-area logos and the 2026 service rollup colours (see [Colour palette](#colour-palette)).
 

@@ -1,0 +1,22 @@
+// Variables
+@forward "@os4a/variables.scss";
+
+// Components
+@use "@components/BaseMenu/BaseMenu.scss";
+@use "@components/Footer/Footer.scss";
+@use "@components/Header/Header.scss";
+
+// Layout
+@use "@os4a/layouts/layout.scss";
+
+[data-theme][data-theme="light"] {
+    --primary-primary-main: #05668d;
+    --border-grey: #cccccc;
+    --primary-primary-transparent-background: #e0f6fa80;
+}
+
+.seperator {
+    width: 100%;
+    min-height: 1px;
+    background: var(--chakra-colors-primary_border);
+}

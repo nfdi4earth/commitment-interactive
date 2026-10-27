@@ -1,0 +1,24 @@
+// From OneStop4All views/Search/Search.scss (b39aaff): page padding and small header image
+@use "@os4a/variables.scss" as vars;
+
+.search-view {
+    padding-bottom: 80px;
+
+    @media only screen and (max-width: vars.$customBreakpoint) {
+        padding-bottom: 20px;
+    }
+
+    .header-image {
+        width: 100%;
+        height: 80px;
+        flex-shrink: 0;
+        background-image: url("/small-header_desktop.png");
+        background-position-x: 0;
+        background-position-y: center;
+        background-size: cover;
+
+        @media only screen and (max-width: vars.$customBreakpoint) {
+            background-image: url("/small-header_mobile.png");
+        }
+    }
+}

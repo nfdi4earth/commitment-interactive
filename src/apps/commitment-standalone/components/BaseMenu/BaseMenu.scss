@@ -1,0 +1,19 @@
+.navigation-menu {
+    .block {
+        .block-header {
+            color: var(--chakra-colors-primary_color, #05668d);
+            font-weight: 300;
+            line-height: 26px;
+            text-transform: uppercase;
+        }
+
+        .block-content {
+            .chakra-link {
+                display: block;
+                line-height: 36px;
+                font-size: var(--chakra-font-sizes-md);
+                text-decoration: underline;
+            }
+        }
+    }
+}

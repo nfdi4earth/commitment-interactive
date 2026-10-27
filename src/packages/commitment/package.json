@@ -1,0 +1,12 @@
+{
+    "name": "commitment",
+    "private": true,
+    "type": "module",
+    "license": "Apache-2.0",
+    "dependencies": {
+        "@chakra-ui/react": "catalog:",
+        "@open-pioneer/runtime": "catalog:",
+        "react": "catalog:",
+        "react-router-dom": "^7.13.0"
+    }
+}

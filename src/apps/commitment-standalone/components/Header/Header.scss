@@ -1,0 +1,65 @@
+@use "@os4a/variables.scss" as vars;
+
+.chakra-container {
+    padding-inline-end: var(--chakra-spacing-4);
+    padding-inline-start: var(--chakra-spacing-4);
+}
+
+#svg1 {
+    display: block;
+}
+
+#svg2 {
+    display: none;
+}
+
+#feedback1 {
+    display: block;
+}
+
+#feedback2 {
+    display: none;
+}
+
+#searchbar {
+    display: block;
+}
+
+#searchbarResponsive {
+    display: none;
+}
+
+/* Adjust for small screens */
+@media only screen and (max-width: vars.$customBreakpoint) {
+    #svg1 {
+        display: none;
+    }
+
+    #svg2 {
+        display: block;
+    }
+
+    #feedback1 {
+        display: none;
+    }
+
+    #feedback2 {
+        display: block;
+        margin-bottom: 2%;
+        margin-right: 2%;
+        margin-left: 2%;
+    }
+
+    .feedbackText {
+        margin-top: 3%;
+        margin-bottom: 3%;
+    }
+
+    #searchbar {
+        display: none;
+    }
+
+    #searchbarResponsive {
+        display: block;
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "name": "commitment-standalone",
+    "private": true,
+    "dependencies": {
+        "@open-pioneer/runtime": "catalog:",
+        "@open-pioneer/base-theme": "catalog:",
+        "@chakra-ui/react": "catalog:",
+        "@emotion/react": "catalog:",
+        "@conterra/reactivity-events": "catalog:",
+        "commitment": "workspace:^",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+        "react-use": "catalog:",
+        "react-router-dom": "^7.13.0"
+    }
+}

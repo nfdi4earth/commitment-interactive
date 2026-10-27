@@ -1,0 +1,43 @@
+# UI strings of the standalone host, taken from OneStop4All i18n/en.yaml (b39aaff).
+# The commitment package has its own strings in src/packages/commitment/i18n/en.yaml.
+messages:
+  header:
+    about-nfdi4earth: "About NFDI4Earth"
+    about-nfdi4earth-mobile: "NFDI4Earth"
+    user-support: "User Support"
+    user-support-mobile: "Support"
+    user-support-title: "User Support (opens your e-mail client)"
+  footer:
+    get-connected: NFDI4Earth
+    about: About us
+    partners: Partners
+    contact: Contact
+    legal-information: Legal information
+    privacy: Privacy
+  basemenu:
+    close: "Close menu"
+    get-connected: "NFDI4Earth"
+    about-us: "About us"
+    partners: "Partners"
+    contact: "Contact"
+    legal-information: "Legal information"
+    privacy: "Privacy"
+    os4a-start: "Start page"
+    os4a-label: "NFDI4Earth Label"
+  search:
+    search-bar:
+      button-label: "Search"
+      placeholder: "Search for data repositories, software tools, information or research data materials"
+      placeholder-mobile: "Search for research materials"
+      dropdownPlaceholder: "All resources"
+  resource-types:
+    Repository: "Repository"
+    Publication: "Publication"
+    Dataset: "Dataset"
+    Software: "Software"
+    Organisation: "Organisation"
+    MetadataStandard: "Standard"
+    LHBArticle: "Living Handbook Article"
+    LearningResource: "Learning Resource"
+    DataService: "Data Service"
+    Service: "Service"

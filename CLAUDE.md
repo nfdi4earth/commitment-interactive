@@ -23,9 +23,11 @@ It helps different stakeholders understand and implement the commitment:
 
 - `content/`: all texts as Markdown files, see "Content model". `tools/build-content.mjs` turns them into `mockup/data.js`.
 - `mockup/`: a clickable HTML/CSS/JS mock-up that runs without a build step (only the content needs one); open `mockup/index.html` in a browser. It is the reference for the interaction design until the React app exists.
-- **Planned app:** a stripped copy of the OneStop4All (OS4A) implementation at upstream commit `b39aaff` (v1.11.2, https://git.rwth-aachen.de/nfdi4earth/onestop4all/onestop4all-implementation), which uses Open Pioneer Trails, React 19, Chakra UI v3, Vite and pnpm. The repo has two workspace packages:
-  - `src/apps/commitment-standalone/`: the thin host. It holds the OS4A theme, layout, header, footer and menu. The search bar and user support link out to the live OS4A.
-  - `src/packages/commitment/`: the **drop-in unit**. OS4A will later mount it as one lazy route under `/commitment`, like the `/label` page.
+- **React app (scaffolded, views not built yet):** the shell of the OneStop4All (OS4A) implementation at upstream commit `b39aaff` (v1.11.2, https://git.rwth-aachen.de/nfdi4earth/onestop4all/onestop4all-implementation), which uses Open Pioneer Trails, React 19, Chakra UI v3, Vite and pnpm. Root tooling (`package.json`, `pnpm-workspace.yaml` with the catalog, lockfile, ESLint, Prettier, `tsconfig`, `vite.config.ts`, `patches/`, `.husky/`) is copied from OS4A and trimmed. The repo has two workspace packages:
+  - `src/apps/commitment-standalone/`: the thin host. It holds the OS4A theme (`theme.ts`, unchanged), layout, header, footer and menu, copied from OS4A and cut down. The search bar opens the live OS4A search, and user support is a `mailto:` link to the helpdesk (`links.ts`). It renders `<commitment-app>` in a shadow root and redirects `/` to `/commitment`.
+  - `src/packages/commitment/`: the **drop-in unit**. It exports `commitmentRoutes` (relative routes) that OS4A will later mount under `commitment/*`, like the `/label` page. An ESLint rule forbids imports from the host app.
+- **Node and pnpm:** OS4A needs Node ≥ 20 and pnpm 10 (`engines` in `package.json`). On this machine use the nvm Node 22 (`PATH=$HOME/.nvm/versions/node/v22.23.3/bin:$PATH`); the default Node 18 is too old for the app (the content script works with both).
+- `pnpm install` runs husky, which sets `core.hooksPath` so the **pre-commit hook runs lint, Prettier, type check and tests** (from OS4A). `NO_VERIFY=1` skips it; never use that to get around a failing check (G2.2).
 - The full plan is in `~/.claude/plans/we-start-a-new-streamed-moler.md`; move the relevant parts to `docs/` once the project is scaffolded.
 
 <!-- source: own rule, derived from OS4A code review, added 2026-10-26 -->
@@ -99,7 +101,8 @@ These are the starting points for the real deep-dive content. Don't use them for
 
 - **Content:** `node tools/build-content.mjs --check` validates `content/` and fails if `mockup/data.js` is out of date.
 - **Mock-up:** there are no automated UI tests. Verify it manually in a browser at desktop width and at mobile width (< 1000px).
-- **App (once scaffolded):** `pnpm lint`, `pnpm check-types`, `CI=1 pnpm test run` and `pnpm build`.
+- **App:** `pnpm lint`, `pnpm prettier-check`, `pnpm check-types`, `CI=1 pnpm test run` and `pnpm build`. There are no tests yet; `src/testing/global-setup.ts` (referenced by `vite.config.ts`, missing upstream too) must be created with the first test.
+- **In a browser:** `pnpm build && pnpm preview`, or `pnpm dev`, then open http://localhost:4173/ (preview) or http://localhost:5173/ (dev) at desktop and mobile widths.
 
 <!-- source: Daniel Nüst, feedback on the mock-up, added 2026-10-26, updated 2026-10-26 -->
 ## Design decisions from mock-up feedback
