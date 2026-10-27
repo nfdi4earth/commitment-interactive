@@ -18,7 +18,7 @@ You can:
 
 ## Run the app (in development)
 
-The React app is being built; for now it shows the OneStop4All page frame with a placeholder. You need [Node.js](https://nodejs.org/) 20 or newer and [pnpm](https://pnpm.io/) 10.
+The React app has all pages of the mock-up, in the OneStop4All page frame; the detail content is still example content. You need [Node.js](https://nodejs.org/) 20 or newer and [pnpm](https://pnpm.io/) 10.
 
 ```bash
 pnpm install
@@ -29,11 +29,11 @@ pnpm dev        # then open http://localhost:5173/
 
 ## Editing the content
 
-All texts are Markdown files in [`content/`](content/). After changing them, run `node tools/build-content.mjs` (needs Node.js 18 or newer) to check them and update the mock-up. See [docs/content-authoring.md](docs/content-authoring.md).
+All texts are Markdown files in [`src/packages/commitment/content/`](src/packages/commitment/content/). After changing them, run `node tools/build-content.mjs` (needs Node.js 18 or newer) to check them and update the mock-up. See [docs/content-authoring.md](docs/content-authoring.md).
 
 ## Design
 
-The app follows the design of [NFDI4Earth OneStop4All](https://onestop4all.nfdi4earth.de/) and will eventually be integrated there as a page, similar to [the NFDI4Earth Label page](https://onestop4all.nfdi4earth.de/label).
+The app follows the design of [NFDI4Earth OneStop4All](https://onestop4all.nfdi4earth.de/) and will eventually be integrated there as a page, similar to [the NFDI4Earth Label page](https://onestop4all.nfdi4earth.de/label). How to do that is described in [docs/integration.md](docs/integration.md).
 
 ## Colour palette
 

@@ -30,7 +30,14 @@ function Layout() {
                     </Container>
                 </Flex>
 
-                <Box as="main" width="100%" paddingTop={height + 15} flex="1">
+                <Box
+                    as="main"
+                    width="100%"
+                    paddingTop={height + 15}
+                    flex="1"
+                    // sticky bars of the commitment package stay below the fixed header
+                    style={{ "--commitment-sticky-top": `${height}px` } as React.CSSProperties}
+                >
                     {/* small header image and search bar, as on the OneStop4All /label page */}
                     <Box className="search-view" w={"100%"}>
                         <Box position="relative">

@@ -1,0 +1,142 @@
+# German UI strings, needed because OneStop4All runs in English and German (Pioneer requires every
+# package to support all locales of the app). The content in content/ is English only.
+# Translated by Claude; please review.
+messages:
+  title: "NFDI4Earth FAIRness and Openness Commitment"
+  mock-badge: "Mock-up · Beispielinhalt"
+  example-badge: "Beispielinhalt"
+  mock-short: "Mock-up"
+  back: "Zurück"
+  show-in-text: "Im Text zeigen →"
+  back-to:
+    commitment: "zum Commitment"
+    perspectives: "zu den Perspektiven"
+    topics: "zu den Themen"
+    concepts: "zu den Konzepten"
+
+  reader:
+    back: "zur Commitment-Website"
+    sub: "Version 1.0 (2024) · <doi>doi:10.5281/zenodo.10123880</doi> · <sign>Commitment unterzeichnen</sign>"
+    preamble: "Präambel (zum Lesen klicken)"
+    sign: "Unterzeichnen Sie das Commitment unter <a>nfdi4earth.de/commit</a>."
+    heading: "The NFDI4Earth FAIRness and Openness Commitment"
+    as-signatories: "As signatories:"
+
+  tiles:
+    explore-by: "Entdecken nach"
+    explore-the: "Entdecken Sie die"
+    perspective: "Perspektive"
+    topics: "Themen aus Ihrer Arbeit"
+    concepts: "Konzepten"
+    map: "Übersichtskarte"
+
+  lens:
+    role: "Perspektive"
+    topic: "Thema"
+    concept: "Konzept"
+    hint: "Wählen Sie Abzeichen, um die relevanten Teile hervorzuheben. Kombinieren Sie je eines pro Zeile, um einzugrenzen."
+    count: "<b>{hits}</b> von {total} Aussagen relevant für <b>{names}</b>"
+    clear: "✕ Alle zurücksetzen"
+    passages: "{n, plural, one {# Stelle} other {# Stellen}}"
+
+  legend:
+    note: "kurze Notiz"
+    explainer: "Erklärung"
+    deepdive: "Vertiefung"
+    hover: "(darüberfahren)"
+    click: "(klicken)"
+    statement: "Klicken Sie auf die Nummer einer Aussage, um alle Perspektiven auf einmal zu sehen"
+    statement-aria: "Beispiel: Aussage 1 mit allen Perspektiven öffnen"
+
+  contents:
+    title: "Inhalt"
+    preamble: "Präambel"
+    toggle: "Inhalt"
+
+  statement:
+    aria: "Aussage {n}: was sie für verschiedene Perspektiven bedeutet"
+    n: "Aussage {n}"
+
+  annotation:
+    aria: "{quote} – {depth, select, note {Notiz} explainer {Erklärung} other {Vertiefung}}: {title}"
+
+  popover:
+    deeper: "Mehr erfahren →"
+
+  panel:
+    close: "Schließen"
+    deepdive-kicker: "Vertiefung{where, select, statement { · Aussage {n}} heading { · Überschrift des Commitments} other {}}"
+    statement-kicker: "Aussage {n} · {box}"
+    related: "Verwandte Aussagen"
+    open-deepdive: "Ganze Vertiefung öffnen →"
+    means-for: "Was das bedeutet für…"
+    more-for: "Mehr für {plural} →"
+    less-relevant: "Weniger direkt relevant für {names}."
+
+  copy:
+    link: "Link kopieren"
+    statement: "Link zur Aussage kopieren"
+    done: "Link kopiert"
+
+  tags:
+    show-in-text: "Im Text zeigen"
+
+  focus:
+    not-found: "Die Stelle „{id}“ dieses Links gibt es (nicht mehr)."
+
+  figure:
+    licence:
+      alt: "Lizenzspektrum von „alle Rechte vorbehalten“ bis CC0"
+      caption: "Abbildung (Platzhalter): das Lizenzspektrum. Aussage 8 fordert Lizenzen am offenen Ende."
+    openness:
+      alt: "Spektrum der Offenheit"
+      caption: "Abbildung (Platzhalter): Offenheit ist ein Spektrum, kein Schalter."
+    fair:
+      alt: "Typische Abdeckung der FAIR-Aspekte (erfunden)"
+      caption: "Abbildung (Platzhalter, erfundene Zahlen): Repositorien erfüllen F und A oft besser als I und R."
+
+  index:
+    role:
+      title: "Nach Perspektive entdecken"
+      sub: "Wer sind Sie? Sehen Sie, was das Commitment für Ihre Rolle bedeutet."
+    topic:
+      title: "Nach Thema entdecken"
+      sub: "Beginnen Sie mit einer Aufgabe, die Sie aus Ihrer täglichen Forschungsarbeit kennen."
+    concept:
+      title: "Nach Konzept entdecken"
+      sub: "Folgen Sie einer übergreifenden Idee durch das ganze Commitment."
+    statements: "{n, plural, one {# Aussage} other {# Aussagen}}"
+    known-from: "Kennen Sie aus: {what}"
+    deepdive: "Vertiefung verfügbar"
+    highlight: "Im Text hervorheben"
+
+  perspective:
+    title: "Das Commitment für {plural}"
+    progress: "Ihr Fortschritt"
+    steps: "{done} von {total} ersten Schritten"
+    others: "Andere Perspektiven"
+    read-as: "Das ganze Commitment lesen als {label}"
+
+  topic:
+    intro: "Kennen Sie aus: <i>{what}</i>. <b>{n} von {total}</b> Aussagen sind relevant – {steps, plural, one {# Schritt} other {# Schritte}} unten. <b>Nach unten scrollen ↓</b>"
+    commitment: "Das Commitment"
+    step: "Schritt {i} von {total} · Aussage {n}"
+    in-context: "Im Zusammenhang lesen →"
+    next: "↓ Weiter: {title}"
+    others: "Andere Themen"
+    placeholder-step: "[Beispielinhalt] Bei {topic} könnte Aussage {n} heißen: eine konkrete, vertraute Aufgabe, die „{short}“ mit dem verbindet, was Sie schon tun."
+
+  deepdive:
+    badge: "Vertiefung · Beispielinhalt"
+    further: "Weiterlesen"
+    where: "Wo das im Commitment vorkommt"
+    phrases: "Annotierte Stellen"
+    highlight: "Alle im Text hervorheben"
+
+  map:
+    title: "Übersichtskarte"
+    help: "Perspektiven und Themen (links) sind mit Aussagen (Mitte) und Konzepten (rechts) verbunden. Fahren Sie über einen Knoten oder tippen Sie darauf, um seine Verbindungen zu sehen, und klicken Sie erneut, um ihn zu öffnen. Scrollen zum Zoomen, Ziehen zum Verschieben."
+    roles: "Perspektiven"
+    topics: "Themen"
+    statements: "Aussagen"
+    concepts: "Konzepte"

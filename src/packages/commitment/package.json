@@ -6,7 +6,10 @@
     "dependencies": {
         "@chakra-ui/react": "catalog:",
         "@open-pioneer/runtime": "catalog:",
+        "@xyflow/react": "^12.12.0",
+        "js-yaml": "catalog:",
         "react": "catalog:",
+        "react-markdown": "^10.1.0",
         "react-router-dom": "^7.13.0"
     }
 }

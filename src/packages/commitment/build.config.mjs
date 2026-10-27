@@ -1,5 +1,6 @@
 import { defineBuildConfig } from "@open-pioneer/build-support";
 
 export default defineBuildConfig({
-    i18n: ["en"]
+    styles: "./styles.scss",
+    i18n: ["en", "de"]
 });

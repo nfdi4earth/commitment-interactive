@@ -18,19 +18,23 @@ It helps different stakeholders understand and implement the commitment:
 
 **Status:** the detail content is **fake example content** for mock-ups of the interaction mechanisms. Never present it as real guidance.
 
-<!-- source: own rule, added 2026-10-26, updated 2026-10-26 -->
+<!-- source: own rule, added 2026-10-26, updated 2026-10-27 -->
 ## Status and layout
 
-- `content/`: all texts as Markdown files, see "Content model". `tools/build-content.mjs` turns them into `mockup/data.js`.
-- `mockup/`: a clickable HTML/CSS/JS mock-up that runs without a build step (only the content needs one); open `mockup/index.html` in a browser. It is the reference for the interaction design until the React app exists.
-- **React app (scaffolded, views not built yet):** the shell of the OneStop4All (OS4A) implementation at upstream commit `b39aaff` (v1.11.2, https://git.rwth-aachen.de/nfdi4earth/onestop4all/onestop4all-implementation), which uses Open Pioneer Trails, React 19, Chakra UI v3, Vite and pnpm. Root tooling (`package.json`, `pnpm-workspace.yaml` with the catalog, lockfile, ESLint, Prettier, `tsconfig`, `vite.config.ts`, `patches/`, `.husky/`) is copied from OS4A and trimmed. The repo has two workspace packages:
+- `src/packages/commitment/content/` ("`content/`" below): all texts as Markdown files, see "Content model". It is inside the package so that it moves with it into OS4A; `.prettierignore` keeps Prettier off it. `tools/build-content.mjs` turns them into `mockup/data.js`.
+- `mockup/`: a clickable HTML/CSS/JS mock-up that runs without a build step (only the content needs one); open `mockup/index.html` in a browser. It was the reference for the interaction design; the React app now has all its pages. Retire it once the React app is deployed (then also drop `tools/build-content.mjs`'s `mockup/data.js` output).
+- **React app (all pages of the mock-up built):** the shell of the OneStop4All (OS4A) implementation at upstream commit `b39aaff` (v1.11.2, https://git.rwth-aachen.de/nfdi4earth/onestop4all/onestop4all-implementation), which uses Open Pioneer Trails, React 19, Chakra UI v3, Vite and pnpm. Root tooling (`package.json`, `pnpm-workspace.yaml` with the catalog, lockfile, ESLint, Prettier, `tsconfig`, `vite.config.ts`, `patches/`, `.husky/`) is copied from OS4A and trimmed. The repo has two workspace packages:
   - `src/apps/commitment-standalone/`: the thin host. It holds the OS4A theme (`theme.ts`, unchanged), layout, header, footer and menu, copied from OS4A and cut down. The search bar opens the live OS4A search, and user support is a `mailto:` link to the helpdesk (`links.ts`). It renders `<commitment-app>` in a shadow root and redirects `/` to `/commitment`.
   - `src/packages/commitment/`: the **drop-in unit**. It exports `commitmentRoutes` (relative routes) that OS4A will later mount under `commitment/*`, like the `/label` page. An ESLint rule forbids imports from the host app.
+    - `model/`: `parse.ts` (front matter with `js-yaml`, quote matching, all content checks), `content.ts` (loads `content/**/*.md` with `import.meta.glob`), `lens.ts`, `types.ts`. Annotated quotes become Markdown links `[quote](annotation:<id>)` that `components/Markdown.tsx` renders as annotation buttons.
+    - `views/Reader/`: lens bar, contents menu, statements, annotations (note = Chakra Tooltip, explainer = Popover, deep dive = Drawer) and the statement panel; `?focus=` deep links.
+    - `views/`: `IndexView` (`for`, `topics`, `concepts`), `PerspectiveView` (`for/:id`), `TopicView` (`topics/:id`, scrollytelling), `DeepDiveView` (`deep-dive/:id`) and `MapView` (`map`, `@xyflow/react`, lazy-loaded; its base CSS is loaded scoped in `styles.scss`). Unknown paths redirect to the reader.
+    - **Host contract:** the host mounts `commitmentRoutes` as children of a splat route (`commitment/*`); `CommitmentRoot` derives the base path for links from the splat. The host also sets the CSS variable `--commitment-sticky-top` to the height of its fixed header (see `layouts/layout.tsx`), so the sticky lens bar sits below it.
 - **Node and pnpm:** OS4A needs Node ≥ 20 and pnpm 10 (`engines` in `package.json`). On this machine use the nvm Node 22 (`PATH=$HOME/.nvm/versions/node/v22.23.3/bin:$PATH`); the default Node 18 is too old for the app (the content script works with both).
 - `pnpm install` runs husky, which sets `core.hooksPath` so the **pre-commit hook runs lint, Prettier, type check and tests** (from OS4A). `NO_VERIFY=1` skips it; never use that to get around a failing check (G2.2).
-- The full plan is in `~/.claude/plans/we-start-a-new-streamed-moler.md`; move the relevant parts to `docs/` once the project is scaffolded.
+- How to add the package to OS4A, and what to decide before going live: `docs/integration.md` (tested against OS4A `b39aaff` on 2026-10-27). Keep it current when the host contract changes. The original plan is in `~/.claude/plans/we-start-a-new-streamed-moler.md`.
 
-<!-- source: own rule, derived from OS4A code review, added 2026-10-26 -->
+<!-- source: own rule, derived from OS4A code review, added 2026-10-26, updated 2026-10-27 -->
 ## OS4A compatibility rules
 
 - Use OS4A's `theme.ts` tokens unchanged:
@@ -40,17 +44,17 @@ It helps different stakeholders understand and implement the commitment:
   - buttons: square corners
 - The `commitment` package must not import from `apps/`. It also must not depend on host services (search state, config, auth).
 - Use relative routes only, so the package works under any mount path.
-- No global CSS. Scope styles under `.commitment-view`; role and topic colours go in a theme fragment that the host merges.
+- No global CSS. Scope styles under `.commitment-view` (`styles.scss`, declared in the package's `build.config.mjs`). Overlays render in portals, so wrap their content in `Scoped` (`components/base.tsx`). Facet colours come from the content files and are set as CSS variables (`--c`, `--ink`, see `colourVars()` in `model/lens.ts`), not as theme tokens.
 - OS4A renders inside a **shadow root**:
   - never use `document.getElementById` or `querySelector` for scrolling or focus; use refs or `getRootNode()`
   - deep links use query params (`?focus=<anchor-id>`), not `#hash`
-- i18n uses OS4A-style ICU YAML (`i18n/en.yaml`) through `useIntl` from `open-pioneer:react-hooks`. The app is English only for now, but no strings may be hard-coded in components.
+- i18n uses OS4A-style ICU YAML (`i18n/en.yaml`, `i18n/de.yaml`) through `useIntl` from `open-pioneer:react-hooks`. OS4A declares English and German and Pioneer requires every package to support both, so every UI string needs both files (`i18n/i18n.test.ts` checks that the keys match). The content is English only. No strings may be hard-coded in components.
 - Code style is inherited from OS4A: Prettier with 4 spaces, double quotes, printWidth 100, no trailing commas; ESLint 9 flat config.
 
-<!-- source: own rule, added 2026-10-26; storage by quoting decided by Daniel Nüst, updated 2026-10-26 -->
+<!-- source: own rule, added 2026-10-26; storage by quoting decided by Daniel Nüst, updated 2026-10-27 -->
 ## Content model
 
-- **All content is in `content/`, one Markdown file per item with YAML front matter; the file name is the ID.** The full author guide is `docs/content-authoring.md`. Keep it in sync with any change to the format.
+- **All content is in `src/packages/commitment/content/`, one Markdown file per item with YAML front matter; the file name is the ID.** The full author guide is `docs/content-authoring.md`. Keep it in sync with any change to the format.
   - `commitment.md`: the published text, unchanged and without markers. Sections `# … {#preamble}`, `{#intro}`, `{#boxA}`, `{#boxB}`; the boxes hold numbered lists of statements. Targets are `pre-1…5`, `intro`, `boxA`, `boxB` and `c1…c12`.
   - `statements/NN.md`: front matter only (`short`, `roles`, `topics`, `concepts`).
   - `annotations/<id>.md`: `target` + `quote` (+ optional `occurrence`), `depth`, `title`, `roles`, `topics`, `concepts`, `links` (label/url), `figure`, `deepdive`, `statements`; the body is the text. `target: legend` is for the reading-legend examples.
@@ -67,7 +71,7 @@ It helps different stakeholders understand and implement the commitment:
   - `[links](https://…)`
   - Raw HTML is not allowed (the check rejects it). Only `http(s)`, `mailto` and internal `#/` links are allowed; external links open in a new tab.
   - In the React app use `react-markdown` (already an OS4A dependency) with `skipHtml` and `allowedElements` limited to `p, strong, em, ul, ol, li, a`. The mock-up has a small equivalent, `md()`/`mdInline()` in `mockup/app.js`.
-- In the React app, the quote matching moves into the content loader, and its integrity checks become Vitest tests with the same rules.
+- The React app checks the content with the same rules in `src/packages/commitment/model/parse.ts`; `parse.test.ts` fails on any problem in `content/` and tests the quote rules. Keep `parse.ts` and `tools/build-content.mjs` in sync until the mock-up is retired.
 
 <!-- source: own rule, added 2026-10-26 -->
 ## Sources for real content later
@@ -96,12 +100,12 @@ These are the starting points for the real deep-dive content. Don't use them for
 - **Commitment text and content:** CC-BY 4.0. Cite it as "NFDI4Earth Consortium (2024), doi:10.5281/zenodo.10123880".
 - Never list an AI as an author in metadata.
 
-<!-- source: own rule, added 2026-10-26, updated 2026-10-26 -->
+<!-- source: own rule, added 2026-10-26, updated 2026-10-27 -->
 ## Checks
 
 - **Content:** `node tools/build-content.mjs --check` validates `content/` and fails if `mockup/data.js` is out of date.
 - **Mock-up:** there are no automated UI tests. Verify it manually in a browser at desktop width and at mobile width (< 1000px).
-- **App:** `pnpm lint`, `pnpm prettier-check`, `pnpm check-types`, `CI=1 pnpm test run` and `pnpm build`. There are no tests yet; `src/testing/global-setup.ts` (referenced by `vite.config.ts`, missing upstream too) must be created with the first test.
+- **App:** `pnpm lint`, `pnpm prettier-check`, `pnpm check-types`, `CI=1 pnpm test run` and `pnpm build`. Tests are in `src/packages/commitment/**/*.test.ts`; `src/testing/global-setup.ts` loads the jest-dom matchers.
 - **In a browser:** `pnpm build && pnpm preview`, or `pnpm dev`, then open http://localhost:4173/ (preview) or http://localhost:5173/ (dev) at desktop and mobile widths.
 
 <!-- source: Daniel Nüst, feedback on the mock-up, added 2026-10-26, updated 2026-10-26 -->

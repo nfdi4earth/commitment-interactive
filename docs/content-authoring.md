@@ -1,6 +1,6 @@
 # Writing and editing content
 
-All text in the app lives in `content/` as plain Markdown files. You edit these files; a small script checks them and builds the data the app reads.
+All text in the app lives in [`src/packages/commitment/content/`](../src/packages/commitment/content/) as plain Markdown files. It sits inside the app's package so that it moves with the page into OneStop4All. Below, `content/` means this folder. You edit these files; a small script checks them and builds the data the mock-up reads.
 
 > The current annotations, perspective notes, topic steps and deep dives are **made-up example content**. Replace them, don't extend them as if they were real guidance.
 
@@ -20,7 +20,7 @@ IDs (file names) use lower case letters, digits and hyphens, e.g. `data-laws.md`
 
 ## Workflow
 
-1. Edit or add a file in `content/`.
+1. Edit or add a file in `src/packages/commitment/content/`.
 2. Run the check and build, which needs [Node.js](https://nodejs.org/) 18 or newer and nothing else:
 
    ```bash
@@ -192,6 +192,6 @@ Use colours from the NFDI4Earth palette in `README.md#colour-palette`. Icons are
 - statement numbers in `commitment.md` run from 1 without gaps, and every statement has a file in `content/statements/`
 - `order` values are unique within roles, topics and concepts
 
-## In the React app (later)
+## In the React app
 
-The React app will read the same files: front matter with `js-yaml` and text with `react-markdown`, both already OneStop4All dependencies. The header format is a strict subset of YAML, so the files stay valid for both. The quote matching will move into the app's content loader and its tests.
+The React app reads the same files: the header with `js-yaml` and the text with `react-markdown`, both also used by OneStop4All. The header format is a strict subset of YAML, so the files stay valid for both. The app applies the same checks; `pnpm test` fails with the same messages as `node tools/build-content.mjs`, and `pnpm dev` shows your change in the app after a reload.

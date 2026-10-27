@@ -1,3 +1,139 @@
 messages:
   title: "NFDI4Earth FAIRness and Openness Commitment"
-  placeholder: "The interactive Commitment is being built. Until then, see the clickable mock-up in mockup/index.html."
+  mock-badge: "Mock-up · example content"
+  example-badge: "example content"
+  mock-short: "Mock-up"
+  back: "Back"
+  show-in-text: "Show in text →"
+  back-to:
+    commitment: "to the Commitment"
+    perspectives: "to perspectives"
+    topics: "to topics"
+    concepts: "to concepts"
+
+  reader:
+    back: "to the Commitment website"
+    sub: "Version 1.0 (2024) · <doi>doi:10.5281/zenodo.10123880</doi> · <sign>Sign the Commitment</sign>"
+    preamble: "Preamble (click to read)"
+    sign: "Sign the Commitment at <a>nfdi4earth.de/commit</a>."
+    heading: "The NFDI4Earth FAIRness and Openness Commitment"
+    as-signatories: "As signatories:"
+
+  tiles:
+    explore-by: "Explore by"
+    explore-the: "Explore the"
+    perspective: "Perspective"
+    topics: "Topics from your work"
+    concepts: "Concepts"
+    map: "Overview map"
+
+  lens:
+    role: "Perspective"
+    topic: "Topic"
+    concept: "Concept"
+    hint: "Select badges to highlight the relevant parts. Combine one of each row to narrow down."
+    count: "<b>{hits}</b> of {total} statements relevant for <b>{names}</b>"
+    clear: "✕ Clear all"
+    passages: "{n, plural, one {# passage} other {# passages}}"
+
+  legend:
+    note: "short note"
+    explainer: "explainer"
+    deepdive: "deep dive"
+    hover: "(hover)"
+    click: "(click)"
+    statement: "Click on the number of a statement to see all perspectives at once"
+    statement-aria: "Example: open statement 1 with all perspectives"
+
+  contents:
+    title: "Contents"
+    preamble: "Preamble"
+    toggle: "Contents"
+
+  statement:
+    aria: "Statement {n}: what it means for different perspectives"
+    n: "Statement {n}"
+
+  annotation:
+    aria: "{quote} – {depth, select, note {note} explainer {explainer} other {deep dive}}: {title}"
+
+  popover:
+    deeper: "Go deeper →"
+
+  panel:
+    close: "Close"
+    deepdive-kicker: "Deep dive{where, select, statement { · Statement {n}} heading { · Commitment heading} other {}}"
+    statement-kicker: "Statement {n} · {box}"
+    related: "Related statements"
+    open-deepdive: "Open full deep dive →"
+    means-for: "What this means for…"
+    more-for: "More for {plural} →"
+    less-relevant: "Less directly relevant for {names}."
+
+  copy:
+    link: "Copy link"
+    statement: "Copy link to statement"
+    done: "Link copied"
+
+  tags:
+    show-in-text: "Show in text"
+
+  focus:
+    not-found: "The passage “{id}” of this link does not exist (any more)."
+
+  figure:
+    licence:
+      alt: "Licence spectrum from all rights reserved to CC0"
+      caption: "Figure (placeholder): the licence spectrum. Statement 8 asks for licences at the open end."
+    openness:
+      alt: "Openness spectrum"
+      caption: "Figure (placeholder): openness is a spectrum, not a switch."
+    fair:
+      alt: "Typical coverage of FAIR aspects (fake)"
+      caption: "Figure (placeholder, fake numbers): repositories often cover F and A better than I and R."
+
+  index:
+    role:
+      title: "Explore by perspective"
+      sub: "Who are you? See what the Commitment means for your role."
+    topic:
+      title: "Explore by topic"
+      sub: "Start from a task you know from your daily work as a researcher."
+    concept:
+      title: "Explore by concept"
+      sub: "Follow a cross-cutting idea through the whole Commitment."
+    statements: "{n, plural, one {# statement} other {# statements}}"
+    known-from: "You know this from: {what}"
+    deepdive: "Deep dive available"
+    highlight: "Highlight in text"
+
+  perspective:
+    title: "The Commitment for {plural}"
+    progress: "Your progress"
+    steps: "{done} of {total} first steps"
+    others: "Other perspectives"
+    read-as: "Read the full Commitment as {label}"
+
+  topic:
+    intro: "You know this from: <i>{what}</i>. <b>{n} of {total}</b> statements are relevant – {steps, plural, one {# step} other {# steps}} below. <b>Scroll down ↓</b>"
+    commitment: "The Commitment"
+    step: "Step {i} of {total} · Statement {n}"
+    in-context: "Read in context →"
+    next: "↓ Next: {title}"
+    others: "Other topics"
+    placeholder-step: "[Example content] In {topic}, statement {n} could mean: a concrete, familiar task that links “{short}” to what you already do."
+
+  deepdive:
+    badge: "Deep dive · example content"
+    further: "Further reading"
+    where: "Where this appears in the Commitment"
+    phrases: "Annotated phrases"
+    highlight: "Highlight all in text"
+
+  map:
+    title: "Overview map"
+    help: "Perspectives and topics (left) connect to statements (middle) and concepts (right). Hover or tap a node to trace its connections, click again to open it. Scroll to zoom, drag to pan."
+    roles: "Perspectives"
+    topics: "Topics"
+    statements: "Statements"
+    concepts: "Concepts"
