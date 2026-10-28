@@ -128,8 +128,10 @@ export function useReveal(
 
 /**
  * Scrolls an element into view (by default to the top) and calls `done` when the page has stopped
- * scrolling. If the reader scrolls themselves meanwhile, `done` comes at once. Returns a cleanup
- * function.
+ * scrolling. If the reader scrolls themselves meanwhile, `done` comes at once. Until the reader
+ * scrolls, clicks or types, or the returned cleanup function runs, it keeps the element in place
+ * when the page changes its size: a host may still be laying out its page, e.g. OneStop4All
+ * adds the height of its fixed header only once it has measured it.
  */
 export function scrollIntoViewThen(
     el: HTMLElement,
@@ -140,7 +142,7 @@ export function scrollIntoViewThen(
     let frame = 0;
     let start = 0;
     const finish = () => {
-        cleanup();
+        stopWaiting();
         done();
     };
     // the scroll has ended when no scroll event came for a while; this also covers "nothing to
@@ -157,7 +159,9 @@ export function scrollIntoViewThen(
         frame = requestAnimationFrame(() => window.scrollY === y && finish());
     };
     const USER = ["wheel", "touchstart", "keydown"] as const;
-    const cleanup = () => {
+    // also a click: a screen reader activates without pointer or key events
+    const STOP_FOLLOW = [...USER, "pointerdown", "click"] as const;
+    const stopWaiting = () => {
         window.removeEventListener("scroll", wait);
         window.removeEventListener("scrollend", onEnd);
         USER.forEach((t) => window.removeEventListener(t, finish));
@@ -165,16 +169,33 @@ export function scrollIntoViewThen(
         cancelAnimationFrame(frame);
         cancelAnimationFrame(start);
     };
+    // the first call reports the current sizes; later, a no-op if the element is in place
+    let started = false;
+    const follow = new ResizeObserver(() => {
+        if (started) el.scrollIntoView({ behavior, block });
+        started = true;
+    });
+    const unfollow = () => {
+        follow.disconnect();
+        STOP_FOLLOW.forEach((t) => window.removeEventListener(t, unfollow));
+    };
     // start in the next frame: React runs effects twice in development (StrictMode), and a second
     // scroll would replace the first; the cleanup in between cancels the frame
     start = requestAnimationFrame(() => {
         window.addEventListener("scroll", wait);
         window.addEventListener("scrollend", onEnd);
         USER.forEach((t) => window.addEventListener(t, finish, { passive: true }));
+        STOP_FOLLOW.forEach((t) => window.addEventListener(t, unfollow, { passive: true }));
+        // both: a host may give one of them the window's height
+        follow.observe(document.documentElement);
+        follow.observe(document.body);
         el.scrollIntoView({ behavior, block });
         wait();
     });
-    return cleanup;
+    return () => {
+        stopWaiting();
+        unfollow();
+    };
 }
 
 /** Turns a path inside the app ("", "/for/student", "?focus=c8") into a router path. */

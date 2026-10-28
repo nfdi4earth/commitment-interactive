@@ -109,6 +109,34 @@ test("the contents menu scrolls to a statement and keeps the lens", async ({ pag
     }
 });
 
+test("the statement chosen in the contents menu is the current one, also in a tall window", async ({
+    page
+}) => {
+    test.skip(isMobile(page), "the contents menu is always in view on large screens only");
+    await page.setViewportSize({ width: 1280, height: 1100 });
+    const isCurrent = async (n: number) => {
+        await expect(page.locator(".toc a.mm-item.current .mm-n")).toHaveText(String(n));
+        await expect(page.locator(".statement.current")).toHaveAttribute("data-n", String(n));
+    };
+    // 12 can't scroll up to the line below the lens bar, 10 and 11 are near the end of the page
+    for (const n of [5, 9, 12, 11, 10]) {
+        await page
+            .locator(".toc a.mm-item")
+            .nth(n - 1)
+            .click();
+        await isCurrent(n);
+    }
+    // a shared link to a statement, and to an annotation in one
+    for (const [path, n] of [
+        ["?statement=12", 12],
+        ["?statement=10", 10],
+        ["?focus=standards", 12]
+    ] as const) {
+        await page.goto(app(path));
+        await isCurrent(n);
+    }
+});
+
 test("Copy link copies a link to the statement", async ({ page, context }) => {
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await page.locator(".statement .num").nth(7).click();

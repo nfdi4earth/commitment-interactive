@@ -5,7 +5,6 @@ import {
     ExternalLink,
     scrollIntoViewThen,
     useAppPath,
-    useEnterBand,
     useQueryState,
     useReveal
 } from "../../components/base";
@@ -21,6 +20,7 @@ import {
     lensColour,
     lensFromQuery,
     statementHit,
+    statementOf,
     statementsIn
 } from "../../model/lens";
 import { FACET_FIELD, FACET_KINDS, type FacetKind, type Statement } from "../../model/types";
@@ -153,13 +153,6 @@ export default function ReaderView() {
         setQuery({ role: null, topic: null, concept: null, ...CLOSED });
     }
 
-    // current statement for the contents menu
-    useEnterBand(
-        useCallback(() => content.statements.map((s) => anchors.current.get(`c${s.n}`)), []),
-        "-40% 0px -55% 0px",
-        useCallback((el: HTMLElement) => setCurrent(Number(el.dataset.n)), [])
-    );
-
     // the lens bar's height positions the contents menu and the scroll targets below it
     const lensBar = useRef<HTMLDivElement>(null);
     const [lensH, setLensH] = useState(90);
@@ -170,6 +163,50 @@ export default function ReaderView() {
         ro.observe(el);
         return () => ro.disconnect();
     }, []);
+
+    // current statement for the contents menu and the text: the one at the line where a link puts
+    // a statement (its scroll-margin-top, below the header and the lens bar), so that the entry
+    // just chosen is the current one at any window height. At the end of the page, where the last
+    // statements can't reach that line, it is the chosen one (a link's target, or the statement of
+    // an annotation) if in view, else the last one in view
+    const chosen =
+        target && (statementOf(target) ?? statementOf(content.annotations[target]?.target ?? ""));
+    const chosenN = chosen ? chosen.n : null;
+    useEffect(() => {
+        let frame = 0;
+        const update = () => {
+            frame = 0;
+            const els = content.statements.flatMap((s) => anchors.current.get(`c${s.n}`) ?? []);
+            const page = document.scrollingElement;
+            if (!els[0] || !page) return;
+            const line = parseFloat(getComputedStyle(els[0]).scrollMarginTop) + 2;
+            const at = els.map((el) => ({
+                n: Number(el.dataset.n),
+                top: el.getBoundingClientRect().top
+            }));
+            const above = at.filter((s) => s.top <= line);
+            let n = above.length ? above[above.length - 1]?.n : undefined;
+            if (page.scrollTop + page.clientHeight >= page.scrollHeight - 2) {
+                const inView = at.filter(
+                    (s) => s.n === n || (s.top > line && s.top < page.clientHeight)
+                );
+                n = (inView.find((s) => s.n === chosenN) ?? inView.pop())?.n;
+            }
+            setCurrent(n ?? null);
+        };
+        const onScroll = () => {
+            frame ||= requestAnimationFrame(update);
+        };
+        update();
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", onScroll);
+        return () => {
+            cancelAnimationFrame(frame);
+            window.removeEventListener("scroll", onScroll);
+            window.removeEventListener("resize", onScroll);
+        };
+        // the line moves with the lens bar's height
+    }, [chosenN, lensH]);
 
     // preamble: one count of relevant passages per selected facet
     const preCounts = FACET_KINDS.flatMap((k) => {
@@ -199,7 +236,7 @@ export default function ReaderView() {
         return (
             <div
                 key={s.n}
-                className={`statement${on ? (hit ? " hit" : " dim") : ""}`}
+                className={`statement${on ? (hit ? " hit" : " dim") : ""}${current === s.n ? " current" : ""}`}
                 data-n={s.n}
                 ref={anchor(`c${s.n}`)}
             >

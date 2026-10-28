@@ -10,22 +10,28 @@
     --primary: var(--dim);
 }
 
-// round statement number, in the text and in the legend
-@mixin number-button($size) {
+// a statement number in a circle (text, legend, contents menu); filled when hovered or current
+@mixin number-circle($size) {
     width: $size;
     height: $size;
     border-radius: 50%;
-    border: 2px solid var(--primary);
     color: var(--primary);
-    background: #fff;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+@mixin number-filled {
+    background: var(--primary);
+    color: #fff;
+}
+@mixin number-button($size) {
+    @include number-circle($size);
+    border: 2px solid var(--primary);
+    background: #fff;
     cursor: pointer;
     &:hover {
-        background: var(--primary);
-        color: #fff;
+        @include number-filled;
     }
 }
 
@@ -365,6 +371,10 @@
         .num {
             @include number-button(34px);
         }
+        // the current statement (the contents menu's current entry): a filled number
+        &.current .num {
+            @include number-filled;
+        }
         .stext {
             margin: 4px 0 0;
         }
@@ -587,9 +597,14 @@
         padding: 0 0 8px 14px;
     }
     .mm-n {
-        font-weight: 700;
-        color: var(--primary);
-        min-width: 18px;
+        @include number-circle(22px);
+        flex: none;
+        margin-top: -2px;
+        font-size: 13px;
+    }
+    // filled like the current statement's number in the text
+    .toc a.current .mm-n {
+        @include number-filled;
     }
     .lens-on .toc a.mm-item {
         &.dim {

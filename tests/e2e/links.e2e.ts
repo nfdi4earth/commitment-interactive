@@ -27,6 +27,27 @@ test("a shared statement link opens the statement panel", async ({ page }) => {
     await expect(page.locator(".panel .kicker")).toContainText("Statement 8");
 });
 
+test("a shared link puts its passage below the lens bar", async ({ page }) => {
+    // the host adds the height of its fixed header only after the first jump
+    await page.goto(app("?focus=c5"));
+    const top = (selector: string, edge: "top" | "bottom") =>
+        page
+            .locator(selector)
+            .first()
+            .evaluate((e, edge) => e.getBoundingClientRect()[edge], edge);
+    // wait for the host's offset: before it, the passage is in place also without the fix
+    await expect
+        .poll(() => page.locator(".lensbar").evaluate((e) => parseFloat(getComputedStyle(e).top)))
+        .toBeGreaterThan(0);
+    // 24px apart (scroll-margin-top), within 1.5px for subpixel positions
+    await expect
+        .poll(
+            async () =>
+                (await top('.statement[data-n="5"]', "top")) - (await top(".lensbar", "bottom"))
+        )
+        .toBeCloseTo(24, -0.5);
+});
+
 test("a link to the passage that is open already scrolls again", async ({ page }) => {
     await page.goto(app("?focus=four-aspects"));
     const tag = page.locator(".panel .tag[data-kind=stmt]").first();
