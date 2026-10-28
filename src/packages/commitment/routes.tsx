@@ -1,14 +1,17 @@
-import { lazy } from "react";
+import type { ComponentType } from "react";
 import type { RouteObject } from "react-router-dom";
-import { CommitmentRoot, ErrorView, ToReader } from "./components/base";
+import { CommitmentRoot, ErrorView, Loading, ToReader } from "./components/base";
+import type { FacetKind } from "./model/types";
 
-const ReaderView = lazy(() => import("./views/Reader/ReaderView"));
-const IndexView = lazy(() => import("./views/IndexView"));
-const PerspectiveView = lazy(() => import("./views/PerspectiveView"));
-const TopicView = lazy(() => import("./views/TopicView"));
-const DeepDiveView = lazy(() => import("./views/DeepDiveView"));
-// lazy, so that @xyflow/react only loads with the map
-const MapView = lazy(() => import("./views/MapView"));
+// Each page's code loads with the router's `lazy`, not React's: the router starts loading it as
+// soon as the URL is known, while the host draws its own layout (see `HydrateFallback` below).
+const page = (load: () => Promise<{ default: ComponentType }>) => async () => ({
+    Component: (await load()).default
+});
+const index = (kind: FacetKind) => async () => {
+    const { default: IndexView } = await import("./views/IndexView");
+    return { element: <IndexView kind={kind} /> };
+};
 
 /**
  * Settings for the host page, passed as the route's `handle`; the host reads them with
@@ -29,15 +32,18 @@ export const commitmentRoutes: RouteObject[] = [
         element: <CommitmentRoot />,
         handle: { chatbot: true } satisfies CommitmentHostSettings,
         errorElement: <ErrorView />,
+        // shown in place of the page while its code loads on the first visit; the routes above
+        // (the host's layout) are drawn meanwhile
+        HydrateFallback: Loading,
         children: [
-            { index: true, element: <ReaderView /> },
-            { path: "for", element: <IndexView kind="role" /> },
-            { path: "for/:id", element: <PerspectiveView /> },
-            { path: "topics", element: <IndexView kind="topic" /> },
-            { path: "topics/:id", element: <TopicView /> },
-            { path: "concepts", element: <IndexView kind="concept" /> },
-            { path: "deep-dive/:id", element: <DeepDiveView /> },
-            { path: "map", element: <MapView /> },
+            { index: true, lazy: page(() => import("./views/Reader/ReaderView")) },
+            { path: "for", lazy: index("role") },
+            { path: "for/:id", lazy: page(() => import("./views/PerspectiveView")) },
+            { path: "topics", lazy: index("topic") },
+            { path: "topics/:id", lazy: page(() => import("./views/TopicView")) },
+            { path: "concepts", lazy: index("concept") },
+            { path: "deep-dive/:id", lazy: page(() => import("./views/DeepDiveView")) },
+            { path: "map", lazy: page(() => import("./views/MapView")) },
             { path: "*", element: <ToReader /> }
         ]
     }

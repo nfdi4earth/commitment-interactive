@@ -60,9 +60,9 @@ export default function TopicView() {
     // a link with `?step=`: scroll that step to the middle of the view first
     const ready = useReveal(
         active > 0 ? String(active) : null,
-        useCallback((i: string, done: () => void) => {
+        useCallback((i: string, done: () => void, behavior: ScrollBehavior) => {
             const el = stepEls.current[Number(i)];
-            return el ? scrollIntoViewThen(el, done, "center") : done();
+            return el ? scrollIntoViewThen(el, done, { block: "center", behavior }) : done();
         }, [])
     );
     // while it scrolls, the steps it passes don't count

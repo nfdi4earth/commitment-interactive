@@ -85,6 +85,9 @@
         margin: 40px auto;
         padding: 0 16px;
     }
+    &.page-loading {
+        min-height: 100vh;
+    }
     .page-sub {
         color: var(--fg-2);
         margin: 0 0 20px;

@@ -1,6 +1,7 @@
 import { CloseButton, Popover, Portal, Tooltip } from "@chakra-ui/react";
 import { useIntl } from "open-pioneer:react-hooks";
-import { useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { flushSync } from "react-dom";
 import { Link } from "react-router-dom";
 import { Scoped, useAppPath } from "../../components/base";
 import { CopyLink } from "../../components/CopyLink";
@@ -11,6 +12,9 @@ import { LinkList } from "../../components/LinkList";
 import { annotationHit, deepDiveFor, statementHit, statementOf } from "../../model/lens";
 import type { Annotation } from "../../model/types";
 import { useReader } from "./context";
+
+/** How long the pointer rests on a note before it opens (ms). */
+const OPEN_DELAY = 100;
 
 /** Deep dive that "Go deeper" leads to: the annotation's own, or one for its concepts. */
 export function deeperFor(a: Annotation) {
@@ -27,6 +31,30 @@ export function AnnotationButton({ id, children }: { id: string; children: React
     const reader = useReader();
     // hovering a note shows it without changing the URL
     const [hover, setHover] = useState(false);
+    // Chakra's tooltip and popover take time to set up, and the reader has dozens of annotations:
+    // each gets its own only when a mouse enters it, it gets the focus, or it opens. Until then it
+    // is a plain button; the swap replaces the button element, so it happens before a click can
+    // start (flushSync) and gives the focus to the new one.
+    const [live, setLive] = useState(false);
+    const refocus = useRef(false);
+    const el = useRef<HTMLButtonElement | null>(null);
+    const stopWatch = useRef<() => void>(undefined);
+    useEffect(() => () => stopWatch.current?.(), []);
+    const anchor = reader.anchor(id);
+    const ref = useCallback(
+        (node: HTMLButtonElement | null) => {
+            el.current = node;
+            anchor(node);
+        },
+        [anchor]
+    );
+    // an effect, not a layout effect: the tooltip starts listening in its own effect, which runs first
+    useEffect(() => {
+        if (live && refocus.current) {
+            refocus.current = false;
+            el.current?.focus();
+        }
+    }, [live]);
     const a = content.annotations[id];
     if (!a) return <>{children}</>;
 
@@ -43,8 +71,68 @@ export function AnnotationButton({ id, children }: { id: string; children: React
         "type": "button" as const,
         "className": `anno d-${a.depth}${hit ? " hit" : ""}`,
         "aria-label": label,
-        "ref": reader.anchor(id)
+        "ref": ref
     };
+    // the first hover of a note: the tooltip's own hover handling only starts with a move over the
+    // new button, so this shows the note after its delay if the pointer is still on the button
+    const watchHover = () => {
+        let over = true;
+        const move = (e: PointerEvent) => {
+            over = !!el.current && e.composedPath().includes(el.current);
+        };
+        const timer = setTimeout(() => {
+            stop();
+            if (over) setHover(true);
+        }, OPEN_DELAY);
+        const stop = () => {
+            clearTimeout(timer);
+            window.removeEventListener("pointermove", move);
+        };
+        window.addEventListener("pointermove", move);
+        stopWatch.current = stop;
+    };
+
+    // once set up, it stays: swapping back would replace the element again, e.g. in the middle of
+    // a click elsewhere that closes the popover
+    const isLive = live || reader.focusId === id;
+    if (isLive && !live) setLive(true);
+
+    // a tap is left to the plain button's click, which opens the annotation: a swap between
+    // touchstart and touchend would lose the tap
+    if (a.depth !== "deepdive" && !isLive)
+        return (
+            <button
+                {...props}
+                aria-haspopup={a.depth === "explainer" ? "dialog" : undefined}
+                aria-expanded={a.depth === "explainer" ? false : undefined}
+                onPointerEnter={(e) => {
+                    if (e.pointerType === "touch") return;
+                    flushSync(() => setLive(true));
+                    if (a.depth === "note") watchHover();
+                }}
+                onFocus={(e) => {
+                    // keyboard focus only: a tap also focuses the button, before its click
+                    if (!e.currentTarget.matches(":focus-visible")) return;
+                    refocus.current = true;
+                    // the tooltip opens on keyboard focus, but not on the focus given back below
+                    flushSync(() => {
+                        setLive(true);
+                        if (a.depth === "note") setHover(true);
+                    });
+                }}
+                onClick={(e) => {
+                    // a tap or a screen reader may have focused it: the new button keeps the
+                    // focus, so that closing the annotation gives it back there
+                    if (e.currentTarget.matches(":focus")) {
+                        refocus.current = true;
+                        flushSync(() => setLive(true));
+                    }
+                    setOpen(true);
+                }}
+            >
+                {children}
+            </button>
+        );
 
     if (a.depth === "deepdive")
         return (
@@ -62,7 +150,7 @@ export function AnnotationButton({ id, children }: { id: string; children: React
                     if (!e.open) setOpen(false);
                 }}
                 interactive
-                openDelay={100}
+                openDelay={OPEN_DELAY}
                 closeDelay={250}
                 closeOnClick={false}
                 // a note opened by a click or a link (in the URL) stays while the page scrolls

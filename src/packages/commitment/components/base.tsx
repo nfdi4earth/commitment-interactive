@@ -14,6 +14,7 @@ import {
     Navigate,
     Outlet,
     useLocation,
+    UNSAFE_DataRouterContext,
     useNavigate,
     useNavigationType,
     useResolvedPath
@@ -24,20 +25,27 @@ import {
 // The host mounts the routes under a plain path (`commitment`, not `commitment/*`): in React Router 7,
 // "." inside a splat route would resolve against the whole URL.
 const BasePath = createContext("");
+// The location key of a URL opened from outside (a shared link, a reload): its target is jumped
+// to, not scrolled to smoothly, because a long smooth scroll would only delay the start
+const EntryKey = createContext<string | null>(null);
 
 export function CommitmentRoot() {
     const base = useResolvedPath(".").pathname.replace(/\/$/, "");
     // a new page starts at the top; a layout effect, so that it runs before the pages' effects,
     // which may scroll on to a target (useReveal)
-    const { pathname } = useLocation();
+    const { pathname, key } = useLocation();
+    const navigationType = useNavigationType();
+    const [entryKey] = useState(() => (navigationType === "POP" ? key : null));
     useLayoutEffect(() => {
         window.scrollTo({ top: 0 });
     }, [pathname]);
     return (
         <BasePath.Provider value={base}>
-            <div className="commitment-view">
-                <Outlet />
-            </div>
+            <EntryKey.Provider value={entryKey}>
+                <div className="commitment-view">
+                    <Outlet />
+                </div>
+            </EntryKey.Provider>
         </BasePath.Provider>
     );
 }
@@ -72,8 +80,14 @@ export function useQueryState() {
     useLayoutEffect(() => {
         search.current = location.search;
     }, [location.search]);
+    // A link to another page waits for that page's code (the routes' `lazy`); a change of the page
+    // state meanwhile, e.g. a popover that closes on the same click, would cancel it. The router
+    // knows at once that it is leaving; `useNavigation()` would only tell with the next render.
+    const router = useContext(UNSAFE_DataRouterContext)?.router;
     const set = useCallback(
         (change: Record<string, string | null>) => {
+            const to = router?.state.navigation.location;
+            if (to && to.pathname !== router?.state.location.pathname) return;
             // commas stay readable (`?done=1,8`)
             const next = `?${withQuery(new URLSearchParams(search.current), change)}`.replace(
                 /%2C/gi,
@@ -83,7 +97,7 @@ export function useQueryState() {
             search.current = next; // for a second change before the next render
             navigate({ search: next }, { replace: true, state: QUIET });
         },
-        [navigate]
+        [navigate, router]
     );
     // the flag stays in the browser history: Back, Forward and reload (POP) always reveal again
     const quiet =
@@ -93,20 +107,22 @@ export function useQueryState() {
 
 /**
  * Reveals what a link or a shared URL points to. On a navigation the page did not make itself,
- * `reveal(target, done)` scrolls to the target (e.g. with scrollIntoViewThen) and calls `done`
- * when the scroll has ended. Returns whether the target may be shown open now.
- * `reveal` must be stable (`useCallback`).
+ * `reveal(target, done, behavior)` scrolls to the target (e.g. with scrollIntoViewThen) and calls
+ * `done` when the scroll has ended. `behavior` is "auto" (a jump) on a URL opened from outside.
+ * Returns whether the target may be shown open now. `reveal` must be stable (`useCallback`).
  */
 export function useReveal(
     target: string | null,
-    reveal: (target: string, done: () => void) => (() => void) | void
+    reveal: (target: string, done: () => void, behavior: ScrollBehavior) => (() => void) | void
 ): boolean {
     const { key, quiet } = useQueryState();
+    const entryKey = useContext(EntryKey);
     const [revealed, setRevealed] = useState<string | null>(null);
     useEffect(() => {
         if (quiet || !target) return;
-        return reveal(target, () => setRevealed(key));
-    }, [key, quiet, target, reveal]);
+        const behavior = key === entryKey ? "auto" : scrollBehavior();
+        return reveal(target, () => setRevealed(key), behavior);
+    }, [key, quiet, target, reveal, entryKey]);
     return quiet || !target || revealed === key;
 }
 
@@ -118,7 +134,7 @@ export function useReveal(
 export function scrollIntoViewThen(
     el: HTMLElement,
     done: () => void,
-    block: "start" | "center" = "start"
+    { block = "start", behavior }: { block?: "start" | "center"; behavior: ScrollBehavior }
 ): () => void {
     let idle: ReturnType<typeof setTimeout> | undefined;
     let frame = 0;
@@ -155,7 +171,7 @@ export function scrollIntoViewThen(
         window.addEventListener("scroll", wait);
         window.addEventListener("scrollend", onEnd);
         USER.forEach((t) => window.addEventListener(t, finish, { passive: true }));
-        el.scrollIntoView({ behavior: scrollBehavior(), block });
+        el.scrollIntoView({ behavior, block });
         wait();
     });
     return cleanup;
@@ -193,6 +209,11 @@ export function ErrorView() {
             </div>
         </div>
     );
+}
+
+/** Space for a page whose code is still loading, so that the host's footer stays at the bottom. */
+export function Loading() {
+    return <div className="commitment-view page-loading" aria-busy="true" />;
 }
 
 /** Unknown paths inside the app lead back to the reader. */

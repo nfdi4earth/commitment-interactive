@@ -96,7 +96,7 @@ export default function ReaderView() {
     const ready = useReveal(
         target,
         useCallback(
-            (target: string, done: () => void) => {
+            (target: string, done: () => void, behavior: ScrollBehavior) => {
                 // an unknown phrase id like "c8-foo" falls back to its statement
                 const id =
                     anchors.current.has(target) || !/^c\d+-/.test(target)
@@ -112,10 +112,14 @@ export default function ReaderView() {
                 el.classList.remove("pulse");
                 void el.offsetWidth; // restart the animation
                 el.classList.add("pulse");
-                return scrollIntoViewThen(el, () => {
-                    if (inPreamble(target)) setQuery({ preamble: "open" });
-                    done();
-                });
+                return scrollIntoViewThen(
+                    el,
+                    () => {
+                        if (inPreamble(target)) setQuery({ preamble: "open" });
+                        done();
+                    },
+                    { behavior }
+                );
             },
             [setQuery]
         )
@@ -133,8 +137,8 @@ export default function ReaderView() {
     const close = useCallback(() => setQuery(CLOSED), [setQuery]);
     const openStatement = (n: number) => setQuery({ statement: String(n), focus: null });
     const reader: ReaderState = useMemo(
-        () => ({ lens, openId, open, close, anchor }),
-        [lens, openId, open, close, anchor]
+        () => ({ lens, openId, focusId: focus, open, close, anchor }),
+        [lens, openId, focus, open, close, anchor]
     );
 
     // the preamble is open when the URL says so, or while a link points into it (the reveal adds

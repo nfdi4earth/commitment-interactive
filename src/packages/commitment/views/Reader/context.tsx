@@ -7,6 +7,8 @@ export interface ReaderState {
     lens: Lens;
     /** Annotation whose note or explainer is open (from `?focus=`). */
     openId: string | null;
+    /** `?focus=`, also while the page still scrolls to it. */
+    focusId: string | null;
     /** Opens an annotation: note or explainer in place, deep dive in the side panel. */
     open(id: string): void;
     /** Closes whatever is open. */

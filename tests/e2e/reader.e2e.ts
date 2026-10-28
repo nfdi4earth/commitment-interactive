@@ -24,6 +24,20 @@ test("the lens bar stays below the header while scrolling", async ({ page }) => 
         .toBeGreaterThan(50);
 });
 
+test("a note that the pointer only crosses stays closed", async ({ page }) => {
+    test.skip(isMobile(page), "hovering needs a mouse");
+    const note = page.locator(".statement .anno.d-note").first();
+    await note.scrollIntoViewIfNeeded();
+    const box = await note.boundingBox();
+    if (!box) throw new Error("no note on the page");
+    const y = box.y + box.height / 2;
+    await page.mouse.move(box.x - 40, y);
+    await page.mouse.move(box.x + box.width / 2, y);
+    await page.mouse.move(box.x + box.width + 300, y + 200);
+    await page.waitForTimeout(500);
+    await expect(page.locator(".note")).toHaveCount(0);
+});
+
 test("a note opens on hover without changing the URL, and on click with it", async ({ page }) => {
     const note = page.locator(".anno.d-note").first();
     if (!isMobile(page)) {
