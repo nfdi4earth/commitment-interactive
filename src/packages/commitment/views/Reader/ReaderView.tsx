@@ -233,6 +233,7 @@ export default function ReaderView() {
                     {intl.formatMessage({ id: "title" })}{" "}
                     <span className="mock-badge">{intl.formatMessage({ id: "mock-badge" })}</span>
                 </h1>
+                <p className="page-tagline">{intl.formatMessage({ id: "tagline" })}</p>
                 <p className="page-sub">
                     {intl.formatRichMessage(
                         { id: "reader.sub" },

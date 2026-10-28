@@ -26,6 +26,11 @@ export default function PerspectiveView() {
         setQuery({ done: next.size ? [...next].sort((x, y) => x - y).join(",") : null });
     };
     const count = numbers.filter((n) => done.has(n)).length;
+    const progress = intl.formatMessage({ id: "perspective.progress" });
+    const steps = intl.formatMessage(
+        { id: "perspective.steps" },
+        { done: count, total: numbers.length }
+    );
 
     return (
         <Page back={{ to: "/for", label: intl.formatMessage({ id: "back-to.perspectives" }) }}>
@@ -44,18 +49,17 @@ export default function PerspectiveView() {
                 </div>
             </div>
             <p>
-                <b>{intl.formatMessage({ id: "perspective.progress" })}</b>{" "}
+                <b>{progress}</b>{" "}
                 <span className="progress-label" aria-live="polite">
-                    {intl.formatMessage(
-                        { id: "perspective.steps" },
-                        { done: count, total: numbers.length }
-                    )}
+                    {steps}
                 </span>
             </p>
             <div
                 className="progress"
                 style={colourVars(role.colour)}
                 role="progressbar"
+                aria-label={progress}
+                aria-valuetext={steps}
                 aria-valuemin={0}
                 aria-valuemax={numbers.length}
                 aria-valuenow={count}

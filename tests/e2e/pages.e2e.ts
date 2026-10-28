@@ -55,13 +55,33 @@ test("a deep-dive page links its phrases into the reader", async ({ page }) => {
 });
 
 test("the overview map links nodes to the reader", async ({ page }) => {
+    test.skip(isMobile(page), "the map needs a wide screen");
     await page.goto(app("/map"));
     await expect(page.locator(".mnode")).toHaveCount(29);
-    const node = page.locator(".mnode", { hasText: "8 ·" });
-    // on touch screens, the first tap only shows the connections
-    await node.click();
-    if (isMobile(page)) await node.click();
+    await page.locator(".mnode", { hasText: "8 ·" }).click();
     await expect.poll(() => query(page)).toEqual({ focus: "c8" });
+});
+
+test.describe("on a large touch screen", () => {
+    test.use({ viewport: { width: 1024, height: 768 }, hasTouch: true });
+    test("the first tap on a map node only shows its connections", async ({ page }) => {
+        test.skip(test.info().project.name !== "mobile", "runs once, in the touch project");
+        await page.goto(app("/map"));
+        const node = page.locator(".mnode", { hasText: "8 ·" });
+        await node.click();
+        await expect(page.locator(".map-wrap.map-focus")).toBeVisible();
+        expect(await query(page)).toEqual({});
+        await node.click();
+        await expect.poll(() => query(page)).toEqual({ focus: "c8" });
+    });
+});
+
+test("on a small screen, the overview map page leads to the index pages", async ({ page }) => {
+    test.skip(!isMobile(page), "only below the 1000px breakpoint");
+    await page.goto(app("/map"));
+    await expect(page.locator(".mnode")).toHaveCount(0);
+    await page.locator(".map-small a", { hasText: "topics" }).click();
+    await expect(page).toHaveURL(/\/commitment\/topics$/);
 });
 
 // meaningful against a static host (E2E_BASE_URL, ci/build-site.sh); `vite preview` answers 200 always

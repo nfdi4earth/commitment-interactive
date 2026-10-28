@@ -1,193 +1,30 @@
-import {
-    Controls,
-    Handle,
-    Position,
-    ReactFlow,
-    type Edge,
-    type Node,
-    type NodeProps
-} from "@xyflow/react";
+import { useBreakpointValue } from "@chakra-ui/react";
 import { useIntl } from "open-pioneer:react-hooks";
-import { createContext, useContext, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { lazy, Suspense, type ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { useAppPath } from "../components/base";
 import { Page } from "../components/Page";
-import { content } from "../model/content";
-import { facet, ink } from "../model/lens";
 
-// Overview map: perspectives and topics (left) → statements (middle) → concepts (right).
-// A fixed layout in columns; @xyflow/react adds zoom, pan and fit.
-type Kind = "role" | "topic" | "stmt" | "concept";
-type MapNodeData = { kind: Kind; label: string; colour: string };
-type MapNode = Node<MapNodeData, "item">;
-type LabelNode = Node<{ label: string }, "label">;
+// lazy, so that @xyflow/react only loads where the map is shown
+const MapCanvas = lazy(() => import("./MapCanvas"));
 
-const H = 32;
-const PRIMARY = "#05668D";
-
-// Mouse and click go through ReactFlow's node handlers; keyboard focus comes from the node's button.
-const Hover = createContext<(id: string | null) => void>(() => {});
-const COLUMNS = { left: { x: 30, w: 210 }, middle: { x: 440, w: 230 }, right: { x: 870, w: 200 } };
-
-function ItemNode({ id, data }: NodeProps<MapNode>) {
-    const setHovered = useContext(Hover);
-    const style =
-        data.kind === "stmt"
-            ? { background: "#fff", color: PRIMARY, borderColor: data.colour }
-            : { background: data.colour, color: ink(data.colour), borderColor: data.colour };
-    return (
-        <>
-            <Handle type="target" position={Position.Left} isConnectable={false} />
-            <button
-                type="button"
-                className="mnode"
-                data-kind={data.kind}
-                style={style}
-                onFocus={() => setHovered(id)}
-                onBlur={() => setHovered(null)}
-            >
-                {data.label}
-            </button>
-            <Handle type="source" position={Position.Right} isConnectable={false} />
-        </>
-    );
-}
-function ColumnLabel({ data }: NodeProps<LabelNode>) {
-    return <div className="map-col-label">{data.label}</div>;
-}
-const NODE_TYPES = { item: ItemNode, label: ColumnLabel };
-
+/**
+ * The overview map. It is made for large screens: below OneStop4All's breakpoint (`custombreak`)
+ * the page leads to the index pages instead.
+ */
 export default function MapView() {
     const intl = useIntl();
     const appPath = useAppPath();
-    const navigate = useNavigate();
-    const [hovered, setHovered] = useState<string | null>(null);
-    const [selected, setSelected] = useState<string | null>(null);
-    const focus = hovered ?? selected;
-
-    const { nodes, edges } = useMemo(() => {
-        const item = (
-            id: string,
-            kind: Kind,
-            label: string,
-            colour: string,
-            x: number,
-            y: number,
-            w: number
-        ): MapNode => ({
-            id,
-            type: "item",
-            position: { x, y },
-            width: w,
-            height: H,
-            draggable: false,
-            selectable: false,
-            data: { kind, label, colour }
-        });
-        const label = (id: string, text: string, x: number, y: number): LabelNode => ({
-            id,
-            type: "label",
-            position: { x, y },
-            draggable: false,
-            selectable: false,
-            focusable: false,
-            data: { label: text }
-        });
-        const { left: L, middle: M, right: R } = COLUMNS;
-        const roleRows = content.roles.length;
-        const nodes: (MapNode | LabelNode)[] = [
-            label("l:roles", intl.formatMessage({ id: "map.roles" }), L.x, 8),
-            label(
-                "l:topics",
-                intl.formatMessage({ id: "map.topics" }),
-                L.x,
-                50 + roleRows * 47 - 6
-            ),
-            label("l:statements", intl.formatMessage({ id: "map.statements" }), M.x, 8),
-            label("l:concepts", intl.formatMessage({ id: "map.concepts" }), R.x, 78),
-            ...content.roles.map((r, i) =>
-                item(`role:${r.id}`, "role", r.label, r.colour, L.x, 50 + i * 47, L.w)
-            ),
-            ...content.topics.map((t, i) =>
-                item(
-                    `topic:${t.id}`,
-                    "topic",
-                    t.label,
-                    t.colour,
-                    L.x,
-                    50 + (roleRows + i) * 47 + 20,
-                    L.w
-                )
-            ),
-            ...content.statements.map((s, i) =>
-                item(
-                    `s:${s.n}`,
-                    "stmt",
-                    `${s.n} · ${s.short}`,
-                    PRIMARY,
-                    M.x,
-                    50 + i * 52 + (s.box === "boxA" ? 0 : 16),
-                    M.w
-                )
-            ),
-            ...content.concepts.map((c, i) =>
-                item(`concept:${c.id}`, "concept", c.label, c.colour, R.x, 120 + i * 80, R.w)
-            )
-        ];
-        const edge = (source: string, target: string, colour?: string): Edge => ({
-            id: `${source}>${target}`,
-            source,
-            target,
-            selectable: false,
-            focusable: false,
-            style: { stroke: colour }
-        });
-        const edges = content.statements.flatMap((s) => [
-            ...s.roles.map((r) => edge(`role:${r}`, `s:${s.n}`, facet("role", r)?.colour)),
-            ...s.topics.map((t) => edge(`topic:${t}`, `s:${s.n}`, facet("topic", t)?.colour)),
-            ...s.concepts.map((c) => edge(`s:${s.n}`, `concept:${c}`, facet("concept", c)?.colour))
-        ]);
-        return { nodes, edges };
-    }, [intl]);
-
-    const open = (id: string) => {
-        const [k, v] = id.split(":");
-        navigate(appPath(k === "s" ? `?focus=c${v}` : `?${k}=${v}`));
-    };
-    // on touch screens, the first tap only shows the connections
-    const onNodeClick = (id: string) => {
-        const canHover = window.matchMedia?.("(hover: hover)").matches ?? true;
-        if (canHover || selected === id) open(id);
-        else setSelected(id);
-    };
-
-    // highlight the connections of the hovered or selected node; perspectives and topics also
-    // follow their statements on to the concepts
-    const view = useMemo(() => {
-        if (!focus) return { nodes, edges };
-        const direct = edges.filter((e) => e.source === focus || e.target === focus);
-        const hop = /^(role|topic):/.test(focus)
-            ? new Set(direct.map((e) => e.target))
-            : new Set<string>();
-        const on = new Set(
-            edges
-                .filter(
-                    (e) =>
-                        direct.includes(e) || (hop.has(e.source) && e.target.startsWith("concept:"))
-                )
-                .map((e) => e.id)
-        );
-        const connected = new Set([
-            focus,
-            ...edges.filter((e) => on.has(e.id)).flatMap((e) => [e.source, e.target])
-        ]);
-        return {
-            nodes: nodes.map((n) =>
-                n.type === "item" && !connected.has(n.id) ? { ...n, className: "off" } : n
-            ),
-            edges: edges.map((e) => ({ ...e, className: on.has(e.id) ? "on" : "off" }))
+    // ssr: false, so that a wide screen does not show the notice first
+    const wide = useBreakpointValue({ base: false, custombreak: true }, { ssr: false });
+    const link = (path: string) =>
+        function MapLink(chunks: ReactNode[]) {
+            return (
+                <Link key={path} to={appPath(path)}>
+                    {chunks}
+                </Link>
+            );
         };
-    }, [focus, nodes, edges]);
 
     return (
         <Page
@@ -195,31 +32,21 @@ export default function MapView() {
             title={intl.formatMessage({ id: "map.title" })}
             badge={intl.formatMessage({ id: "mock-short" })}
         >
-            <p className="map-help">{intl.formatMessage({ id: "map.help" })}</p>
-            <div className={`map-wrap${focus ? " map-focus" : ""}`}>
-                <Hover.Provider value={setHovered}>
-                    <ReactFlow
-                        nodes={view.nodes}
-                        edges={view.edges}
-                        nodeTypes={NODE_TYPES}
-                        fitView
-                        minZoom={0.3}
-                        maxZoom={3}
-                        nodesDraggable={false}
-                        nodesConnectable={false}
-                        nodesFocusable={false}
-                        edgesFocusable={false}
-                        elementsSelectable={false}
-                        onNodeClick={(_, n) => n.type === "item" && onNodeClick(n.id)}
-                        onNodeMouseEnter={(_, n) => n.type === "item" && setHovered(n.id)}
-                        onNodeMouseLeave={() => setHovered(null)}
-                        onPaneClick={() => setSelected(null)}
-                        proOptions={{ hideAttribution: true }}
-                    >
-                        <Controls showInteractive={false} />
-                    </ReactFlow>
-                </Hover.Provider>
-            </div>
+            {wide ? (
+                <>
+                    <p className="map-help">{intl.formatMessage({ id: "map.help" })}</p>
+                    <Suspense fallback={<div className="map-wrap" />}>
+                        <MapCanvas />
+                    </Suspense>
+                </>
+            ) : (
+                <p className="map-small">
+                    {intl.formatRichMessage(
+                        { id: "map.small" },
+                        { for: link("/for"), topics: link("/topics"), concepts: link("/concepts") }
+                    )}
+                </p>
+            )}
         </Page>
     );
 }

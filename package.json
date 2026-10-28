@@ -25,6 +25,7 @@
         "postinstall": "pnpm chakra typegen src/apps/commitment-standalone/theme.ts"
     },
     "devDependencies": {
+        "@axe-core/playwright": "catalog:",
         "@eslint/js": "catalog:",
         "@open-pioneer/build-package-cli": "catalog:",
         "@open-pioneer/build-support": "catalog:",

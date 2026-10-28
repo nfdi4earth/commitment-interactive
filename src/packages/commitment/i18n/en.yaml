@@ -1,5 +1,6 @@
 messages:
-  title: "NFDI4Earth FAIRness and Openness Commitment"
+  title: "Annotated FAIRness and Openness Commitment"
+  tagline: "Explore the Commitment from different perspectives and get inspired to put it into practice in your own work."
   mock-badge: "Mock-up · example content"
   example-badge: "example content"
   mock-short: "Mock-up"
@@ -136,6 +137,7 @@ messages:
 
   map:
     title: "Overview map"
+    small: "The overview map needs a screen at least 1000 pixels wide. On this screen, start from the <for>perspectives</for>, <topics>topics</topics> or <concepts>concepts</concepts>."
     help: "Perspectives and topics (left) connect to statements (middle) and concepts (right). Hover or tap a node to trace its connections, click again to open it. Scroll to zoom, drag to pan."
     roles: "Perspectives"
     topics: "Topics"

@@ -2,7 +2,8 @@
 # package to support all locales of the app). The content in content/ is English only.
 # Translated by Claude; please review.
 messages:
-  title: "NFDI4Earth FAIRness and Openness Commitment"
+  title: "Annotiertes FAIRness and Openness Commitment"
+  tagline: "Entdecken Sie das Commitment aus verschiedenen Perspektiven und lassen Sie sich inspirieren, es in Ihrer eigenen Arbeit umzusetzen."
   mock-badge: "Mock-up · Beispielinhalt"
   example-badge: "Beispielinhalt"
   mock-short: "Mock-up"
@@ -139,6 +140,7 @@ messages:
 
   map:
     title: "Übersichtskarte"
+    small: "Die Übersichtskarte braucht einen Bildschirm, der mindestens 1000 Pixel breit ist. Beginnen Sie auf diesem Bildschirm mit den <for>Perspektiven</for>, <topics>Themen</topics> oder <concepts>Konzepten</concepts>."
     help: "Perspektiven und Themen (links) sind mit Aussagen (Mitte) und Konzepten (rechts) verbunden. Fahren Sie über einen Knoten oder tippen Sie darauf, um seine Verbindungen zu sehen, und klicken Sie erneut, um ihn zu öffnen. Scrollen zum Zoomen, Ziehen zum Verschieben."
     roles: "Perspektiven"
     topics: "Themen"
