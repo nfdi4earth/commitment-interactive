@@ -6,7 +6,8 @@ import {
     scrollIntoViewThen,
     useAppPath,
     useQueryState,
-    useReveal
+    useReveal,
+    useScrollFrame
 } from "../../components/base";
 import { Icon } from "../../components/Icon";
 import { BackLink, PageContainer } from "../../components/Page";
@@ -172,10 +173,8 @@ export default function ReaderView() {
     const chosen =
         target && (statementOf(target) ?? statementOf(content.annotations[target]?.target ?? ""));
     const chosenN = chosen ? chosen.n : null;
-    useEffect(() => {
-        let frame = 0;
-        const update = () => {
-            frame = 0;
+    useScrollFrame(
+        useCallback(() => {
             const els = content.statements.flatMap((s) => anchors.current.get(`c${s.n}`) ?? []);
             const page = document.scrollingElement;
             if (!els[0] || !page) return;
@@ -193,20 +192,10 @@ export default function ReaderView() {
                 n = (inView.find((s) => s.n === chosenN) ?? inView.pop())?.n;
             }
             setCurrent(n ?? null);
-        };
-        const onScroll = () => {
-            frame ||= requestAnimationFrame(update);
-        };
-        update();
-        window.addEventListener("scroll", onScroll, { passive: true });
-        window.addEventListener("resize", onScroll);
-        return () => {
-            cancelAnimationFrame(frame);
-            window.removeEventListener("scroll", onScroll);
-            window.removeEventListener("resize", onScroll);
-        };
+        }, [chosenN]),
         // the line moves with the lens bar's height
-    }, [chosenN, lensH]);
+        lensH
+    );
 
     // preamble: one count of relevant passages per selected facet
     const preCounts = FACET_KINDS.flatMap((k) => {

@@ -260,28 +260,32 @@ export function ExternalLink({
     );
 }
 
+/**
+ * Calls `update` now, again when `layout` changes (a size that positions depend on), and once per
+ * frame while the window scrolls or changes its size, e.g. to find the current section. `update`
+ * must be stable (`useCallback`); the listeners restart when it changes.
+ */
+export function useScrollFrame(update: () => void, layout?: unknown) {
+    useEffect(() => {
+        let frame = 0;
+        const onScroll = () => {
+            frame ||= requestAnimationFrame(() => {
+                frame = 0;
+                update();
+            });
+        };
+        update();
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", onScroll);
+        return () => {
+            cancelAnimationFrame(frame);
+            window.removeEventListener("scroll", onScroll);
+            window.removeEventListener("resize", onScroll);
+        };
+    }, [update, layout]);
+}
+
 /** Scroll behaviour that respects `prefers-reduced-motion`. */
 export function scrollBehavior(): ScrollBehavior {
     return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
-}
-
-/**
- * Calls `onEnter` for each element that enters the band of the viewport given by `rootMargin`,
- * e.g. to mark the section in the middle of the screen as the current one. `elements` and
- * `onEnter` must be stable (`useCallback`); the observer restarts when they change.
- */
-export function useEnterBand(
-    elements: () => Iterable<Element | null | undefined>,
-    rootMargin: string,
-    onEnter: (el: HTMLElement) => void
-) {
-    useEffect(() => {
-        const io = new IntersectionObserver(
-            (entries) =>
-                entries.forEach((e) => e.isIntersecting && onEnter(e.target as HTMLElement)),
-            { rootMargin }
-        );
-        for (const el of elements()) if (el) io.observe(el);
-        return () => io.disconnect();
-    }, [elements, rootMargin, onEnter]);
 }

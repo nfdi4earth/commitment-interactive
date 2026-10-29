@@ -1,13 +1,15 @@
 import { useIntl } from "open-pioneer:react-hooks";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { PointerEvent } from "react";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import {
     scrollBehavior,
     scrollIntoViewThen,
     useAppPath,
-    useEnterBand,
     useQueryState,
-    useReveal
+    useReveal,
+    useScrollFrame,
+    withQuery
 } from "../components/base";
 import { OtherFacets } from "../components/FacetBadge";
 import { Icon } from "../components/Icon";
@@ -24,7 +26,8 @@ export default function TopicView() {
     const { id } = useParams();
     const topic = content.topics.find((t) => t.id === id);
     // the active step is in the URL (`?step=3`), so that a shared link opens at the same step
-    const { query, set: setQuery } = useQueryState();
+    const { query, set: setQuery, key } = useQueryState();
+    const navigate = useNavigate();
 
     const tagged = useMemo(() => (topic ? statementsWith("topic", topic.id) : []), [topic]);
     const relevant = useMemo(() => new Set(tagged.map((s) => s.n)), [tagged]);
@@ -49,40 +52,73 @@ export default function TopicView() {
                     })),
         [topic, tagged, intl]
     );
+    // the steps about each statement
+    const stepsOf = useMemo(() => {
+        const of = new Map<number, number[]>();
+        steps.forEach((st, i) => of.set(st.n, [...(of.get(st.n) ?? []), i]));
+        return of;
+    }, [steps]);
 
-    // the step in the middle of the viewport is the active one
     const stepEls = useRef<(HTMLElement | null)[]>([]);
     const condEls = useRef(new Map<number, HTMLElement>());
     const sticky = useRef<HTMLDivElement>(null);
     // `?step=` is 1-based; without it, the first step is active
     const step = Number(query.get("step")) || 1;
     const active = Math.max(0, Math.min(step, steps.length) - 1);
-    // a link with `?step=`: scroll that step to the middle of the view first
+    // a link with `?step=` (also a click on a statement): scroll that step to the middle first
     const ready = useReveal(
-        active > 0 ? String(active) : null,
+        query.has("step") ? String(active) : null,
         useCallback((i: string, done: () => void, behavior: ScrollBehavior) => {
             const el = stepEls.current[Number(i)];
             return el ? scrollIntoViewThen(el, done, { block: "center", behavior }) : done();
         }, [])
     );
-    // while it scrolls, the steps it passes don't count
-    const readyRef = useRef(ready);
-    useLayoutEffect(() => {
-        readyRef.current = ready;
-    }, [ready]);
-    useEnterBand(
-        useCallback(() => stepEls.current.slice(0, steps.length), [steps]),
-        "-45% 0px -45% 0px",
-        useCallback(
-            (el: HTMLElement) => {
-                const i = Number(el.dataset.i);
-                if (readyRef.current) setQuery({ step: i > 0 ? String(i + 1) : null });
-            },
-            [setQuery]
-        )
+    // The active step is the last one whose top has reached the middle of the window; at the top
+    // and the end of the page, which a tall window can't scroll every step to, it is the first or
+    // the last one. Only scrolling counts: not the scroll of a link to its step, and not a page that
+    // stays where a link left it (a link to step 2 in a window too tall to scroll).
+    const scrolledFrom = useRef<number | null>(null);
+    useScrollFrame(
+        useCallback(() => {
+            const page = document.scrollingElement;
+            const from = scrolledFrom.current;
+            scrolledFrom.current = ready && page ? page.scrollTop : null;
+            if (!page || from === null || from === page.scrollTop) return;
+            const middle = page.clientHeight / 2;
+            const above = stepEls.current
+                .slice(0, steps.length)
+                .filter((el) => el && el.getBoundingClientRect().top <= middle).length;
+            const i =
+                page.scrollTop <= 0
+                    ? 0
+                    : page.scrollTop + page.clientHeight >= page.scrollHeight - 2
+                      ? steps.length - 1
+                      : Math.max(0, above - 1);
+            if (i !== active) setQuery({ step: i > 0 ? String(i + 1) : null });
+        }, [ready, steps, active, setQuery])
     );
 
-    // small screens: the condensed Commitment is a short scroll box; keep the active statement in view
+    // The mouse and the keyboard link a step and its statement: pointing at either one, or moving
+    // the focus into a step, lights up both, until another pair is pointed at or the URL changes
+    // (scrolling makes another step active). Only a mouse that moves counts, not the events a
+    // browser sends when the page scrolls under a resting cursor.
+    const [pointed, setPointed] = useState<{ steps: number[]; key: string } | null>(null);
+    const lit = pointed?.key === key ? pointed.steps : [active];
+    const light = (to: number[]) => {
+        if (to.length && String(to) !== String(lit)) setPointed({ steps: to, key });
+    };
+    const pointer = useRef("");
+    const point = (e: PointerEvent, to: number[]) => {
+        const at = `${e.clientX},${e.clientY}`;
+        if (e.pointerType === "touch" || at === pointer.current) return;
+        pointer.current = at;
+        light(to);
+    };
+    // all lit steps are about one statement
+    const litN = steps[lit[0] ?? active]?.n;
+
+    // small screens: the condensed Commitment is a short scroll box; keep the active statement in
+    // view (not a pointed one, which would move the list under the mouse)
     const activeN = steps[active]?.n;
     useEffect(() => {
         const box = sticky.current;
@@ -125,30 +161,58 @@ export default function TopicView() {
                             ))}
                         </span>
                     </h4>
-                    {content.statements.map((s) => (
-                        <div
-                            key={s.n}
-                            ref={(el) => {
+                    {content.statements.map((s) => {
+                        const its = stepsOf.get(s.n) ?? [];
+                        const first = its[0];
+                        const props = {
+                            ref: (el: HTMLElement | null) => {
                                 if (el) condEls.current.set(s.n, el);
-                            }}
-                            className={`cond ${relevant.has(s.n) ? "rel" : "irrel"}${activeN === s.n ? " active" : ""}`}
-                        >
-                            <span className="cn">{s.n}</span>
-                            <span>
-                                <Markdown inline text={s.text} />
-                            </span>
-                        </div>
-                    ))}
+                            },
+                            className: `cond ${relevant.has(s.n) ? "rel" : "irrel"}${litN === s.n ? " active" : ""}`,
+                            children: (
+                                <>
+                                    <span className="cn">{s.n}</span>
+                                    <span>
+                                        <Markdown inline plain text={s.text} />
+                                    </span>
+                                </>
+                            )
+                        };
+                        // A statement with a step leads to its (first) step, like a link with
+                        // `?step=`. The steps are the way in for the keyboard and screen readers,
+                        // so this box stays hidden from them, and a click leaves the focus alone.
+                        return first !== undefined ? (
+                            <button
+                                key={s.n}
+                                type="button"
+                                tabIndex={-1}
+                                {...props}
+                                onPointerMove={(e) => point(e, its)}
+                                onMouseDown={(e) => e.preventDefault()}
+                                onClick={() =>
+                                    navigate(
+                                        {
+                                            search: `?${withQuery(query, { step: String(first + 1) })}`
+                                        },
+                                        { replace: true }
+                                    )
+                                }
+                            />
+                        ) : (
+                            <div key={s.n} {...props} />
+                        );
+                    })}
                 </div>
                 <div className="steps">
                     {steps.map((st, i) => (
                         <section
                             key={i}
-                            data-i={i}
                             ref={(el) => {
                                 stepEls.current[i] = el;
                             }}
-                            className={`step${i === active ? " active" : ""}`}
+                            className={`step${lit.includes(i) ? " active" : ""}`}
+                            onPointerMove={(e) => point(e, [i])}
+                            onFocus={() => light([i])}
                         >
                             <div className="step-n">
                                 {intl.formatMessage(

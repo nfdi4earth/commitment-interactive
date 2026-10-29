@@ -15,16 +15,18 @@ interface Props {
     inline?: boolean;
     /** Renders the `[quote](annotation:id)` links of the Commitment text. */
     annotation?: (id: string, children: ReactNode) => ReactNode;
+    /** Links as plain text, e.g. inside a button. */
+    plain?: boolean;
 }
 
 // Memoised: parsing is the expensive part, and the reader re-renders on scroll and hover.
-export const Markdown = memo(function Markdown({ text, inline, annotation }: Props) {
+export const Markdown = memo(function Markdown({ text, inline, annotation, plain }: Props) {
     const appPath = useAppPath();
     const components: Components = useMemo(
         () => ({
             a: ({ href = "", children }) => {
                 // urlTransform empties disallowed URLs: show the text without a link
-                if (!href) return children;
+                if (!href || plain) return children;
                 if (href.startsWith(ANNOTATION_SCHEME))
                     return annotation
                         ? annotation(href.slice(ANNOTATION_SCHEME.length), children)
@@ -34,7 +36,7 @@ export const Markdown = memo(function Markdown({ text, inline, annotation }: Pro
                 return <ExternalLink href={href}>{children}</ExternalLink>;
             }
         }),
-        [appPath, annotation]
+        [appPath, annotation, plain]
     );
     return (
         <ReactMarkdown
