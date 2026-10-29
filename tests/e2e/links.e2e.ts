@@ -1,6 +1,6 @@
 // Shared links and the browser's Back, Forward and reload show the same view: they scroll to the
 // target first and open it when the page has stopped scrolling.
-import { app, expect, query, test } from "./fixtures";
+import { app, expect, query, scrollY, test } from "./fixtures";
 
 test("a shared deep-dive link scrolls, then opens the panel", async ({ page }) => {
     await page.goto(app("?focus=four-aspects"));
@@ -46,6 +46,30 @@ test("a shared link puts its passage below the lens bar", async ({ page }) => {
                 (await top('.statement[data-n="5"]', "top")) - (await top(".lensbar", "bottom"))
         )
         .toBeCloseTo(24, -0.5);
+});
+
+test("the URL follows the current statement while reading on", async ({ page }) => {
+    await page.goto(app("?focus=c5"));
+    await expect(page.locator(".statement.current")).toHaveAttribute("data-n", "5");
+    // the link has scrolled to its passage
+    await expect.poll(() => scrollY(page)).toBeGreaterThan(0);
+    await page.mouse.move(400, 400);
+    await page.mouse.wheel(0, 600);
+    await expect.poll(async () => (await query(page)).focus).not.toBe("c5");
+    const n = await page.locator(".statement.current").getAttribute("data-n");
+    expect(await query(page)).toEqual({ focus: `c${n}` });
+    // above the first statement, nothing is current
+    await page.mouse.wheel(0, -20000);
+    await expect.poll(() => query(page)).toEqual({});
+});
+
+test("an open explainer stays in the URL while reading on", async ({ page }) => {
+    await page.goto(app("?focus=legend-explainer"));
+    await expect(page.locator(".popover")).toBeVisible();
+    await page.mouse.move(400, 400);
+    await page.mouse.wheel(0, 1500);
+    await expect(page.locator(".statement.current")).toHaveCount(1);
+    expect(await query(page)).toEqual({ focus: "legend-explainer" });
 });
 
 test("a link to the passage that is open already scrolls again", async ({ page }) => {

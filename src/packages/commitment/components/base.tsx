@@ -84,15 +84,21 @@ export function useQueryState() {
     // state meanwhile, e.g. a popover that closes on the same click, would cancel it. The router
     // knows at once that it is leaving; `useNavigation()` would only tell with the next render.
     const router = useContext(UNSAFE_DataRouterContext)?.router;
+    // `change` may be a function of the latest query (also before the next render has it), which
+    // returns null to change nothing
     const set = useCallback(
-        (change: Record<string, string | null>) => {
+        (
+            change:
+                | Record<string, string | null>
+                | ((latest: URLSearchParams) => Record<string, string | null> | null)
+        ) => {
             const to = router?.state.navigation.location;
             if (to && to.pathname !== router?.state.location.pathname) return;
+            const latest = new URLSearchParams(search.current);
+            const changes = typeof change === "function" ? change(latest) : change;
+            if (!changes) return;
             // commas stay readable (`?done=1,8`)
-            const next = `?${withQuery(new URLSearchParams(search.current), change)}`.replace(
-                /%2C/gi,
-                ","
-            );
+            const next = `?${withQuery(latest, changes)}`.replace(/%2C/gi, ",");
             if (next === (search.current || "?")) return;
             search.current = next; // for a second change before the next render
             navigate({ search: next }, { replace: true, state: QUIET });

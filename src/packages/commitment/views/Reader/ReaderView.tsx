@@ -75,6 +75,8 @@ export default function ReaderView() {
 
     const [tocOpen, setTocOpen] = useState(false);
     const [current, setCurrent] = useState<number | null>(null);
+    // where the last link went (the reading replaces a passage in `focus`, see below)
+    const [linked, setLinked] = useState<string | null>(null);
     const [notFound, setNotFound] = useState<string | null>(null);
 
     // scroll targets, registered by ref callbacks (no document queries: OneStop4All uses a shadow root);
@@ -105,6 +107,7 @@ export default function ReaderView() {
                         ? target
                         : (target.split("-")[0] ?? target);
                 const el = anchors.current.get(id);
+                setLinked(target);
                 if (!el) {
                     // the rest of the URL (e.g. a statement panel) still opens
                     setNotFound(target);
@@ -138,9 +141,11 @@ export default function ReaderView() {
     const open = useCallback((id: string) => setQuery({ focus: id, statement: null }), [setQuery]);
     const close = useCallback(() => setQuery(CLOSED), [setQuery]);
     const openStatement = (n: number) => setQuery({ statement: String(n), focus: null });
+    // an open annotation, not a passage (which the reading changes)
+    const focusId = focus && content.annotations[focus] ? focus : null;
     const reader: ReaderState = useMemo(
-        () => ({ lens, openId, focusId: focus, open, close, anchor }),
-        [lens, openId, focus, open, close, anchor]
+        () => ({ lens, openId, focusId, open, close, anchor }),
+        [lens, openId, focusId, open, close, anchor]
     );
 
     // the preamble is open when the URL says so, or while a link points into it (the reveal adds
@@ -169,11 +174,17 @@ export default function ReaderView() {
     // current statement for the contents menu and the text: the one at the line where a link puts
     // a statement (its scroll-margin-top, below the header and the lens bar), so that the entry
     // just chosen is the current one at any window height. At the end of the page, where the last
-    // statements can't reach that line, it is the chosen one (a link's target, or the statement of
-    // an annotation) if in view, else the last one in view
+    // statements can't reach that line, it is the chosen one (what is open, or where the last link
+    // went) if in view, else the last one in view.
+    // The URL follows the reading, as `?step=` on a topic page: when scrolling makes another statement
+    // current, it replaces a passage in `focus` (above statement 1: none). What is open stays (an
+    // annotation in `focus`, a statement panel). Only scrolling counts, not the scroll of a link.
+    const chosenId = statementN ? `c${statementN}` : (focusId ?? linked);
     const chosen =
-        target && (statementOf(target) ?? statementOf(content.annotations[target]?.target ?? ""));
+        chosenId &&
+        (statementOf(chosenId) ?? statementOf(content.annotations[chosenId]?.target ?? ""));
     const chosenN = chosen ? chosen.n : null;
+    const scrolledFrom = useRef<{ y: number; n: number | null } | null>(null);
     useScrollFrame(
         useCallback(() => {
             const els = content.statements.flatMap((s) => anchors.current.get(`c${s.n}`) ?? []);
@@ -193,7 +204,16 @@ export default function ReaderView() {
                 n = (inView.find((s) => s.n === chosenN) ?? inView.pop())?.n;
             }
             setCurrent(n ?? null);
-        }, [chosenN]),
+            const from = scrolledFrom.current;
+            scrolledFrom.current = ready ? { y: page.scrollTop, n: n ?? null } : null;
+            if (!from || from.y === page.scrollTop || from.n === (n ?? null)) return;
+            setQuery((latest) => {
+                const f = latest.get("focus");
+                return latest.get("statement") || (f && content.annotations[f])
+                    ? null
+                    : { focus: n === undefined ? null : `c${n}` };
+            });
+        }, [chosenN, ready, setQuery]),
         // the line moves with the lens bar's height
         lensH
     );
