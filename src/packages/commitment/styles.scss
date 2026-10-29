@@ -967,7 +967,7 @@
         border: 1px solid var(--gray-200);
         border-left: 4px solid var(--border);
         padding: 20px 22px;
-        margin-bottom: 14vh;
+        margin-bottom: 7vh;
         transition:
             border-color 0.3s,
             box-shadow 0.3s,
@@ -1264,7 +1264,7 @@
             display: none;
         }
         .step {
-            margin-bottom: 10vh;
+            margin-bottom: 5vh;
         }
         .dd-layout {
             grid-template-columns: 1fr;
