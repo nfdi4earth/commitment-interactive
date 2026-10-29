@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import {
     ExternalLink,
     scrollIntoViewThen,
+    TabTitle,
     useAppPath,
     useQueryState,
     useReveal,
@@ -254,6 +255,7 @@ export default function ReaderView() {
     return (
         <ReaderContext.Provider value={reader}>
             <PageContainer>
+                <TabTitle />
                 <BackLink to={COMMITMENT_SITE} label={intl.formatMessage({ id: "reader.back" })} />
                 <h1 className="page-title">
                     {intl.formatMessage({ id: "title" })}{" "}

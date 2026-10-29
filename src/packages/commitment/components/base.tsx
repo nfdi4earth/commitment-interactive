@@ -212,13 +212,30 @@ export function Scoped({ children }: { children: ReactNode }) {
     return <div className="commitment-view">{children}</div>;
 }
 
+/**
+ * The browser tab's title (WCAG 2.4.2). React puts it into the document's head, also from inside
+ * the host's shadow root, ahead of the host's own title, and takes it out when the page closes.
+ */
+export function TabTitle({ page }: { page?: string }) {
+    const intl = useIntl();
+    const app = intl.formatMessage(
+        { id: "tab-title.home" },
+        { title: intl.formatMessage({ id: "title" }) }
+    );
+    return (
+        <title>{page ? intl.formatMessage({ id: "tab-title.page" }, { page, app }) : app}</title>
+    );
+}
+
 /** Shown instead of a page that failed, so that the rest of the host page keeps working. */
 export function ErrorView() {
     const intl = useIntl();
+    const title = intl.formatMessage({ id: "error.title" });
     return (
         <div className="commitment-view">
+            <TabTitle page={title} />
             <div className="error-view" role="alert">
-                <h1 className="page-title">{intl.formatMessage({ id: "error.title" })}</h1>
+                <h1 className="page-title">{title}</h1>
                 <p>{intl.formatMessage({ id: "error.text" })}</p>
                 <button
                     type="button"

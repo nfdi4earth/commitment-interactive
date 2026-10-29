@@ -51,6 +51,8 @@ test("at the top of a topic page in a tall window, the first step is active", as
     await page.setViewportSize({ width: 1280, height: 1800 });
     await page.goto(app("/topics/teaching?step=2"));
     await expect(page.locator(".step.active .step-n")).toContainText("Step 2 of");
+    // the link has scrolled to its step
+    await expect.poll(() => scrollY(page)).toBeGreaterThan(0);
     await page.mouse.wheel(0, -3000);
     await expect.poll(() => query(page)).toEqual({});
     await expect(page.locator(".step.active .step-n")).toContainText("Step 1 of");
@@ -109,10 +111,21 @@ test("a deep-dive page links its phrases into the reader", async ({ page }) => {
     await expect(page.locator(".popover h4, .note b").first()).toContainText("Data laws and acts");
 });
 
-test("the overview map links nodes to the reader", async ({ page }) => {
+test("the overview map fits the narrowest screen it is shown on, and links nodes to the reader", async ({
+    page
+}) => {
     test.skip(isMobile(page), "the map needs a wide screen");
+    await page.setViewportSize({ width: 1000, height: 900 });
     await page.goto(app("/map"));
     await expect(page.locator(".mnode")).toHaveCount(29);
+    const cut = () =>
+        page.locator(".react-flow").evaluate((flow) => {
+            const box = flow.getBoundingClientRect();
+            return [...flow.querySelectorAll(".mnode")]
+                .map((n) => n.getBoundingClientRect())
+                .filter((r) => r.left < box.left || r.right > box.right).length;
+        });
+    await expect.poll(cut).toBe(0);
     await page.locator(".mnode", { hasText: "8 ·" }).click();
     await expect.poll(() => query(page)).toEqual({ focus: "c8" });
 });
@@ -139,20 +152,33 @@ test("on a small screen, the overview map page leads to the index pages", async 
     await expect(page).toHaveURL(/\/commitment\/topics$/);
 });
 
-// meaningful against a static host (E2E_BASE_URL, ci/build-site.sh); `vite preview` answers 200 always
-test("every page answers with status 200, also when opened directly", async ({ page }) => {
-    test.skip(isMobile(page), "the status does not depend on the viewport");
-    for (const path of [
-        "",
-        "/for",
-        "/for/student",
-        "/topics/publishing",
-        "/deep-dive/licensing",
-        "/map"
+// the status is meaningful against a static host (E2E_BASE_URL, ci/build-site.sh); `vite preview`
+// answers 200 always
+test("every page answers with status 200, also when opened directly, and names itself in the tab", async ({
+    page
+}) => {
+    test.skip(isMobile(page), "status and title do not depend on the viewport");
+    const appName = "Annotated FAIRness and Openness Commitment – NFDI4Earth";
+    for (const [path, name] of [
+        ["", ""],
+        ["/for", "Explore by perspective"],
+        ["/for/student", "The Commitment for Students"],
+        ["/topics/publishing", "Publishing"],
+        ["/deep-dive/licensing", "Licensing data and software"],
+        ["/map", "Overview map"]
     ]) {
         const response = await page.goto(app(path));
         expect(response?.status(), path).toBe(200);
+        await expect(page).toHaveTitle(name ? `${name} – ${appName}` : appName);
     }
+    // a link within the app changes it too, also between two pages of the same kind
+    await page.locator(".backto").click();
+    await expect(page).toHaveTitle(appName);
+    await page.goto(app("/topics/publishing"));
+    const other = page.locator(".topic-others a").first();
+    const label = (await other.textContent())?.trim();
+    await other.click();
+    await expect(page).toHaveTitle(`${label} – ${appName}`);
 });
 
 test("unknown paths lead back", async ({ page }) => {

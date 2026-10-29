@@ -7,6 +7,9 @@ messages:
   mock-badge: "Mock-up · Beispielinhalt"
   example-badge: "Beispielinhalt"
   mock-short: "Mock-up"
+  tab-title:
+    home: "{title} – NFDI4Earth"
+    page: "{page} – {app}"
   back: "Zurück"
   error:
     title: "Etwas ist schiefgelaufen"

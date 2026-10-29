@@ -10,4 +10,4 @@ Placeholder deep dive – coming soon.
 
 ## Coming soon
 
-This deep dive is a placeholder in the mock-up.
+This deep dive has not been written yet.

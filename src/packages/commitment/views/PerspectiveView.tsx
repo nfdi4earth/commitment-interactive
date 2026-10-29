@@ -32,15 +32,20 @@ export default function PerspectiveView() {
         { done: count, total: numbers.length }
     );
 
+    const heading = intl.formatMessage({ id: "perspective.title" }, { plural: role.plural });
+
     return (
-        <Page back={{ to: "/for", label: intl.formatMessage({ id: "back-to.perspectives" }) }}>
+        <Page
+            back={{ to: "/for", label: intl.formatMessage({ id: "back-to.perspectives" }) }}
+            name={heading}
+        >
             <div className="role-hero" style={colourVars(role.colour)}>
                 <div className="role-icon">
                     <Icon name={role.icon} />
                 </div>
                 <div>
                     <h1>
-                        {intl.formatMessage({ id: "perspective.title" }, { plural: role.plural })}{" "}
+                        {heading}{" "}
                         <span className="mock-badge">
                             {intl.formatMessage({ id: "example-badge" })}
                         </span>

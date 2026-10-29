@@ -117,20 +117,25 @@ export default function TopicView() {
     // all lit steps are about one statement
     const litN = steps[lit[0] ?? active]?.n;
 
-    // small screens: the condensed Commitment is a short scroll box; keep the active statement in
-    // view (not a pointed one, which would move the list under the mouse)
-    const activeN = steps[active]?.n;
+    // the condensed Commitment is a scroll box (most windows are too short for it); keep the lit
+    // statement in view. Only when it is out of view: a statement the mouse points at is in view,
+    // and the list must not move under the mouse.
     useEffect(() => {
         const box = sticky.current;
-        const el = activeN === undefined ? undefined : condEls.current.get(activeN);
-        if (box && el && box.scrollHeight > box.clientHeight)
+        const el = litN === undefined ? undefined : condEls.current.get(litN);
+        if (!box || !el) return;
+        const top = el.offsetTop - box.scrollTop;
+        if (top < 0 || top + el.offsetHeight > box.clientHeight)
             box.scrollTo({ top: el.offsetTop - 40, behavior: scrollBehavior() });
-    }, [activeN]);
+    }, [litN]);
 
     if (!topic) return <Navigate to={appPath("/topics")} replace />;
 
     return (
-        <Page back={{ to: "/topics", label: intl.formatMessage({ id: "back-to.topics" }) }}>
+        <Page
+            back={{ to: "/topics", label: intl.formatMessage({ id: "back-to.topics" }) }}
+            name={topic.label}
+        >
             <div className="topic-hero" style={colourVars(topic.colour)}>
                 <h1>
                     <Icon name={topic.icon} />
@@ -152,7 +157,7 @@ export default function TopicView() {
                 </p>
             </div>
             <div className="scrolly" style={colourVars(topic.colour)}>
-                <div className="scrolly-sticky" ref={sticky} aria-hidden="true">
+                <div className="scrolly-sticky" ref={sticky} aria-hidden="true" tabIndex={-1}>
                     <h4>
                         {intl.formatMessage({ id: "topic.commitment" })}
                         <span className="step-dots">

@@ -23,13 +23,18 @@ type LabelNode = Node<{ label: string }, "label">;
 
 const H = 32;
 // the map never zooms out so far that a node is less than 24px high (WCAG 2.5.8); what does not
-// fit, the reader pans to
+// fit in height, the reader pans to
 const MIN_ZOOM = 24 / H;
 const PRIMARY = "#05668D";
 
 // Mouse and click go through ReactFlow's node handlers; keyboard focus comes from the node's button.
 const Hover = createContext<(id: string | null) => void>(() => {});
-const COLUMNS = { left: { x: 30, w: 210 }, middle: { x: 440, w: 230 }, right: { x: 870, w: 200 } };
+// At the smallest zoom, the map's width fits the narrowest screen it is shown on (1000px; tested in
+// pages.e2e.ts): keep the columns and the gaps between them narrow.
+const GAP = 150;
+const LEFT = { x: 30, w: 210 };
+const MIDDLE = { x: LEFT.x + LEFT.w + GAP, w: 230 };
+const COLUMNS = { left: LEFT, middle: MIDDLE, right: { x: MIDDLE.x + MIDDLE.w + GAP, w: 200 } };
 
 function ItemNode({ id, data }: NodeProps<MapNode>) {
     const setHovered = useContext(Hover);

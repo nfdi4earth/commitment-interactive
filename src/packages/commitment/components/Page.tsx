@@ -2,7 +2,7 @@ import { Container } from "@chakra-ui/react";
 import { useIntl } from "open-pioneer:react-hooks";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { ExternalLink, useAppPath } from "./base";
+import { ExternalLink, TabTitle, useAppPath } from "./base";
 
 function BackIcon() {
     return (
@@ -40,13 +40,20 @@ export function BackLink({ to, label }: { to: string; label: string }) {
     );
 }
 
-interface PageProps {
+type PageProps = {
     back: { to: string; label: string };
-    /** Page title; omit when the page has its own hero. */
-    title?: ReactNode;
     badge?: string;
     children: ReactNode;
-}
+} & (
+    | {
+          /** Page title. */
+          title: string;
+          /** The page's name in the tab title; by default the page title. */
+          name?: string;
+      }
+    // a page with its own hero has no title, but needs a name for the tab title
+    | { title?: undefined; name: string }
+);
 
 /** The OneStop4All page container. */
 export function PageContainer({ children }: { children: ReactNode }) {
@@ -54,9 +61,10 @@ export function PageContainer({ children }: { children: ReactNode }) {
 }
 
 /** Content page in the OneStop4All container. */
-export function Page({ back, title, badge, children }: PageProps) {
+export function Page({ back, title, name, badge, children }: PageProps) {
     return (
         <PageContainer>
+            <TabTitle page={name ?? title} />
             <BackLink to={back.to} label={back.label} />
             {title && (
                 <h1 className="page-title">

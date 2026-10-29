@@ -913,6 +913,9 @@
         position: sticky;
         top: calc(var(--sticky-top) + 20px);
         align-self: start;
+        // the 12 statements are taller than most windows: scroll them, the active one stays in view
+        max-height: calc(100dvh - var(--sticky-top) - 40px);
+        overflow-y: auto;
         background: var(--text-bg);
         padding: 16px;
         h4 {
@@ -1258,7 +1261,6 @@
             top: calc(var(--sticky-top) + 10px);
             z-index: 5;
             max-height: 34vh;
-            overflow-y: auto;
         }
         .cond.irrel {
             display: none;

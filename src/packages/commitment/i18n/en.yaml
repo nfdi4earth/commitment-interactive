@@ -4,6 +4,9 @@ messages:
   mock-badge: "Mock-up · example content"
   example-badge: "example content"
   mock-short: "Mock-up"
+  tab-title:
+    home: "{title} – NFDI4Earth"
+    page: "{page} – {app}"
   back: "Back"
   error:
     title: "Something went wrong"
