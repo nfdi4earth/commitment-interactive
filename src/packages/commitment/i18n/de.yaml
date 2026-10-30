@@ -1,9 +1,9 @@
 # German UI strings, needed because OneStop4All runs in English and German (Pioneer requires every
 # package to support all locales of the app). The content in content/ is English only.
-# Translated by Claude; please review.
+# Translated by Claude; reviewed and edited by Daniel Nüst (2026-10-30).
 messages:
-  title: "Annotiertes FAIRness and Openness Commitment"
-  tagline: "Entdecken Sie das Commitment aus verschiedenen Perspektiven und lassen Sie sich inspirieren, es in Ihrer eigenen Arbeit umzusetzen."
+  title: "Annotiertes NFDI4Earth FAIRness and Openness Commitment"
+  tagline: "Entdecken Sie das NFDI4Earth Commitment aus verschiedenen Perspektiven und lassen Sie sich inspirieren, es in Ihrer eigenen Arbeit umzusetzen."
   mock-badge: "Mock-up · Beispielinhalt"
   example-badge: "Beispielinhalt"
   mock-short: "Mock-up"
@@ -43,7 +43,7 @@ messages:
     topic: "Thema"
     concept: "Konzept"
     hint: "Wählen Sie Abzeichen, um die relevanten Teile hervorzuheben. Kombinieren Sie je eines pro Zeile, um einzugrenzen."
-    count: "<b>{hits}</b> von {total} Aussagen relevant für <b>{names}</b>"
+    count: "<b>{hits}</b> von {total} Statements relevant für <b>{names}</b>"
     clear: "✕ Alle zurücksetzen"
     passages: "{n, plural, one {# Stelle} other {# Stellen}}"
 
@@ -53,8 +53,8 @@ messages:
     deepdive: "Vertiefung"
     hover: "(darüberfahren)"
     click: "(klicken)"
-    statement: "Klicken Sie auf die Nummer einer Aussage, um alle Perspektiven auf einmal zu sehen"
-    statement-aria: "Beispiel: Aussage 1 mit allen Perspektiven öffnen"
+    statement: "Klicken Sie auf die Nummer eines Statements, um alle Perspektiven auf einmal zu sehen"
+    statement-aria: "Beispiel: Statement 1 mit allen Perspektiven öffnen"
 
   contents:
     title: "Inhalt"
@@ -62,8 +62,8 @@ messages:
     toggle: "Inhalt"
 
   statement:
-    aria: "Aussage {n}: was sie für verschiedene Perspektiven bedeutet"
-    n: "Aussage {n}"
+    aria: "Statement {n}: was es für verschiedene Perspektiven bedeutet"
+    n: "Statement {n}"
 
   annotation:
     aria: "{quote} – {depth, select, note {Notiz} explainer {Erklärung} other {Vertiefung}}: {title}"
@@ -73,9 +73,9 @@ messages:
 
   panel:
     close: "Schließen"
-    deepdive-kicker: "Vertiefung{where, select, statement { · Aussage {n}} heading { · Überschrift des Commitments} other {}}"
-    statement-kicker: "Aussage {n} · {box}"
-    related: "Verwandte Aussagen"
+    deepdive-kicker: "Vertiefung{where, select, statement { · Statement {n}} heading { · Überschrift des Commitments} other {}}"
+    statement-kicker: "Statement {n} · {box}"
+    related: "Verwandte Statements"
     open-deepdive: "Ganze Vertiefung öffnen →"
     means-for: "Was das bedeutet für…"
     more-for: "Mehr für {plural} →"
@@ -83,7 +83,7 @@ messages:
 
   copy:
     link: "Link kopieren"
-    statement: "Link zur Aussage kopieren"
+    statement: "Link zum Statement kopieren"
     done: "Link kopiert"
 
   tags:
@@ -95,7 +95,7 @@ messages:
   figure:
     licence:
       alt: "Lizenzspektrum von „alle Rechte vorbehalten“ bis CC0"
-      caption: "Abbildung (Platzhalter): das Lizenzspektrum. Aussage 8 fordert Lizenzen am offenen Ende."
+      caption: "Abbildung (Platzhalter): das Lizenzspektrum. Statement 8 fordert Lizenzen am offenen Ende."
     openness:
       alt: "Spektrum der Offenheit"
       caption: "Abbildung (Platzhalter): Offenheit ist ein Spektrum, kein Schalter."
@@ -113,7 +113,7 @@ messages:
     concept:
       title: "Nach Konzept entdecken"
       sub: "Folgen Sie einer übergreifenden Idee durch das ganze Commitment."
-    statements: "{n, plural, one {# Aussage} other {# Aussagen}}"
+    statements: "{n, plural, one {# Statement} other {# Statements}}"
     known-from: "Kennen Sie aus: {what}"
     deepdive: "Vertiefung verfügbar"
     highlight: "Im Text hervorheben"
@@ -126,13 +126,13 @@ messages:
     read-as: "Das ganze Commitment lesen als {label}"
 
   topic:
-    intro: "Kennen Sie aus: <i>{what}</i>. <b>{n} von {total}</b> Aussagen sind relevant – {steps, plural, one {# Schritt} other {# Schritte}} unten. <b>Nach unten scrollen ↓</b>"
+    intro: "Kennen Sie aus: <i>{what}</i>. <b>{n} von {total}</b> Statements sind relevant – {steps, plural, one {# Schritt} other {# Schritte}} unten. <b>Nach unten scrollen ↓</b>"
     commitment: "Das Commitment"
-    step: "Schritt {i} von {total} · Aussage {n}"
+    step: "Schritt {i} von {total} · Statement {n}"
     in-context: "Im Zusammenhang lesen →"
     next: "↓ Weiter: {title}"
     others: "Andere Themen"
-    placeholder-step: "[Beispielinhalt] Bei {topic} könnte Aussage {n} heißen: eine konkrete, vertraute Aufgabe, die „{short}“ mit dem verbindet, was Sie schon tun."
+    placeholder-step: "[Beispielinhalt] Bei {topic} könnte Statement {n} heißen: eine konkrete, vertraute Aufgabe, die „{short}“ mit dem verbindet, was Sie schon tun."
 
   deepdive:
     badge: "Vertiefung · Beispielinhalt"
@@ -144,8 +144,8 @@ messages:
   map:
     title: "Übersichtskarte"
     small: "Die Übersichtskarte braucht einen Bildschirm, der mindestens 1000 Pixel breit ist. Beginnen Sie auf diesem Bildschirm mit den <for>Perspektiven</for>, <topics>Themen</topics> oder <concepts>Konzepten</concepts>."
-    help: "Perspektiven und Themen (links) sind mit Aussagen (Mitte) und Konzepten (rechts) verbunden. Fahren Sie über einen Knoten oder tippen Sie darauf, um seine Verbindungen zu sehen, und klicken Sie erneut, um ihn zu öffnen. Scrollen zum Zoomen, Ziehen zum Verschieben."
+    help: "Perspektiven und Themen (links) sind mit Statements (Mitte) und Konzepten (rechts) verbunden. Fahren Sie über einen Knoten oder tippen Sie darauf, um seine Verbindungen zu sehen, und klicken Sie erneut, um ihn zu öffnen. Scrollen zum Zoomen, Ziehen zum Verschieben."
     roles: "Perspektiven"
     topics: "Themen"
-    statements: "Aussagen"
+    statements: "Statements"
     concepts: "Konzepte"
