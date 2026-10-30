@@ -38,6 +38,25 @@ test("a note that the pointer only crosses stays closed", async ({ page }) => {
     await expect(page.locator(".note")).toHaveCount(0);
 });
 
+test("a note that the page scrolls under a resting pointer stays closed", async ({ page }) => {
+    test.skip(isMobile(page), "hovering needs a mouse");
+    // as when a link scrolls the reader to its target
+    const note = page.locator('.anno.d-note[aria-label^="educational networks"]');
+    const at = await note.evaluate((e) => {
+        const r = e.getBoundingClientRect();
+        return { x: r.x + r.width / 2, y: r.y + r.height / 2 + window.scrollY };
+    });
+    await page.mouse.move(at.x, 450);
+    await page.evaluate((y) => window.scrollTo({ top: y - 450, behavior: "smooth" }), at.y);
+    await expect.poll(() => note.evaluate((e) => e.matches(":hover"))).toBe(true);
+    // well beyond the note's open delay (100 ms)
+    await page.waitForTimeout(500);
+    await expect(page.locator(".note")).toHaveCount(0);
+    // a move on it opens it
+    await page.mouse.move(at.x + 2, 450);
+    await expect(page.locator(".note")).toBeVisible();
+});
+
 test("a note opens on hover without changing the URL, and on click with it", async ({ page }) => {
     const note = page.locator(".anno.d-note").first();
     if (!isMobile(page)) {
