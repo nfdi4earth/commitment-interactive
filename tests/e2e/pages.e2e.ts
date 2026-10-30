@@ -49,10 +49,16 @@ test("a topic page follows the scroll position and keeps the step in the URL", a
 
 test("at the top of a topic page in a tall window, the first step is active", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 1800 });
+    // a link to step 2 keeps its step, although the window is too tall to scroll it to the middle
     await page.goto(app("/topics/teaching?step=2"));
     await expect(page.locator(".step.active .step-n")).toContainText("Step 2 of");
-    // the link has scrolled to its step
-    await expect.poll(() => scrollY(page)).toBeGreaterThan(0);
+    await expect(page.locator(".step").nth(1)).toBeInViewport();
+    await page.goto(app("/topics/teaching"));
+    await expect(page.locator(".step.active")).toHaveCount(1);
+    // a little scrolling makes step 2 active: its top is above the middle already
+    await page.mouse.move(640, 900);
+    await page.mouse.wheel(0, 200);
+    await expect.poll(() => query(page)).toEqual({ step: "2" });
     await page.mouse.wheel(0, -3000);
     await expect.poll(() => query(page)).toEqual({});
     await expect(page.locator(".step.active .step-n")).toContainText("Step 1 of");

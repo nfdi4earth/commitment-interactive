@@ -10,8 +10,16 @@ const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
 /** The rule violations on the page, one line per element, e.g. "color-contrast: .chip …". */
 async function violations(page: Page): Promise<string[]> {
+    // the host's element with the shadow root: `commitment-app` here, `onestop4all-app` in OS4A
+    const host = await page.evaluate(
+        () =>
+            [...document.querySelectorAll("*")].find((e) =>
+                e.shadowRoot?.querySelector(".commitment-view")
+            )?.localName
+    );
+    if (!host) throw new Error("no host element with the app's shadow root");
     const { violations } = await new AxeBuilder({ page })
-        .include({ fromShadowDom: ["commitment-app", ".commitment-view"] })
+        .include({ fromShadowDom: [host, ".commitment-view"] })
         .withTags(TAGS)
         .analyze();
     return violations.flatMap((v) =>

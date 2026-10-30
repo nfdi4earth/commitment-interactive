@@ -2,7 +2,7 @@
 
 The package `src/packages/commitment/` is a self-contained part of the app, including its texts (`content/`), styles, English and German UI strings, and tests. This repository runs it in a thin copy of the OneStop4All (OS4A) shell. This page describes how to add it to OS4A as a page under `/commitment`, like `/label`.
 
-**Tested** on 2026-10-27 in a fresh copy of OS4A at commit `b39aaff` (v1.11.2), following the steps below: `pnpm install` (no unexpected duplicates), `pnpm check-types`, `pnpm build` and the package's tests passed; `pnpm lint` showed one warning in OS4A's own code. This repository's browser tests (`E2E_BASE_URL=http://localhost:4180/ pnpm exec playwright test` against OS4A's `vite preview`, with OS4A's chatbot button shown) passed: 49 passed, 1 skipped (2026-10-27). The chatbot button and the reader's "Contents" button no longer overlap at widths from 320 to 999px.
+**Tested** on 2026-10-30 in a fresh copy of OS4A at commit `b39aaff` (v1.11.2, still OS4A's `main` that day), following the steps below: `pnpm install` (no unexpected duplicates), `pnpm check-types`, `pnpm build` and the package's 20 unit tests passed; `pnpm lint` showed one warning in OS4A's own code. This repository's browser tests (`E2E_BASE_URL=http://localhost:4180/ pnpm exec playwright test` against OS4A's `vite preview`, with OS4A's chatbot button shown) passed: 102 passed, 10 skipped. The test found one bug that the standalone app did not show: a link that scrolled the reader to a passage opened the note that ended up under the resting mouse. It is fixed (notes open only on a moving mouse, `AnnotationButton.tsx`). The chatbot button and the reader's "Contents" button do not overlap at widths from 320 to 999px (2026-10-27).
 
 ## Steps
 
@@ -78,6 +78,8 @@ The package `src/packages/commitment/` is a self-contained part of the app, incl
    src/packages/commitment/model/content.generated.json
    ```
 
+   OS4A's Prettier script (`prettier:common` in `package.json`) reads its ignore list from `.eslintignore` (`--ignore-path .eslintignore`), which OS4A does not have, so it ignores `.prettierignore`. Drop that option so the list above takes effect; adding the lines to `.eslintignore` instead makes ESLint 9 warn that the file is no longer used. Without either, `pnpm prettier-check` fails on the content. It already fails on 12 of OS4A's own files at `b39aaff`. This is for OS4A to decide.
+
    The app loads the generated file (`model/content.generated.json`), so OS4A needs no build step for the content. It is updated in this repository and copied with the package.
 
 9. **Link the page**, e.g. in the menu (`components/BaseMenu/BaseMenu.tsx`) next to the Label, with strings in OS4A's `i18n/en.yaml` and `de.yaml`. For the sitemap, add a `handle: { sitemap: … }` to the route as for `/label`.
@@ -87,7 +89,7 @@ Nothing else is needed: the package uses OS4A's theme as it is, sets its colours
 ## Things to decide before going live
 
 - **Buttons at the bottom of small screens:** OS4A's chatbot button sits at the bottom right and the reader's "Contents" button at the bottom left (icon only below 400px width). If OS4A changes its button (wider, or on the left), check `/commitment` at 320 to 420px width; if they collide, set `chatbot: false` in `routes.tsx` (step 6) until the layout is fixed.
-- **Tab titles:** every page of the package sets the browser tab's title, e.g. "Proposal writing – Annotated FAIRness and Openness Commitment – NFDI4Earth" (`TabTitle` in `components/base.tsx`, WCAG 2.4.2). React 19 puts the `<title>` into the document's head, also from inside OS4A's shadow root, the same way as OS4A's own canonical link; the page needs no host change. OS4A's other pages keep its static "NFDI4Earth - OneStop4All". If OS4A wants its name in the title, change the `tab-title` strings in `i18n/en.yaml` and `de.yaml`. Not yet tested in OS4A.
+- **Tab titles:** every page of the package sets the browser tab's title, e.g. "Proposal writing – Annotated FAIRness and Openness Commitment – NFDI4Earth" (`TabTitle` in `components/base.tsx`, WCAG 2.4.2). React 19 puts the `<title>` into the document's head, also from inside OS4A's shadow root, the same way as OS4A's own canonical link; the page needs no host change. OS4A's other pages keep its static "NFDI4Earth - OneStop4All". If OS4A wants its name in the title, change the `tab-title` strings in `i18n/en.yaml` and `de.yaml`. Tested in OS4A on 2026-10-30.
 - **German:** OS4A declares English and German, and Pioneer requires every package to support both, so the package has `i18n/de.yaml` (UI strings only; reviewed by Daniel Nüst on 2026-10-30). OS4A currently forces English in `src/index.html`. The texts in `content/` are English only.
 - **Example content:** all annotations, perspective notes, topic steps and deep dives are fake (see `README.md`), and the pages say so. Replace them before the page is announced.
 - **Where content is edited after the move:** either keep editing here and copy the package again (step 1), or move the editing to OS4A. Keep one place.
