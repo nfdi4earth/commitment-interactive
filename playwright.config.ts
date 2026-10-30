@@ -20,6 +20,10 @@ export default defineConfig({
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 1 : 0,
     reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
+    // A deployed site loads each page's code over the network, and GitHub Pages sometimes takes
+    // more than the default 5 s for it right after a deploy (2026-10-29: three tests found no page
+    // yet and passed on retry). It applies to every `expect`: Playwright can't set the first alone.
+    expect: { timeout: external ? 15_000 : 5_000 },
     use: {
         baseURL: external || local,
         trace: "retain-on-failure"
